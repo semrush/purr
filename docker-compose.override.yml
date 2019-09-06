@@ -1,0 +1,60 @@
+version: '2.4'
+
+services:
+  cli:
+    command:
+      - bash
+      - -c
+      - ':
+        && set -x
+        && echo Installing node modules
+        && npm i
+        && echo Container is READY
+        && sleep infinity
+        '
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./:/app
+      - node_home:/home/node
+
+  worker:
+    command:
+      - bash
+      - -c
+      - ':
+        && set -x
+        && echo Installing node modules
+        && npm i
+        && npx nodemon --ignore ./storage ./src/cli.js worker check
+        '
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./:/app
+      - node_home:/home/node
+
+  server:
+    command:
+      - bash
+      - -c
+      - ':
+        && set -x
+        && echo Installing node modules
+        && npm i
+        && npx nodemon --ignore ./storage ./src/cli.js server start
+        '
+    environment:
+      NODE_ENV: development
+      # DEBUG: http,express:*
+    volumes:
+      - ./:/app
+      - node_home:/home/node
+
+  storage:
+    volumes:
+      # TODO: fix permission if ./storage not exists
+      - ./storage:/usr/share/nginx/html/storage
+
+volumes:
+  node_home:

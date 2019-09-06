@@ -1,0 +1,14 @@
+# docker
+Dockerfile
+.dockerignore
+.env
+
+# git
+.git*
+
+# node
+/public/
+/node_modules/
+
+# app
+/storage/

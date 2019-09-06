@@ -1,0 +1,16 @@
+# Format:
+#   PARAM_NAME:
+#     desc: Some description
+#     validate(optional): Name of validator function defined at validators.js
+#     default: Default value
+#     protected(false by default): Show value in logs
+
+SOME_PARAMETER:
+  desc: Some parametrized value
+  # validate: isSchemaAllowed
+  default: SomeValue
+
+SOME_COMPLEX_PARAMETER:
+  desc: Some complex parametrized value
+  # validate: isSchemaAllowed
+  default: some.complex.value.to.make.some.actions.with.it

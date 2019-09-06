@@ -1,0 +1,2 @@
+# Eslint doesn't work well with symlinks
+/src/cli.js

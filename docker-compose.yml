@@ -1,0 +1,56 @@
+version: '2.4'
+
+services:
+  cli:
+    image: ${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
+    restart: 'no'
+    tty: true # Colorize logs
+    env_file:
+      - ./.env
+    command:
+      - sleep
+      - infinity
+
+  worker:
+    depends_on:
+      - redis
+    image: ${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
+    stop_grace_period: 2m
+    restart: always
+    tty: true # Colorize logs
+    env_file:
+      - ./.env
+    command:
+      - ./src/cli.js
+      - worker
+      - check
+
+  server:
+    depends_on:
+      - redis
+    image: ${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
+    restart: always
+    tty: true # Colorize logs
+    env_file:
+      - ./.env
+    command:
+      - ./src/cli.js
+      - server
+      - start
+    labels:
+      traefik.enable: 'true'
+      traefik.frontend.rule: 'Host:purr.traefik.lcl'
+
+  storage:
+    image: ${NGINX_IMAGE_NAME}:${APP_IMAGE_VERSION}
+    restart: always
+    tty: true # Colorize logs
+    env_file:
+      - ./.env
+    labels:
+      traefik.enable: 'true'
+      traefik.frontend.rule: 'Host:purr.traefik.lcl;PathPrefix:/storage'
+
+  redis:
+    image: redis
+    restart: always

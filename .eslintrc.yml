@@ -1,0 +1,26 @@
+plugins:
+  - prettier
+
+extends:
+  - airbnb-base
+  - prettier
+
+rules:
+  prettier/prettier: error
+
+overrides:
+  - files:
+      - '*.test.js'
+    rules:
+      global-require: 0
+      no-new: 0
+  - files:
+      - '**/__mocks__/*.js'
+    rules:
+      class-methods-use-this: 0
+      no-empty-function: 0
+
+env:
+  browser: true
+  node: true
+  jest: true

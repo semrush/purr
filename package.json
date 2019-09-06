@@ -1,0 +1,44 @@
+{
+  "name": "@semrush/purr",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest --detectOpenHandles --coverage",
+    "test:watch": "jest --detectOpenHandles --watch --coverage=false",
+    "test:watch-all": "jest --detectOpenHandles --watchAll",
+    "lint": "eslint --max-warnings 0 --ext .js,.jsx src",
+    "lint:fix": "npm run lint -- --fix",
+    "pre-commit": "npm run lint && npm run test -- --silent --verbose false"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "engines": {
+    "node": ">=11"
+  },
+  "devDependencies": {
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-prettier": "^4.1.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-prettier": "^3.0.1",
+    "jest": "^24.5.0",
+    "nodemon": "^1.18.10",
+    "prettier": "^1.16.4"
+  },
+  "dependencies": {
+    "@sentry/node": "^5.1.2",
+    "bull": "^3.7.0",
+    "commander": "^2.19.0",
+    "express": "^4.16.4",
+    "ioredis": "^4.10.0",
+    "js-yaml": "^3.12.2",
+    "morgan": "^1.9.1",
+    "nunjucks": "^3.2.0",
+    "prom-client": "^11.3.0",
+    "puppeteer": "^1.12.2",
+    "serve-favicon": "^2.5.0",
+    "uuid": "^3.3.2"
+  }
+}
