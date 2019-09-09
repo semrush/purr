@@ -143,17 +143,10 @@ class CheckRunner {
       checkReport.tracePath = `${
         config.tracesDir
       }/trace_${name}_${checkId}.json`;
-      await page.tracing
-        .start({
-          path: checkReport.tracePath,
-          screenshots: true,
-        })
-        .then((res) => {
-          console.log('tracing start:', res);
-        })
-        .catch((res) => {
-          console.log('tracing start error:', res);
-        });
+      await page.tracing.start({
+        path: checkReport.tracePath,
+        screenshots: true,
+      });
     }
 
     if (config.consoleLog) {
@@ -265,14 +258,7 @@ class CheckRunner {
       async function saveArtifacts() {
         if (config.traces) {
           try {
-            await page.tracing
-              .stop()
-              .then((res) => {
-                console.log('tracing stop:', res);
-              })
-              .catch((res) => {
-                console.log('tracing stop error:', res);
-              });
+            await page.tracing.stop();
           } catch (err) {
             Sentry.captureException(err);
             log.error('Can not stop puppeteer tracing:', err);
