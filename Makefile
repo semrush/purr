@@ -56,17 +56,17 @@ start: docker-build-app docker-build-nginx
 down-dev:
 	docker-compose \
 		-f ./docker-compose.yml \
-		-f ./docker-compose.override.yml \
+		-f ./docker-compose.dev.yml \
 		down
 
 start-dev: docker-build-app docker-build-nginx
 	docker-compose \
 		-f ./docker-compose.yml \
-		-f ./docker-compose.override.yml \
+		-f ./docker-compose.dev.yml \
 		up
 
 attach-dev:
 	docker-compose \
 		-f ./docker-compose.yml \
-		-f ./docker-compose.override.yml \
+		-f ./docker-compose.dev.yml \
 		exec cli bash

@@ -1,15 +1,6 @@
 version: '2.4'
 
 services:
-  cli:
-    image: ${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
-    restart: 'no'
-    tty: true # Colorize logs
-    env_file:
-      - ./.env
-    command:
-      - sleep
-      - infinity
 
   worker:
     depends_on:

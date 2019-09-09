@@ -1,0 +1,12 @@
+# Format:
+#   PARAM_NAME:
+#     desc: Some description
+#     default: Default value
+
+TARGET_SCHEMA:
+  desc: Target domain schema(http or https)
+  default: https
+
+TARGET_DOMAIN:
+  desc: Target domain
+  default: semrush.com

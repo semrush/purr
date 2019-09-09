@@ -1,12 +1,108 @@
-# Parameters flow
+# Intro
+
+
+PURR (SEMrush puppeteer runner) is a devops-friendly tool for browser testing and monitoring.
+
+The goal of this project is to have single set of browser checks, that could be used as tests, 
+as canaries in CI/CD pipelines and as scenarios for production monitoring.
+
+The tool uses puppeteer (https://pptr.dev/) to run standalone browsers (Chrome and Firefox are supported currently).
+
+Checks results are stored as JSON reports, screenshots and traces. 
+
+PURR has three modes: 
+- CLI (mainly used in CI/CD pipelines)
+- queue worker (scheduled monitoring)
+- REST service (show results and expose internal metrics for prometheus)
+
+# Configuration
+
+### data/checks.yml
+Stores descriptions of every single check
+
+### data/suites.yml
+Organizes checks into suites
+
+### data/parameters.yml
+Specifies check parameters, i.e. target host or cookie values 
+
+### data/schedules.yml
+Define your schedules here
+
+###priority of parameters
 - Defaults from parameters.yml
 - Defaults from check
 - Params from env
 - Explicitly specified params
 
-# TODO: cli parameters from env and cli examples
 
-# API
+
+# CLI (Quick start)
+
+### Build
+```bash
+docker build -f ./docker/Dockerfile . -t puppeteer-runner:latest
+```
+
+### Run single check
+```bash
+docker run -v "${PWD}/storage:/src/app/storage" puppeteer-runner:latest ./src/cli/cli.js check semrush-com
+```
+
+### Run suite
+```bash
+docker run -v "${PWD}/storage:/src/app/storage" puppeteer-runner:latest ./src/cli/cli.js suite semrush-suite
+```
+
+
+### Results
+```bash
+$ tree storage
+storage
+├── console_log
+│   ├── console_semrush-com_0cedaca3-1153-47df-a616-55e21bf54635.log
+│   └── console_semrush-com_ded5990f-7638-48e6-9d0e-77f8dba376fd.log
+├── screenshots
+│   ├── screenshot_semrush-com_0cedaca3-1153-47df-a616-55e21bf54635.png
+│   └── screenshot_semrush-com_ded5990f-7638-48e6-9d0e-77f8dba376fd.png
+└── traces
+    ├── trace_semrush-com_0cedaca3-1153-47df-a616-55e21bf54635.json
+    └── trace_semrush-com_ded5990f-7638-48e6-9d0e-77f8dba376fd.json
+
+```
+
+### Traces
+
+Open trace in [Chrome DevTools Timeline Viewer](https://chromedevtools.github.io/timeline-viewer/).
+ 
+
+
+# Scheduled jobs
+
+
+## Run worker
+
+```bash
+APP_IMAGE_NAME="puppeteer-runner" APP_IMAGE_VERSION="latest" NGINX_IMAGE_NAME="nginx" docker-compose up  
+
+```
+
+## Apply schedules
+
+```bash
+docker-compose exec worker /app/src/cli.js schedule clean
+docker-compose exec worker /app/src/cli.js schedule apply
+```
+
+## Stop schedules
+
+```bash
+docker-compose exec worker /app/src/cli.js schedule clean
+```
+
+
+# REST API
+
 
 ## Endpoints
 
@@ -60,6 +156,7 @@ Get report
   **default**: json
   **options**: json, pretty
   Output format
+
 
 # Development
 - Install ESLint and Jest for IDE
@@ -117,39 +214,3 @@ Methods `mock`\\`unmock` must be executed before module imports and in the
 same scope.
 Mocks state restoring after each test, but only when you did not used
 `jest.mock()`
-
-
-## TODO:
-- [ ] Fix Content-Type of api check\report views
-- [ ] Redis job TTL
-- [ ] Fix silent fail when suite contains non-existent check
-- [ ] Lint suites.yml for non-existent checks
-- [ ] Catch errors for express views
-- [ ] Singleton for prom /metrics
-- [ ] Track non-closed puppeteer browser processes
-- [ ] Add CLI parameter to concurrency and other config options
-- [ ] Group check artifacts by check name, not artifact type
-- [ ] Specify params for jobs in suite
-- [ ] Add cache to gitlab-ci.yml
-- [ ] Add check name to screenshot\trace\log along with hash
-- [ ] CLI help about envvar params(PURR_PARAM_)
-- [ ] Coverage threshold 98%
-- [ ] Test for parameters with skipped `default` field
-- [ ] Test for parameters with skipped fields
-- [ ] Use prettier for yaml files
-- [ ] Add doc
-- [ ] Check viewport params. Are they need? (Use puppeteer.launch option)
-- [ ] CLI silent mode
-- [ ] CLI return valid JSON string
-- [ ] Add params to check report
-- [ ] add parameters validators
-- [ ] add protected parameters
-- [ ] getScenario was deleted and replaced by parseScenario. Check for duplicated tests
-- [ ] restrict usage of parameters without specs in parameters.yml
-- [ ] hide protected vars from log
-- [ ] add suite fail one first cli option
-- [ ] validate yaml files
-- [ ] test for non closed browsers
-- [ ] force `FIXME:` pre-commit
-- [ ] https://code.visualstudio.com/docs/editor/extension-gallery#_workspace-recommended-extensions
-- [ ] Check safety of check params from api

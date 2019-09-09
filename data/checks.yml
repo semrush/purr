@@ -1,0 +1,8 @@
+checks:
+  semrush-com:
+    steps:
+      - goto:
+          - '{{ TARGET_SCHEMA }}://{{ TARGET_DOMAIN }}/'
+      - waitForSelector:
+          - '.srf-copyright'
+          - contains: 'SEMrush. All rights reserved.'
