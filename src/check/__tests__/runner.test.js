@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer');
+const uuidv4 = require('uuid/v4');
 
 jest.mock('puppeteer');
 jest.mock('../../config');
@@ -19,7 +20,7 @@ const browser = {
         return 'anotherActionReturn';
       },
       errorAction: async () => {
-        return Promise.reject();
+        return Promise.reject(new Error('This action must fail'));
       },
       tracing: {
         start: async () => {},
@@ -41,12 +42,23 @@ test('CheckRunner arguments', () => {
 test('doCheck', () => {
   puppeteer.launch.mockResolvedValue(browser);
 
-  return runner.doCheck('mocked-check', Math.random()).then((data) => {
+  return runner.doCheck('mocked-check', uuidv4()).then((data) => {
     expect(data).toBeInstanceOf(CheckReport);
     expect(data.name).toEqual('mocked-check');
     expect(data.success).toEqual(true);
   });
 });
+
+test.each([0.9, 90, Number])(
+  'fail when doCheck checkId arg is not a string',
+  async (checkId) => {
+    puppeteer.launch.mockResolvedValue(browser);
+
+    await expect(runner.doCheck('mocked-check', checkId)).rejects.toThrowError(
+      'Param checkId should be string, not '
+    );
+  }
+);
 
 test('run', () => {
   puppeteer.launch.mockResolvedValue(browser);
@@ -58,11 +70,18 @@ test('run', () => {
   });
 });
 
-test.skip('check-with-exception', () => {
+test('check-with-exception', () => {
   puppeteer.launch.mockResolvedValue(browser);
 
-  return runner.doCheck('check-with-exception', Math.random()).then((data) => {
-    expect(data).toBeInstanceOf(CheckReport);
-    expect(data.success).toEqual(false);
+  expect.assertions(2);
+
+  return runner.doCheck('check-with-exception', uuidv4()).catch((report) => {
+    expect(report).toBeInstanceOf(CheckReport);
+    expect(report).toEqual(
+      expect.objectContaining({
+        shortMessage: "Action 'errorAction' failed: This action must fail",
+        success: false,
+      })
+    );
   });
 });

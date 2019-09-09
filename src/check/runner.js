@@ -126,6 +126,12 @@ class CheckRunner {
     scheduleName = '',
     labels = []
   ) {
+    if (typeof checkId !== 'string') {
+      throw new Error(
+        `Param checkId should be string, not '${typeof checkId}': ${checkId}`
+      );
+    }
+
     const scenarioCopy = this.checkParser.getScenario(name, params).slice();
     const checkReport = new CheckReport(name, checkId);
     const consoleLogsArray = [];
@@ -139,10 +145,12 @@ class CheckRunner {
     );
     const page = await getPage(browser);
 
+    const checkIdSafe = checkId.replace(/[^\w]/g, '_');
+
     if (config.traces) {
       checkReport.tracePath = `${
         config.tracesDir
-      }/trace_${name}_${checkId}.json`;
+      }/trace_${name}_${checkIdSafe}.json`;
       await page.tracing.start({
         path: checkReport.tracePath,
         screenshots: true,
@@ -268,7 +276,7 @@ class CheckRunner {
         if (config.screenshots) {
           checkReport.screenshotPath = `${
             config.screenshotsDir
-          }/screenshot_${name}_${checkId}.png`;
+          }/screenshot_${name}_${checkIdSafe}.png`;
 
           try {
             // TODO: try fullPage:false on error
@@ -285,7 +293,7 @@ class CheckRunner {
         if (config.consoleLog) {
           checkReport.consoleLogPath = `${
             config.consoleLogDir
-          }/console_${name}_${checkId}.log`;
+          }/console_${name}_${checkIdSafe}.log`;
 
           try {
             await fs.writeFileSync(

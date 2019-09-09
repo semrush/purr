@@ -59,7 +59,7 @@ function checkProcessor(job, done) {
   return new CheckRunner(checksQueue)
     .doCheck(
       job.data.name,
-      job.data.checkId,
+      job.id,
       job.data.params,
       job.data.scheduleName,
       job.data.labels
