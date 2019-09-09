@@ -1,0 +1,10 @@
+schedules:
+  semrush-hourly:
+    interval: 60m
+    labels:
+      team: semrush
+      priority: p4
+    parameters:
+      TARGET_DOMAIN: de.semrush.com
+    checks:
+      - semrush-com
