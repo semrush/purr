@@ -1,3 +1,13 @@
+### Table of contents
+
+- [LICENSE](#LICENSE)
+- [Intro](#Intro)
+- [Configuration](#Configuration)
+- [CLI (Quick start)](#CLI)
+- [REST API](#REST API)
+- [Writing checks](#Writing checks)
+- [Development](#Development)
+
 # Intro
 
 
@@ -37,7 +47,7 @@ Define your schedules here
 
 
 
-# CLI (Quick start)
+#CLI
 
 ### Build
 ```bash
@@ -157,6 +167,99 @@ Get report
   **options**: json, pretty
   Output format
 
+
+# Writing checks
+
+PURR translate scenatio steps described in ./data/checks.yml into method call of puppeteer.Page object
+You can check [puppeteer reference documentation](https://github.com/GoogleChrome/puppeteer/blob/v1.19.0/docs/api.md#class-page) for up-to-date capabilities. 
+
+## Methods
+
+List of methods which were tested by the PURR dev team
+
+      - goto:
+          - '{{ TARGET_SCHEMA }}://{{ TARGET_DOMAIN }}/{{ TARGET_PAGE }}/'
+
+      - goto:
+          - '{{ TARGET_SCHEMA }}://{{ TARGET_DOMAIN }}/{{ TARGET_PAGE }}/'
+          - waitUntil: networkidle2
+
+      - waitForNavigation:
+          - waitUntil: domcontentloaded
+
+      - click:
+          - {{ CSS_OR_DOM_SELECTOR }}
+
+      - type:
+        - {{ CSS_OR_DOM_SELECTOR }}
+        - {{ STRING_TO_TYPE }}
+                            
+      - waitForSelector:
+          - {{ CSS_OR_DOM_SELECTOR }}          
+
+      - waitForSelector:
+          - {{ CSS_OR_DOM_SELECTOR }}
+          - contains: {{ EXPECTED_TEXT }}
+
+      - setCookie:
+          - name: {{ COOKIE_NAME }}
+            value: {{ COOKIE_VALUE }}
+            domain: .{{ TARGET_DOMAIN.split('.').slice(-2).join('.') }}          
+
+## Includes
+
+Feel free to use YAML includes in your scenatios
+
+    .login_via_popup: &login_via_popup
+      - click:
+        - '[data-test="login"]'
+      - waitForSelector:
+        - '[data-test="email"]'
+      - type:
+        - '[data-test="email"]'
+        - {{USER_EMAIL}}
+      - type:
+        - '[data-test="password"]'
+        - {{USER_PASSWORD}}
+      - click:
+        - '[data-test="login-submit"]'
+    
+    checks:
+      logged-user-dashboard:
+        parameters:
+          USER_PASSWORD: secret
+        steps:
+          - goto:
+            - {{ TARGET_URL }}
+            - waitUntil: networkidle2
+          <<: *login_via_popup
+            parameters:
+              USER_EMAIL: root@localhost
+          - waitForSelector:
+            - '[data-test="user-profile"]'
+            - contains: 'User Name:'
+
+## Variables
+
+You can specify parameters in checks and suites yaml files under 'parameters' key
+
+    parameters:
+      TARGET_HOST: localhost
+      
+    checks:
+      parameters:
+        USER_EMAIL: root@localhost
+        USER_PASSOWRD: secret
+
+      valid-password:
+        <<: *login_via_popup
+          
+      invalid-password:
+        <<: *login_via_popup
+          parameters:
+            USER_PASSOWRD: invalid
+
+          
 
 # Development
 - Install ESLint and Jest for IDE
