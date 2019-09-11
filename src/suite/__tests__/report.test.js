@@ -40,7 +40,7 @@ test.each([data])(
   }
 );
 test.each([data.concat(['check1', 'check2'])])(
-  'SuiteReport no checks',
+  'SuiteReport with checks',
   (
     name,
     id,

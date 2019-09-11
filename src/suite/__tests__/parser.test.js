@@ -10,26 +10,26 @@ beforeEach(async () => {
 });
 
 describe('SuiteParser', () => {
-  test('getSuite', () => {
+  test('get suite', () => {
     expect(parser.getSuite('mocked-suite')).toEqual([
       'mocked-check',
       'mocked-check-with-param',
     ]);
   });
 
-  test('getUnknownSuite', () => {
+  test('fail when trying to get non-existing suite', () => {
     expect(() => {
       parser.getSuite('unknown-suite');
     }).toThrow("Suite with name 'unknown-suite' does not exist");
   });
 
-  test('getUnknownSuite', () => {
+  test('fail when name argument is not specified', () => {
     expect(() => {
       parser.getSuite();
     }).toThrow("Mandatory parameter 'name' is missing");
   });
 
-  test('parseEmptyData', () => {
+  test('fail when data argument is not specified', () => {
     expect(() => {
       SuiteParser.parseSuite();
     }).toThrow("Mandatory parameter 'data' is missing");

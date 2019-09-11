@@ -55,8 +55,8 @@ describe('enrichError', () => {
 });
 
 describe('sleep', () => {
-  test('sleep', () => {
-    return utils.sleep(100);
+  test('sleep is running, at least', () => {
+    return expect(utils.sleep(100)).resolves.toBe(undefined);
   });
 
   test('fail when ms argument is not specified', () => {

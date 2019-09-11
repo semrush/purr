@@ -1,42 +1,39 @@
 const validators = require('../validators');
 
 test.each(['', null, '@', '_', 'azAZ19-_@a'])(
-  'pass: validators.isServerAllowed(%s)',
+  'return true for allowed server(%s)',
   (value) => {
     expect(validators.isServerAllowed(value)).toEqual(true);
   }
 );
 
 test.each(['$', '%', '"', "'"])(
-  'reject: validators.isServerAllowed(%s)',
+  'return false for not-allowed server(%s)',
   (value) => {
     expect(validators.isServerAllowed(value)).toEqual(false);
   }
 );
 
-test.each(['http', 'https'])(
-  'pass: validators.isSchemaAllowed(%s)',
-  (value) => {
-    expect(validators.isSchemaAllowed(value)).toEqual(true);
-  }
-);
+test.each(['http', 'https'])('return true for allowed schema(%s)', (value) => {
+  expect(validators.isSchemaAllowed(value)).toEqual(true);
+});
 
 test.each(['', null, 'ftp'])(
-  'reject: validators.isSchemaAllowed(%s)',
+  'return false for not-allowed schema(%s)',
   (value) => {
     expect(validators.isSchemaAllowed(value)).toEqual(false);
   }
 );
 
 test.each(['www.example.com', 'example.com'])(
-  'pass: validators.isDomainAllowed(%s)',
+  'return true for allowed domain(%s)',
   (value) => {
     expect(validators.isDomainAllowed(value)).toEqual(true);
   }
 );
 
 test.each(['www.google.com', '', null])(
-  'pass: validators.isDomainAllowed(%s)',
+  'return false for not-allowed domain(%s)',
   (value) => {
     expect(validators.isDomainAllowed(value)).toEqual(false);
   }
