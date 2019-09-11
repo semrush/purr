@@ -8,12 +8,12 @@ function isSchemaAllowed(value) {
   return ['http', 'https'].includes(value);
 }
 
-function isDomain(value) {
+function isDomainAllowed(value) {
   return ['www.example.com', 'example.com'].includes(value);
 }
 
 module.exports = {
   isServerAllowed,
   isSchemaAllowed,
-  isDomain,
+  isDomainAllowed,
 };

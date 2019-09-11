@@ -29,15 +29,15 @@ test.each(['', null, 'ftp'])(
 );
 
 test.each(['www.example.com', 'example.com'])(
-  'pass: validators.isDomain(%s)',
+  'pass: validators.isDomainAllowed(%s)',
   (value) => {
-    expect(validators.isDomain(value)).toEqual(true);
+    expect(validators.isDomainAllowed(value)).toEqual(true);
   }
 );
 
 test.each(['www.google.com', '', null])(
-  'pass: validators.isDomain(%s)',
+  'pass: validators.isDomainAllowed(%s)',
   (value) => {
-    expect(validators.isDomain(value)).toEqual(false);
+    expect(validators.isDomainAllowed(value)).toEqual(false);
   }
 );
