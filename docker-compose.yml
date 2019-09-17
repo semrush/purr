@@ -1,7 +1,6 @@
 version: '2.4'
 
 services:
-
   worker:
     depends_on:
       - redis
@@ -33,7 +32,7 @@ services:
       traefik.frontend.rule: 'Host:purr.traefik.lcl'
 
   storage:
-    image: ${NGINX_IMAGE_NAME}:${APP_IMAGE_VERSION}
+    image: nginx
     restart: always
     tty: true # Colorize logs
     env_file:

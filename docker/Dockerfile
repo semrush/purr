@@ -5,14 +5,6 @@
 ARG PUPPETEER_ENV_IMAGE=puppeteer-environment
 FROM node:12 as puppeteer-environment
 
-# Install gcsfuse to use buckets in gke
-RUN : \
-  && echo "deb http://packages.cloud.google.com/apt gcsfuse-jessie main" >> /etc/apt/sources.list.d/gcsfuse.list \
-  && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
-  && apt-get update \
-  && apt-get install -yq --no-install-recommends gcsfuse \
-  && rm -rf /var/lib/apt/lists/* /src/*.deb /tmp/* /var/tmp/*
-
 # Install latest chrome dev package and fonts to support major charsets
 # (Chinese, Japanese, Arabic, Hebrew, Thai and a few others)
 # Note: this installs the necessary libs to make the bundled version of

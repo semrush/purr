@@ -1,9 +1,7 @@
 SHELL := /bin/bash
 
-IMAGE_REPO_URL ?= some-image-repo.lcl
-APP_IMAGE_NAME ?= puppeteer-runner
+APP_IMAGE_NAME ?= semrush/purr
 APP_IMAGE_VERSION ?= latest
-NGINX_IMAGE_NAME ?= puppeteer-runner-nginx
 
 PURR_PARAM_USER_EMAIL ?= example@example.com
 PURR_PARAM_USER_PASSWORD ?= secret
@@ -21,22 +19,11 @@ docker-build-app:
 		-f docker/Dockerfile \
 		-t ${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
 
-docker-build-nginx:
-	docker build . \
-		-f docker/nginx/Dockerfile \
-		-t ${NGINX_IMAGE_NAME}:${APP_IMAGE_VERSION}
-
 docker-build-app-no-cache:
 	docker build . \
 		--no-cache \
 		-f docker/Dockerfile \
 		-t ${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
-
-docker-build-nginx-no-cache:
-	docker build . \
-		--no-cache \
-		-f docker/nginx/Dockerfile \
-		-t ${NGINX_IMAGE_NAME}:${APP_IMAGE_VERSION}
 
 lint:
 	docker run --rm -it \
@@ -48,7 +35,7 @@ test:
 		-v ${PWD}:/app \
 		${APP_IMAGE_NAME}:${APP_IMAGE_VERSION} npm run test
 
-start: docker-build-app docker-build-nginx
+start: docker-build-app
 	docker-compose \
 		-f ./docker-compose.yml \
 		up
@@ -59,7 +46,7 @@ down-dev:
 		-f ./docker-compose.dev.yml \
 		down
 
-start-dev: docker-build-app docker-build-nginx
+start-dev: docker-build-app
 	docker-compose \
 		-f ./docker-compose.yml \
 		-f ./docker-compose.dev.yml \
