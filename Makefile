@@ -57,3 +57,6 @@ attach-dev:
 		-f ./docker-compose.yml \
 		-f ./docker-compose.dev.yml \
 		exec cli bash
+
+update-readme-toc:
+	npx doctoc --notitle --maxlevel 2 --github README.md
