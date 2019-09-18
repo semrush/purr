@@ -1,6 +1,12 @@
 variables:
-  APP_IMAGE_NAME: semrush/purr
   APP_IMAGE_VERSION: ${CI_COMMIT_SHA}
+
+.prod_variables: &prod_variables
+  DOCKER_REGISTRY_USER: ${PROD_DOCKER_REGISTRY_USER}
+  DOCKER_REGISTRY_PASSWORD: ${PROD_DOCKER_REGISTRY_PASSWORD}
+  DOCKER_REGISTRY_URL: ${PROD_DOCKER_REGISTRY_URL}
+
+  APP_IMAGE_NAME: semrush/purr
 
 .review_variables: &review_variables
   DOCKER_REGISTRY_USER: ${DEV_DOCKER_REGISTRY_USER}
@@ -63,6 +69,8 @@ build-app-master:
     - master
   except:
     - schedules
+  variables:
+    <<: *prod_variables
 
 #
 ### PUSH LATEST
@@ -76,6 +84,7 @@ build-app-master:
     - schedules
   image: docker:latest
   variables:
+    <<: *prod_variables
     GIT_STRATEGY: none
   before_script:
     - *docker_auth
@@ -125,6 +134,8 @@ test-master:
     - master
   except:
     - schedules
+  variables:
+    <<: *prod_variables
 
 #
 ### TEST SYSTEM
