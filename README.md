@@ -1,26 +1,37 @@
-### Table of contents
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [LICENSE](#LICENSE)
-- [Intro](#Intro)
-- [Configuration](#Configuration)
-- [CLI (Quick start)](#CLI)
-- [REST API](#REST API)
-- [Writing checks](#Writing checks)
-- [Development](#Development)
+
+- [Intro](#intro)
+- [Configuration](#configuration)
+- [CLI](#cli)
+- [Scheduled jobs](#scheduled-jobs)
+  - [Run worker](#run-worker)
+  - [Apply schedules](#apply-schedules)
+  - [Stop schedules](#stop-schedules)
+- [REST API](#rest-api)
+  - [Endpoints](#endpoints)
+- [Writing checks](#writing-checks)
+  - [Methods](#methods)
+  - [Includes](#includes)
+  - [Variables](#variables)
+- [Development](#development)
+  - [Tests](#tests)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Intro
 
-
 PURR (SEMrush puppeteer runner) is a devops-friendly tool for browser testing and monitoring.
 
-The goal of this project is to have single set of browser checks, that could be used as tests, 
+The goal of this project is to have single set of browser checks, that could be used as tests,
 as canaries in CI/CD pipelines and as scenarios for production monitoring.
 
 The tool uses puppeteer (https://pptr.dev/) to run standalone browsers (Chrome and Firefox are supported currently).
 
-Checks results are stored as JSON reports, screenshots and traces. 
+Checks results are stored as JSON reports, screenshots and traces.
 
-PURR has three modes: 
+PURR has three modes:
 - CLI (mainly used in CI/CD pipelines)
 - queue worker (scheduled monitoring)
 - REST service (show results and expose internal metrics for prometheus)
@@ -34,12 +45,12 @@ Stores descriptions of every single check
 Organizes checks into suites
 
 ### data/parameters.yml
-Specifies check parameters, i.e. target host or cookie values 
+Specifies check parameters, i.e. target host or cookie values
 
 ### data/schedules.yml
 Define your schedules here
 
-###priority of parameters
+### priority of parameters
 - Defaults from parameters.yml
 - Defaults from check
 - Params from env
@@ -47,7 +58,7 @@ Define your schedules here
 
 
 
-#CLI
+# CLI
 
 ### Build
 ```bash
@@ -84,7 +95,7 @@ storage
 ### Traces
 
 Open trace in [Chrome DevTools Timeline Viewer](https://chromedevtools.github.io/timeline-viewer/).
- 
+
 
 
 # Scheduled jobs
@@ -93,7 +104,7 @@ Open trace in [Chrome DevTools Timeline Viewer](https://chromedevtools.github.io
 ## Run worker
 
 ```bash
-APP_IMAGE_NAME="puppeteer-runner" APP_IMAGE_VERSION="latest" NGINX_IMAGE_NAME="nginx" docker-compose up  
+APP_IMAGE_NAME="puppeteer-runner" APP_IMAGE_VERSION="latest" NGINX_IMAGE_NAME="nginx" docker-compose up
 
 ```
 
@@ -171,7 +182,7 @@ Get report
 # Writing checks
 
 PURR translate scenatio steps described in ./data/checks.yml into method call of puppeteer.Page object
-You can check [puppeteer reference documentation](https://github.com/GoogleChrome/puppeteer/blob/v1.19.0/docs/api.md#class-page) for up-to-date capabilities. 
+You can check [puppeteer reference documentation](https://github.com/GoogleChrome/puppeteer/blob/v1.19.0/docs/api.md#class-page) for up-to-date capabilities.
 
 ## Methods
 
@@ -193,9 +204,9 @@ List of methods which were tested by the PURR dev team
       - type:
         - {{ CSS_OR_DOM_SELECTOR }}
         - {{ STRING_TO_TYPE }}
-                            
+
       - waitForSelector:
-          - {{ CSS_OR_DOM_SELECTOR }}          
+          - {{ CSS_OR_DOM_SELECTOR }}
 
       - waitForSelector:
           - {{ CSS_OR_DOM_SELECTOR }}
@@ -204,7 +215,7 @@ List of methods which were tested by the PURR dev team
       - setCookie:
           - name: {{ COOKIE_NAME }}
             value: {{ COOKIE_VALUE }}
-            domain: .{{ TARGET_DOMAIN.split('.').slice(-2).join('.') }}          
+            domain: .{{ TARGET_DOMAIN.split('.').slice(-2).join('.') }}
 
 ## Includes
 
@@ -223,7 +234,7 @@ Feel free to use YAML includes in your scenatios
         - {{USER_PASSWORD}}
       - click:
         - '[data-test="login-submit"]'
-    
+
     checks:
       logged-user-dashboard:
         parameters:
@@ -245,7 +256,7 @@ You can specify parameters in checks and suites yaml files under 'parameters' ke
 
     parameters:
       TARGET_HOST: localhost
-      
+
     checks:
       parameters:
         USER_EMAIL: root@localhost
@@ -253,13 +264,13 @@ You can specify parameters in checks and suites yaml files under 'parameters' ke
 
       valid-password:
         <<: *login_via_popup
-          
+
       invalid-password:
         <<: *login_via_popup
           parameters:
             USER_PASSOWRD: invalid
 
-          
+
 
 # Development
 - Install ESLint and Jest for IDE

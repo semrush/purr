@@ -1,0 +1,197 @@
+variables:
+  APP_IMAGE_VERSION: ${CI_COMMIT_SHA}
+
+.prod_variables: &prod_variables
+  DOCKER_REGISTRY_USER: ${PROD_DOCKER_REGISTRY_USER}
+  DOCKER_REGISTRY_PASSWORD: ${PROD_DOCKER_REGISTRY_PASSWORD}
+  DOCKER_REGISTRY_URL: ${PROD_DOCKER_REGISTRY_URL}
+
+  APP_IMAGE_NAME: semrush/purr
+
+.review_variables: &review_variables
+  DOCKER_REGISTRY_USER: ${DEV_DOCKER_REGISTRY_USER}
+  DOCKER_REGISTRY_PASSWORD: ${DEV_DOCKER_REGISTRY_PASSWORD}
+  DOCKER_REGISTRY_URL: ${DEV_DOCKER_REGISTRY_URL}
+
+  APP_IMAGE_NAME: semrush/purr/branch/${CI_COMMIT_REF_SLUG}
+
+stages:
+  - lint yaml
+  - build
+  - push latest
+  - test
+  - test system
+
+.docker_auth: &docker_auth |
+  docker login -u ${DOCKER_REGISTRY_USER} -p ${DOCKER_REGISTRY_PASSWORD} \
+    ${DOCKER_REGISTRY_URL}
+
+#
+### LINT YAML
+#
+
+lint-yaml:
+  stage: lint yaml
+  only:
+    - merge_requests
+  image: node:12
+  script:
+    - npx prettier -c '**/*.yml' '**/*.yaml'
+
+#
+### BUILD
+#
+
+.build_docker_template:
+  stage: build
+  image: docker:latest
+  before_script:
+    - *docker_auth
+    - apk add make bash
+  script:
+    - make docker-build-app
+    - >
+      docker tag
+      ${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
+      ${DOCKER_REGISTRY_URL}/${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
+    - docker push ${DOCKER_REGISTRY_URL}/${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
+
+build-app-review:
+  extends: .build_docker_template
+  only:
+    - merge_requests
+  variables:
+    <<: *review_variables
+
+build-app-master:
+  extends: .build_docker_template
+  only:
+    - master
+  except:
+    - schedules
+  variables:
+    <<: *prod_variables
+
+#
+### PUSH LATEST
+#
+
+.tag-app-image:
+  stage: push latest
+  only:
+    - master
+  except:
+    - schedules
+  image: docker:latest
+  variables:
+    <<: *prod_variables
+    GIT_STRATEGY: none
+  before_script:
+    - *docker_auth
+  script:
+    - docker pull ${DOCKER_REGISTRY_URL}/${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
+    - >
+      docker tag
+      ${DOCKER_REGISTRY_URL}/${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
+      ${DOCKER_REGISTRY_URL}/${APP_IMAGE_NAME}:${NEW_TAG}
+    - docker push ${DOCKER_REGISTRY_URL}/${APP_IMAGE_NAME}:${NEW_TAG}
+
+tag-app-image-latest:
+  extends: .tag-app-image
+  variables:
+    NEW_TAG: latest
+
+tag-app-image-release:
+  extends: .tag-app-image
+  only:
+    - tags
+  variables:
+    NEW_TAG: ${CI_COMMIT_TAG}
+
+#
+### TEST
+#
+
+.test_template:
+  stage: test
+  image: ${DOCKER_REGISTRY_URL}/${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
+  script:
+    - npm ci
+    - npm run lint
+    - npm run test
+  coverage: /All\sfiles.*?\s+(\d+.\d+)/
+
+test-review:
+  extends: .test_template
+  only:
+    - merge_requests
+  variables:
+    <<: *review_variables
+
+test-master:
+  extends: .test_template
+  only:
+    - master
+  except:
+    - schedules
+  variables:
+    <<: *prod_variables
+
+#
+### TEST SYSTEM
+#
+# TODO: We should use a mock server for this tests instead of semrush.com
+
+# CHECK TEST
+
+.test_check_template:
+  stage: test system
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^\[skip suite test\]/
+      - $CI_MERGE_REQUEST_TITLE =~ /^\[skip suite test\]/
+  image: ${DOCKER_REGISTRY_URL}/${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
+  variables:
+    PURR_CONFIG_ARTIFACTS_DIR: /builds/${CI_PROJECT_PATH}/check_results
+  before_script:
+    - mkdir -p ${PURR_CONFIG_ARTIFACTS_DIR}
+  script:
+    - /app/src/cli.js check ${CHECK_NAME}
+  artifacts:
+    when: always
+    name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}
+    paths:
+      - check_results/
+    expire_in: 1 days
+
+test-check-semrush-com:
+  extends: .test_check_template
+  only:
+    - merge_requests
+  except:
+    refs:
+      - master
+      - schedules
+  variables:
+    <<: *review_variables
+    CHECK_NAME: semrush-com
+
+# SUITE TEST
+
+.test_suite_template:
+  extends: .test_check_template
+  stage: test system
+  script:
+    - /app/src/cli.js suite ${SUITE_NAME}
+
+test-suite-semrush-suite:
+  extends: .test_suite_template
+  only:
+    - merge_requests
+  except:
+    refs:
+      - master
+      - schedules
+  variables:
+    <<: *review_variables
+    SUITE_NAME: semrush-suite
