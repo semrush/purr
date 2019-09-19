@@ -2,3 +2,10 @@ singleQuote: true
 trailingComma: es5
 arrowParens: always
 endOfLine: lf
+overrides:
+  - files:
+      - '**/*.yml'
+      - '**/*.yaml'
+    options:
+      # Workaround to fix nunjucks templating
+      bracketSpacing: false
