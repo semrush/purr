@@ -81,9 +81,8 @@ describe('Concurrency', () => {
         values.reduce((accumulator, value, index) => {
           if (value.startDateTime < accumulator.endDateTime) {
             throw new Error(
-              `Task "${index}" started(${value.startDateTime}) before end(${
-                accumulator.endDateTime
-              }) of previous task`
+              `Task "${index}" started(${value.startDateTime}) before ` +
+                `end(${accumulator.endDateTime}) of previous task`
             );
           }
           return value;
@@ -122,9 +121,7 @@ describe('Concurrency', () => {
         values.reduce((accumulator, value, index) => {
           if (value.startDateTime >= accumulator.endDateTime) {
             throw new Error(
-              `Task "${index}" started(${value.startDateTime}) after end(${
-                accumulator.endDateTime
-              }) of previous task`
+              `Task "${index}" started(${value.startDateTime}) after end(${accumulator.endDateTime}) of previous task`
             );
           }
           return value;

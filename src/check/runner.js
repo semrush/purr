@@ -148,9 +148,7 @@ class CheckRunner {
     const checkIdSafe = checkId.replace(/[^\w]/g, '_');
 
     if (config.traces) {
-      checkReport.tracePath = `${
-        config.tracesDir
-      }/trace_${name}_${checkIdSafe}.json`;
+      checkReport.tracePath = `${config.tracesDir}/trace_${name}_${checkIdSafe}.json`;
       await page.tracing.start({
         path: checkReport.tracePath,
         screenshots: true,
@@ -274,9 +272,7 @@ class CheckRunner {
         }
 
         if (config.screenshots) {
-          checkReport.screenshotPath = `${
-            config.screenshotsDir
-          }/screenshot_${name}_${checkIdSafe}.png`;
+          checkReport.screenshotPath = `${config.screenshotsDir}/screenshot_${name}_${checkIdSafe}.png`;
 
           try {
             // TODO: try fullPage:false on error
@@ -291,9 +287,7 @@ class CheckRunner {
         }
 
         if (config.consoleLog) {
-          checkReport.consoleLogPath = `${
-            config.consoleLogDir
-          }/console_${name}_${checkIdSafe}.log`;
+          checkReport.consoleLogPath = `${config.consoleLogDir}/console_${name}_${checkIdSafe}.log`;
 
           try {
             await fs.writeFileSync(
