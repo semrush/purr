@@ -1,10 +1,10 @@
 .action_template: &action_template
   - someAction:
-      - '{{ SOME_PARAMETER }}'
+      - {{SOME_PARAMETER}}
 
 .another_action_template: &another_action_template
   - anotherAction:
-      - '{{ SOME_PARAMETER }}'
+      - {{SOME_PARAMETER}}
       - anotherArgument: .{{ SOME_COMPLEX_PARAMETER.split('.').slice(-2).join('.') }}
 
 .nested_action_template: &nested_action_template
@@ -33,9 +33,9 @@ checks:
       TARGET_DOMAIN: en.example.cn
     steps:
       - someAction:
-          - '{{ SOME_PARAMETER }}'
+          - {{SOME_PARAMETER}}
       - anotherAction:
-          - '{{ SOME_PARAMETER }}'
+          - {{SOME_PARAMETER}}
           - anotherArgument: .{{ SOME_COMPLEX_PARAMETER.split('.').slice(-2).join('.') }}
 
   failing-fake-check:
@@ -58,13 +58,13 @@ checks:
   check-with-template-expected:
     steps:
       - someAction:
-          - '{{ SOME_PARAMETER }}'
+          - {{SOME_PARAMETER}}
 
       - someAction:
           - 3600
 
       - someAction:
-          - '{{ SOME_PARAMETER }}'
+          - {{SOME_PARAMETER}}
 
   check-with-nested-template:
     steps:
@@ -76,18 +76,18 @@ checks:
   check-with-nested-template-expected:
     steps:
       - someAction:
-          - '{{ SOME_PARAMETER }}'
+          - {{SOME_PARAMETER}}
       - anotherAction:
-          - '{{ SOME_PARAMETER }}'
+          - {{SOME_PARAMETER}}
           - anotherArgument: .{{ SOME_COMPLEX_PARAMETER.split('.').slice(-2).join('.') }}
 
       - someAction:
           - 3600
 
       - someAction:
-          - '{{ SOME_PARAMETER }}'
+          - {{SOME_PARAMETER}}
       - anotherAction:
-          - '{{ SOME_PARAMETER }}'
+          - {{SOME_PARAMETER}}
           - anotherArgument: .{{ SOME_COMPLEX_PARAMETER.split('.').slice(-2).join('.') }}
 
   check-with-invalid-step:

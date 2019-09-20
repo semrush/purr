@@ -47,6 +47,8 @@ down-dev:
 		down
 
 start-dev: docker-build-app
+	mkdir -p ./storage
+	chown 1000:1000 ./storage
 	docker-compose \
 		-f ./docker-compose.yml \
 		-f ./docker-compose.dev.yml \
