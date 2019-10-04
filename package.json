@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "test": "jest --detectOpenHandles --coverage",
+    "test": "jest --coverage",
     "test:watch": "jest --detectOpenHandles --watch --coverage=false",
     "test:watch-all": "jest --detectOpenHandles --watchAll",
     "lint": "eslint --max-warnings 0 --ext .js,.jsx src",
