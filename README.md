@@ -273,20 +273,14 @@ You can specify parameters in checks and suites yaml files under 'parameters' ke
 
 
 # Development
-- Install ESLint and Jest for IDE
+
+> **IMPORTANT**: It's expected that for convenient experience you will use [vscode](https://code.visualstudio.com/) as an IDE with recommended extensions(configs are available in this repository).
 
 ```
-mkdir storage #(chown 1000:1000)
 make start-dev
 make attach-dev
 ```
 
-For mac:
-```
-sudo mkdir ./storage ./storage/traces ./storage/screenshots ./storage/console_log
-sudo chown -R 1000:1000 ./storage
-sudo chmod 0777 -R ./storage
-```
 ## Tests
 
 Run tests:

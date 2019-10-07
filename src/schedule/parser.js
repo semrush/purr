@@ -45,9 +45,8 @@ class ScheduleParser {
       !allowedPriorities.includes(preparedData.labels.priority)
     ) {
       throw new Error(
-        `This schedule priority is not allowed "${
-          preparedData.labels.priority
-        }"`
+        `This schedule priority is not allowed ` +
+          `"${preparedData.labels.priority}"`
       );
     }
 
