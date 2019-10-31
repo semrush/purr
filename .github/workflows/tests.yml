@@ -5,23 +5,19 @@ on:
   pull_request:
 
 jobs:
-  build:
-
+  tests:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [12.x]
-
     steps:
       - uses: actions/checkout@v1
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Setup node
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node-version }}
-      - name: lint
+          node-version: 12
+      - name: "lint configs"
         run: npx prettier -c 'data/*.yml' 'data/*.yaml'
+      - name: npm
+        run: npm ci
+      - name: lint
+        run: npm run lint
       - name: test
-        run: |
-          npm i
-          npm test
+        run: npm run test
