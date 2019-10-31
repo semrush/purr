@@ -87,6 +87,8 @@ const config = {
     envParams.SENTRY_ATTACH_STACKTRACE === 'true',
     false
   ),
+
+  blockedResourceDomains: getDefault(envParams.BLOCKED_RESOURCE_DOMAINS, ''),
 };
 
 module.exports = config;
