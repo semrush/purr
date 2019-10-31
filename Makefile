@@ -26,12 +26,12 @@ docker-build-app-no-cache:
 		-t ${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
 
 lint:
-	docker run --rm -it \
+	docker run --rm \
 		-v ${PWD}:/app \
 		${APP_IMAGE_NAME}:${APP_IMAGE_VERSION} npm run lint
 
 test:
-	docker run --rm -it \
+	docker run --rm \
 		-v ${PWD}:/app \
 		${APP_IMAGE_NAME}:${APP_IMAGE_VERSION} npm run test
 
