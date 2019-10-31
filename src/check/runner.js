@@ -36,26 +36,13 @@ async function getBrowser(userAgent = config.userAgent) {
 async function getPage(browser = utils.mandatory('browser')) {
   const page = await browser.newPage();
 
-  const blockedResources = config.blockedResourceDomains
-    .split(',')
-    .map((domain) => {
-      return domain.trim();
-    })
-    .filter((domain) => {
-      return domain.length > 0;
-    });
-
-  if (blockedResources.length > 0) {
+  if (config.blockedResourceDomains.length > 0) {
     await page.setRequestInterception(true);
 
     page.on('request', (request) => {
       const url = new URL(request.url());
 
-      if (
-        blockedResources.some(
-          (resource) => url.host.toLowerCase() === resource.toLowerCase()
-        )
-      ) {
+      if (config.blockedResourceDomains.includes(url.host.toLowerCase())) {
         log.info(`blocked ${request.url()}`);
         request.abort();
       } else {

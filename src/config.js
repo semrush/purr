@@ -88,7 +88,14 @@ const config = {
     false
   ),
 
-  blockedResourceDomains: getDefault(envParams.BLOCKED_RESOURCE_DOMAINS, ''),
+  blockedResourceDomains: getDefault(envParams.BLOCKED_RESOURCE_DOMAINS, '')
+    .split(',')
+    .map((domain) => {
+      return domain.toLowerCase().trim();
+    })
+    .filter((domain) => {
+      return domain.length > 0;
+    }),
 };
 
 module.exports = config;
