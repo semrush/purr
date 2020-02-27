@@ -1,5 +1,7 @@
 const fs = require('fs');
 const puppeteer = require('puppeteer');
+const puppeteerProxy = require('puppeteer-page-proxy');
+
 const uuidv4 = require('uuid/v4');
 const Sentry = require('@sentry/node');
 
@@ -160,6 +162,11 @@ class CheckRunner {
       `${config.userAgent} (checkId: ${checkId}; checkName: ${name};)`
     );
     const page = await getPage(browser);
+
+    const check = this.checkParser.getParsedCheck(name);
+    if (typeof check.proxy !== 'undefined') {
+      await puppeteerProxy(page, check.proxy);
+    }
 
     const checkIdSafe = checkId.replace(/[^\w]/g, '_');
 
