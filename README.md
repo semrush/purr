@@ -270,7 +270,20 @@ You can specify parameters in checks and suites yaml files under 'parameters' ke
           parameters:
             USER_PASSOWRD: invalid
 
+## Proxy
 
+To run a check throw proxy use 'proxy' key
+
+```
+  check-page-from-india:
+    proxy: 'socks5h://user:password@india-proxy.service:8080'
+    steps:
+      - goto:
+          - {{ TARGET_URL }}
+      - waitForSelector:
+          - body
+          - contains: 'Your location: India'
+```
 
 # Development
 

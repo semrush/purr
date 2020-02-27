@@ -26,10 +26,18 @@ class CheckParser {
     this.rawContent = fs.readFileSync(config.checksFilePath, 'utf8');
     this.rawDoc = yaml.safeLoad(this.rawContent);
     this.paramParser = new ParamParser();
+    this.preparedDoc = null;
   }
 
   getList() {
     return Object.keys(this.rawDoc.checks);
+  }
+
+  getParsedCheck(name = utils.mandatory('name')) {
+    if (typeof this.preparedDoc.checks[name] === 'undefined') {
+      throw new Error(`Check with name '${name}' was not parsed`);
+    }
+    return this.preparedDoc.checks[name];
   }
 
   getScenario(name = utils.mandatory('name'), params = {}) {
@@ -49,10 +57,10 @@ class CheckParser {
       ...params,
     };
 
-    const preparedDoc = yaml.safeLoad(
+    this.preparedDoc = yaml.safeLoad(
       nunjucks.renderString(this.rawContent, mergedParams)
     );
-    const check = preparedDoc.checks[name];
+    const check = this.preparedDoc.checks[name];
 
     const flattenedSteps = utils.flattenArray(check.steps, true);
 
