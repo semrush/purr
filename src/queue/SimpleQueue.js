@@ -29,9 +29,12 @@ class SimpleQueue extends BaseQueue {
     name = utils.mandatory('name'),
     checkId = utils.mandatory('checkId'),
     params = {},
+    // eslint-disable-next-line no-unused-vars
     repeat = {},
     scheduleName = '',
+    // eslint-disable-next-line no-unused-vars
     scheduleInterval = 0,
+    // eslint-disable-next-line no-unused-vars
     waitJobFinish = true,
     labels = [],
     proxy = null
