@@ -52,7 +52,7 @@ Define your schedules here
 
 ### priority of parameters
 - Defaults from parameters.yml
-- Defaults from check
+- Defaults from check/suite
 - Params from env
 - Explicitly specified params
 

@@ -28,7 +28,13 @@ class SimpleQueue extends BaseQueue {
   async add(
     name = utils.mandatory('name'),
     checkId = utils.mandatory('checkId'),
-    params = {}
+    params = {},
+    repeat = {},
+    scheduleName = '',
+    scheduleInterval = 0,
+    waitJobFinish = true,
+    labels = [],
+    proxy = null
   ) {
     if (typeof name !== 'string') {
       throw new Error(`Task name should be 'string', now: '${typeof task}'`);
@@ -42,7 +48,7 @@ class SimpleQueue extends BaseQueue {
     return this.waitForQueue()
       .then(async () => {
         return new CheckRunner(this)
-          .doCheck(name, checkId, params)
+          .doCheck(name, checkId, params, scheduleName, labels, proxy)
           .then((result) => result)
           .catch((result) => result);
       })

@@ -62,7 +62,8 @@ function checkProcessor(job, done) {
       job.id,
       job.data.params,
       job.data.scheduleName,
-      job.data.labels
+      job.data.labels,
+      job.data.proxy
     )
     .then((result) => {
       log.info(`Check complete.`, checkInfoString);

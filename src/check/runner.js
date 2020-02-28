@@ -142,7 +142,8 @@ class CheckRunner {
     checkId = utils.mandatory('name'),
     params = {},
     scheduleName = '',
-    labels = []
+    labels = [],
+    proxy = null
   ) {
     if (typeof checkId !== 'string') {
       throw new Error(
@@ -164,6 +165,9 @@ class CheckRunner {
     const page = await getPage(browser);
 
     const check = this.checkParser.getParsedCheck(name);
+    if (proxy) {
+      await puppeteerProxy(page, proxy);
+    }
     if (typeof check.proxy !== 'undefined') {
       await puppeteerProxy(page, check.proxy);
     }
@@ -345,7 +349,8 @@ class CheckRunner {
     scheduleName = '',
     scheduleInterval = 0,
     wait = true,
-    labels = []
+    labels = [],
+    proxy = null
   ) {
     return this.queue.add(
       name,
@@ -355,7 +360,8 @@ class CheckRunner {
       scheduleName,
       scheduleInterval,
       wait,
-      labels
+      labels,
+      proxy
     );
   }
 }

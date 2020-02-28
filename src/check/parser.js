@@ -4,22 +4,7 @@ const nunjucks = require('nunjucks');
 
 const config = require('../config');
 const utils = require('../utils');
-
-class ParamParser {
-  constructor() {
-    this.infoDoc = yaml.safeLoad(
-      fs.readFileSync(config.parametersInfoFilePath, 'utf8')
-    );
-  }
-
-  getGlobalDefaults() {
-    const params = {};
-    Object.entries(this.infoDoc).forEach(([k, v]) => {
-      params[k] = v.default;
-    });
-    return params;
-  }
-}
+const ParamParser = require('../parameters/ParamParser');
 
 class CheckParser {
   constructor() {
@@ -46,16 +31,11 @@ class CheckParser {
     }
 
     const scenario = [];
-    const mergedParams = {
-      // Defaults from params file
-      ...this.paramParser.getGlobalDefaults(),
-      // Defaults from checks file
-      ...this.rawDoc.checks[name].parameters,
-      // Params from envvars
-      ...utils.getPrefixedEnvVars(config.envVarParamPrefix),
-      // Params. Just params
-      ...params,
-    };
+
+    const mergedParams = this.paramParser.mergeParams(
+      this.rawDoc.checks[name].parameters,
+      params
+    );
 
     this.preparedDoc = yaml.safeLoad(
       nunjucks.renderString(this.rawContent, mergedParams)

@@ -14,7 +14,8 @@ class SuiteRunner {
   }
 
   async run(name = utils.mandatory('name'), suiteId = uuidv4()) {
-    const suiteCopy = this.suiteParser.getSuite(name).slice();
+    const suiteStepsCopy = this.suiteParser.getSuiteSteps(name).slice();
+    const proxy = this.suiteParser.getSuiteProxy(name);
     const suiteReport = new SuiteReport(name, suiteId);
 
     let result = Promise.resolve().then(() => {
@@ -22,14 +23,14 @@ class SuiteRunner {
       suiteReport.success = true;
     });
 
-    while (suiteCopy.length > 0) {
-      const check = suiteCopy.shift();
+    while (suiteStepsCopy.length > 0) {
+      const check = suiteStepsCopy.shift();
 
       const checkPromise = Promise.resolve().then(async () => {
         const errorText = 'At least one check failed';
 
         await this.checkRunner
-          .run(check)
+          .run(check, uuidv4(), {}, {}, '', 0, true, [], proxy)
           .then((checkReport) => {
             suiteReport.checks.push(checkReport);
 
