@@ -29,7 +29,8 @@ class RedisQueue extends BaseQueue {
     scheduleName = '',
     scheduleInterval = 0,
     waitJobFinish = true,
-    labels = []
+    labels = [],
+    proxy = null
   ) {
     if (typeof name !== 'string') {
       throw new Error(`Task name should be 'string', now: '${typeof task}'`);
@@ -61,6 +62,7 @@ class RedisQueue extends BaseQueue {
         scheduleName,
         scheduleInterval,
         labels,
+        proxy,
       },
       jobOptions
     );
