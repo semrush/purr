@@ -2,7 +2,6 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const nunjucks = require('nunjucks');
 
-const config = require('../config');
 const utils = require('../utils');
 const ParamParser = require('../parameters/ParamParser');
 
