@@ -272,11 +272,11 @@ You can specify parameters in checks and suites yaml files under 'parameters' ke
 
 ## Proxy
 
-To run a check throw proxy use 'proxy' key
+To run a check, suite or schedule throw proxy use 'proxy' key
 
 ```
   check-page-from-india:
-    proxy: 'socks5h://user:password@india-proxy.service:8080'
+    proxy: 'socks5h://user:password@proxy.service:8080'
     steps:
       - goto:
           - {{ TARGET_URL }}
