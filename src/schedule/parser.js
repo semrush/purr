@@ -1,22 +1,36 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
+const nunjucks = require('nunjucks');
 
 const utils = require('../utils');
+const ParamParser = require('../parameters/ParamParser');
 
 class ScheduleParser {
   constructor(dataFilePath) {
-    this.doc = yaml.safeLoad(fs.readFileSync(dataFilePath, 'utf8'));
+    this.rawContent = fs.readFileSync(dataFilePath, 'utf8');
+    this.rawDoc = yaml.safeLoad(this.rawContent);
+    this.paramParser = new ParamParser();
+    this.preparedDoc = null;
   }
 
   getList() {
-    return Object.keys(this.doc.schedules);
+    return Object.keys(this.rawDoc.schedules);
   }
 
-  getSchedule(name = utils.mandatory('name')) {
-    if (typeof this.doc.schedules[name] === 'undefined') {
+  getSchedule(name = utils.mandatory('name'), params = {}) {
+    if (typeof this.rawDoc.schedules[name] === 'undefined') {
       throw new Error(`Schedule with name '${name}' does not exist`);
     }
-    return ScheduleParser.parseSchedule(this.doc.schedules[name]);
+
+    const mergedParams = this.paramParser.mergeParams(
+      this.rawDoc.schedules[name].parameters,
+      params
+    );
+
+    const parsedDoc = yaml.safeLoad(
+      nunjucks.renderString(this.rawContent, mergedParams)
+    );
+    return ScheduleParser.parseSchedule(parsedDoc.schedules[name]);
   }
 
   static parseSchedule(data = utils.mandatory('data')) {

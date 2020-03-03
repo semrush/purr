@@ -42,6 +42,10 @@ class ScheduleRunner {
 
     const schedule = this.scheduleParser.getSchedule(name);
 
+    if (typeof schedule.proxy === 'undefined') {
+      schedule.proxy = null;
+    }
+
     redis
       .set(`purr:schedules:${name}`, JSON.stringify(schedule.checks))
       .finally(() => {
@@ -60,7 +64,8 @@ class ScheduleRunner {
           name,
           schedule.interval,
           false,
-          schedule.labels
+          schedule.labels,
+          schedule.proxy
         );
       })
     );
