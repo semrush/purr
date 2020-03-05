@@ -1,6 +1,5 @@
 const fs = require('fs');
 const puppeteer = require('puppeteer');
-const puppeteerProxy = require('puppeteer-page-proxy');
 
 const uuidv4 = require('uuid/v4');
 const Sentry = require('@sentry/node');
@@ -13,14 +12,16 @@ const { CheckParser } = require('./parser');
 
 const log = new Logger();
 
-async function getBrowser(userAgent = config.userAgent) {
+async function getBrowser(userAgent = config.userAgent, customArgs = []) {
   return puppeteer.launch({
     args: [
       `--window-size=${config.windowWidth},${config.windowHeight}`,
       `--user-agent=${userAgent}`,
       '--no-sandbox',
       '--disk-cache-size=0',
+      ...customArgs,
     ],
+
     defaultViewport: {
       width: config.windowWidth,
       height: config.windowHeight,
@@ -158,19 +159,22 @@ class CheckRunner {
     checkReport.scheduleName = scheduleName;
     checkReport.labels = labels;
 
+    const check = this.checkParser.getParsedCheck(name);
+
+    const browserArgs = [];
+
+    if (typeof check.proxy !== 'undefined') {
+      browserArgs.push(`--proxy-server=${check.proxy}`);
+    } else if (proxy) {
+      browserArgs.push(`--proxy-server=${proxy}`);
+    }
+
     // TODO: do all actions in getBrowser().then and close browser after?
     const browser = await getBrowser(
-      `${config.userAgent} (checkId: ${checkId}; checkName: ${name};)`
+      `${config.userAgent} (checkId: ${checkId}; checkName: ${name};)`,
+      browserArgs
     );
     const page = await getPage(browser);
-
-    const check = this.checkParser.getParsedCheck(name);
-    if (proxy) {
-      await puppeteerProxy(page, proxy);
-    }
-    if (typeof check.proxy !== 'undefined') {
-      await puppeteerProxy(page, check.proxy);
-    }
 
     const checkIdSafe = checkId.replace(/[^\w]/g, '_');
 

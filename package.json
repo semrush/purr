@@ -38,7 +38,6 @@
     "nunjucks": "^3.2.0",
     "prom-client": "^11.5.3",
     "puppeteer": "^2.1.1",
-    "puppeteer-page-proxy": "^1.2.3",
     "serve-favicon": "^2.5.0",
     "uuid": "^3.3.3"
   }
