@@ -1,4 +1,20 @@
 class CheckReport {
+  /**
+   * Create a check report.
+   * @param {string} [name] - Check name
+   * @param {string} [id] - Check id
+   * @param {boolean} [success] - Success status
+   * @param {string} [shortMessage] - Short message
+   * @param {string} [fullMessage] - Full message
+   * @param {string} [tracePath] - Trace path
+   * @param {string} [screenshotPath] - Screenshot path
+   * @param {string} [consoleLogPath] - Console log path
+   * @param {string} [startDateTime] - Check start datetime
+   * @param {string} [endDateTime] - Check completion datetime
+   * @param {ActionReport[]} [actions=[]] - Check action list
+   * @param {string} [scheduleName=''] - Schedule name
+   * @param {string[]} [labels=[]] - Labels
+   */
   constructor(
     name,
     id,
@@ -31,6 +47,18 @@ class CheckReport {
 }
 
 class ActionReport {
+  /**
+   * Create a check action report.
+   * @param {string} name - Action name
+   * @param {number} step - Action step number
+   * @param {Array} params - Success status
+   * @param {boolean} [success] - Success status
+   * @param {string} [shortMessage] - Short message
+   * @param {string} [fullMessage] - Full message
+   * @param {string} [startDateTime] - Check start datetime
+   * @param {string} [endDateTime] - Check completion datetime
+   * @param {object[]} [cookies] - Check completion datetime
+   */
   constructor(
     name,
     step,
@@ -39,7 +67,8 @@ class ActionReport {
     shortMessage,
     fullMessage,
     startDateTime,
-    endDateTime
+    endDateTime,
+    cookies
   ) {
     this.name = name;
     this.step = step;
@@ -49,6 +78,7 @@ class ActionReport {
     this.fullMessage = fullMessage;
     this.startDateTime = startDateTime;
     this.endDateTime = endDateTime;
+    this.cookies = cookies;
   }
 }
 

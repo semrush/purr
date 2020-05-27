@@ -234,6 +234,20 @@ class CheckRunner {
           .then(async () => {
             actionReport.success = true;
 
+            if (config.cookieTracking) {
+              await page
+                .cookies()
+                .then((cookies) => {
+                  actionReport.cookies = cookies.map((cookie) => {
+                    const { value, ...withoutValue } = cookie;
+                    return withoutValue;
+                  });
+                })
+                .catch((err) => {
+                  log.error('Could not get a cookies:', err);
+                });
+            }
+
             if (
               stepName === 'waitForSelector' &&
               typeof stepParameters[1] !== 'undefined' &&
