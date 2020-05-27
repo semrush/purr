@@ -217,27 +217,6 @@ class CheckRunner {
           stepParameters
         );
 
-        // TODO: implement waitForNavigation logic
-        /*
-        console.log('then scenarioCopy:', scenarioCopy);
-
-        if (stepName === 'waitForNavigation') {
-          console.log('waitForNavigation rest scenario:', scenarioCopy);
-          stepData = scenarioCopy.shift();
-
-          if (typeof stepData === 'undefined') {
-            throw new Error(
-              "Action 'waitForNavigation' should not be the last " +
-                'in the check scenario'
-            );
-          }
-
-          const nextPromise = CheckRunner.doAction(page, stepName, stepParameters);
-          console.log('actionPromise, nextPromise', actionPromise, nextPromise);
-          actionPromise = Promise.all([actionPromise, nextPromise]);
-        }
-        */
-
         const actionReport = new ActionReport(stepName, step, '***hidden***');
         actionReport.startDateTime = new Date().toISOString();
 
