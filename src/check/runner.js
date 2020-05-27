@@ -251,15 +251,11 @@ class CheckRunner {
                 .then((content) => {
                   if (!content.includes(stepParameters[1].contains)) {
                     throw new Error(
-                      `Element '${stepParameters[0]}' does not contains '${
-                        stepParameters[1].contains
-                      }'`
+                      `Element '${stepParameters[0]}' does not contains '${stepParameters[1].contains}'`
                     );
                   } else if (content.includes(stepParameters[1].notContains)) {
                     throw new Error(
-                      `Element '${stepParameters[0]}' should not contains '${
-                        stepParameters[1].notContains
-                      }'`
+                      `Element '${stepParameters[0]}' should not contains '${stepParameters[1].notContains}'`
                     );
                   }
                 });
