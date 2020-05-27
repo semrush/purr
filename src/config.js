@@ -96,6 +96,13 @@ const config = {
     .filter((domain) => {
       return domain.length > 0;
     }),
+
+  cookieTracking: getDefault(envParams.COOKIE_TRACKING === 'true', false),
+
+  cookieTrackingHideValue: getDefault(
+    envParams.COOKIE_TRACKING_HIDE_VALUE !== 'false',
+    true
+  ),
 };
 
 module.exports = config;

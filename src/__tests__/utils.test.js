@@ -65,3 +65,26 @@ describe('sleep', () => {
     }).toThrow("Mandatory parameter 'ms' is missing");
   });
 });
+
+describe('stringToRegExp', () => {
+  test("fail when 'str' argument is not specified", () => {
+    expect(() => {
+      utils.stringToRegExp();
+    }).toThrow("Mandatory parameter 'str' is missing");
+  });
+
+  test('skip if param value specified', () => {
+    expect(utils.stringToRegExp(String.raw`/^test_[a-z-]{1,3}$/`)).toEqual(
+      /^test_[a-z-]{1,3}$/
+    );
+    expect(utils.stringToRegExp(String.raw`/^test_\/[a-z]{1,3}$/`)).toEqual(
+      /^test_\/[a-z]{1,3}$/
+    );
+    expect(utils.stringToRegExp(String.raw`/^test_[a-z-]{1,3}$/gi`)).toEqual(
+      /^test_[a-z-]{1,3}$/gi
+    );
+    expect(utils.stringToRegExp(String.raw`/^test_\/[a-z]{1,3}$/gi`)).toEqual(
+      /^test_\/[a-z]{1,3}$/gi
+    );
+  });
+});

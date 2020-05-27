@@ -65,7 +65,8 @@ class ScheduleRunner {
           schedule.interval,
           false,
           schedule.labels,
-          schedule.proxy
+          schedule.proxy,
+          schedule.cookieWhitelist
         );
       })
     );

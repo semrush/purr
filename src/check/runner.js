@@ -138,13 +138,24 @@ class CheckRunner {
     return page[action](...params);
   }
 
+  /**
+   * Execute check.
+   * @param {string} name
+   * @param {string} checkId
+   * @param {object} [params={}]
+   * @param {string} [scheduleName='']
+   * @param {string[]} [labels=[]]
+   * @param {string} [proxy=null]
+   * @param {string[]} [cookieWhitelist=[]]
+   */
   async doCheck(
     name = utils.mandatory('name'),
     checkId = utils.mandatory('name'),
     params = {},
     scheduleName = '',
     labels = [],
-    proxy = null
+    proxy = null,
+    cookieWhitelist = []
   ) {
     if (typeof checkId !== 'string') {
       throw new Error(
@@ -206,33 +217,26 @@ class CheckRunner {
           stepParameters
         );
 
-        // TODO: implement waitForNavigation logic
-        /*
-        console.log('then scenarioCopy:', scenarioCopy);
-
-        if (stepName === 'waitForNavigation') {
-          console.log('waitForNavigation rest scenario:', scenarioCopy);
-          stepData = scenarioCopy.shift();
-
-          if (typeof stepData === 'undefined') {
-            throw new Error(
-              "Action 'waitForNavigation' should not be the last " +
-                'in the check scenario'
-            );
-          }
-
-          const nextPromise = CheckRunner.doAction(page, stepName, stepParameters);
-          console.log('actionPromise, nextPromise', actionPromise, nextPromise);
-          actionPromise = Promise.all([actionPromise, nextPromise]);
-        }
-        */
-
         const actionReport = new ActionReport(stepName, step, '***hidden***');
         actionReport.startDateTime = new Date().toISOString();
 
         await actionPromise
           .then(async () => {
             actionReport.success = true;
+
+            if (config.cookieTracking) {
+              await page
+                .cookies()
+                .then((cookies) => {
+                  actionReport.cookies = cookies.map((cookie) => {
+                    const { value, ...withoutValue } = cookie;
+                    return withoutValue;
+                  });
+                })
+                .catch((err) => {
+                  log.error('Could not get a cookies:', err);
+                });
+            }
 
             if (
               stepName === 'waitForSelector' &&
@@ -247,15 +251,11 @@ class CheckRunner {
                 .then((content) => {
                   if (!content.includes(stepParameters[1].contains)) {
                     throw new Error(
-                      `Element '${stepParameters[0]}' does not contains '${
-                        stepParameters[1].contains
-                      }'`
+                      `Element '${stepParameters[0]}' does not contains '${stepParameters[1].contains}'`
                     );
                   } else if (content.includes(stepParameters[1].notContains)) {
                     throw new Error(
-                      `Element '${stepParameters[0]}' should not contains '${
-                        stepParameters[1].notContains
-                      }'`
+                      `Element '${stepParameters[0]}' should not contains '${stepParameters[1].notContains}'`
                     );
                   }
                 });
@@ -291,6 +291,43 @@ class CheckRunner {
 
     result = result.finally(async () => {
       checkReport.endDateTime = new Date().toISOString();
+
+      const forbiddenCookies = new Set();
+
+      if (config.cookieTracking) {
+        const cookieWhitelistNames = [];
+        const cookieWhitelistRegexps = [];
+
+        // Separate plain strings from regexps
+        cookieWhitelist.forEach((whitelistedName) => {
+          if (whitelistedName.startsWith('/')) {
+            cookieWhitelistRegexps.push(utils.stringToRegExp(whitelistedName));
+          } else {
+            cookieWhitelistNames.push(whitelistedName);
+          }
+        });
+
+        checkReport.actions.forEach((action) => {
+          action.cookies.forEach((cookie) => {
+            if (cookieWhitelistNames.includes(cookie.name)) {
+              return;
+            }
+
+            if (
+              cookieWhitelistRegexps.some((pattern) =>
+                pattern.test(cookie.name)
+              )
+            ) {
+              return;
+            }
+
+            forbiddenCookies.add(cookie.name);
+          });
+        });
+      }
+
+      checkReport.forbiddenCookies = [...forbiddenCookies];
+      checkReport.forbiddenCookiesCount = forbiddenCookies.size;
 
       async function saveArtifacts() {
         if (config.traces) {
@@ -354,7 +391,8 @@ class CheckRunner {
     scheduleInterval = 0,
     wait = true,
     labels = [],
-    proxy = null
+    proxy = null,
+    cookieWhitelist = []
   ) {
     return this.queue.add(
       name,
@@ -365,7 +403,8 @@ class CheckRunner {
       scheduleInterval,
       wait,
       labels,
-      proxy
+      proxy,
+      cookieWhitelist
     );
   }
 }
