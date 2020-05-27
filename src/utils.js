@@ -115,6 +115,19 @@ function humanReadableTimeToMS(timeString = mandatory('timeString')) {
   return interval * 1000 * intervalMultiplier;
 }
 
+/**
+ * Converts string to RegExp
+ * @param {string} str
+ * @returns {RegExp}
+ */
+function stringToRegExp(str = mandatory('str')) {
+  const lastSlashIndex = str.lastIndexOf('/');
+  const pattern = str.slice(1, lastSlashIndex);
+  const flags = str.slice(lastSlashIndex + 1);
+
+  return new RegExp(pattern, flags);
+}
+
 module.exports = {
   mandatory,
   enrichError,
@@ -124,4 +137,5 @@ module.exports = {
   throwUnhandledRejections,
   getPrefixedEnvVars,
   humanReadableTimeToMS,
+  stringToRegExp,
 };
