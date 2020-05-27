@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const commander = require('commander');
+const util = require('util');
 
 const utils = require('../utils');
 
@@ -38,13 +39,27 @@ suiteRunner
   .run(commander.args[0])
   .then((result) => {
     if (!result.success) {
-      log.error('Suite failed\n', result);
+      log.error(
+        'Suite failed\n',
+        util.inspect(result, {
+          colors: true,
+          depth: null,
+          maxArrayLength: null,
+        })
+      );
       process.exit(1);
     }
-    log.info('Suite success\n', result);
+
+    log.info(
+      'Suite success\n',
+      util.inspect(result, { colors: true, depth: null, maxArrayLength: null })
+    );
   })
   .catch((err) => {
-    log.error('Suite failed\n', err);
+    log.error(
+      'Suite failed\n',
+      util.inspect(err, { colors: true, depth: null, maxArrayLength: null })
+    );
     process.exit(1);
   })
   .finally(() => {

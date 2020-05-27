@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const commander = require('commander');
+const util = require('util');
 
 const utils = require('../utils');
 
@@ -23,9 +24,15 @@ log.info(`Running check ${JSON.stringify(commander.args[0])}`);
 checkRunner
   .run(commander.args[0])
   .then((result) => {
-    log.info('Check success\n', result);
+    log.info(
+      'Check success\n',
+      util.inspect(result, { colors: true, depth: null, maxArrayLength: null })
+    );
   })
   .catch((err) => {
-    log.error('Check failed\n', err);
+    log.error(
+      'Check failed\n',
+      util.inspect(err, { colors: true, depth: null, maxArrayLength: null })
+    );
     process.exit(1);
   });
