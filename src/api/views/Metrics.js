@@ -23,7 +23,7 @@ const reportCheckSuccessGauge = new prom.Gauge({
   labelNames,
 });
 
-const reportCheckForbiddenCookiesCounter = new prom.Counter({
+const reportCheckForbiddenCookiesGauge = new prom.Gauge({
   name: `${metricPrefix}report_check_forbidden_cookies_count`,
   help: 'Count of forbidden cookies found',
   labelNames,
@@ -138,7 +138,7 @@ class Metrics {
                     report && report.success ? 1 : 0
                   );
 
-                  reportCheckForbiddenCookiesCounter.inc(
+                  reportCheckForbiddenCookiesGauge.set(
                     labels,
                     report ? report.forbiddenCookiesCount : 0
                   );
