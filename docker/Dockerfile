@@ -48,7 +48,7 @@ RUN chown node:node .
 USER node
 
 COPY package*.json ./
-RUN npm ci
+RUN yarn --frozen-lockfile
 
 COPY src ./src
 CMD ["./src/cli.js"]

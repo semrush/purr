@@ -8,12 +8,12 @@
     "test:watch": "jest --detectOpenHandles --watch --coverage=false",
     "test:watch-all": "jest --detectOpenHandles --watchAll",
     "lint": "eslint --max-warnings 0 --ext .js,.jsx src",
-    "lint:fix": "npm run lint -- --fix",
-    "pre-commit": "npm run lint && npm run test -- --silent --verbose false"
+    "lint:fix": "yarn run lint -- --fix",
+    "pre-commit": "yarn run lint && yarn run test -- --silent --verbose false"
   },
   "keywords": [],
   "author": "",
-  "license": "",
+  "license": "MIT",
   "engines": {
     "node": ">=11"
   },
