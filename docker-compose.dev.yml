@@ -13,7 +13,7 @@ services:
       - ':
         && set -x
         && echo Installing node modules
-        && npm i
+        && yarn
         && echo Container is READY
         && sleep infinity
         '
@@ -30,8 +30,8 @@ services:
       - ':
         && set -x
         && echo Installing node modules
-        && npm i
-        && npx nodemon --ignore ./storage ./src/cli.js worker check
+        && yarn
+        && yarn nodemon --ignore ./storage ./src/cli.js worker check
         '
     environment:
       NODE_ENV: development
@@ -46,8 +46,8 @@ services:
       - ':
         && set -x
         && echo Installing node modules
-        && npm i
-        && npx nodemon --ignore ./storage ./src/cli.js server start
+        && yarn
+        && yarn nodemon --ignore ./storage ./src/cli.js server start
         '
     environment:
       NODE_ENV: development

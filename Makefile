@@ -28,12 +28,12 @@ docker-build-app-no-cache:
 lint:
 	docker run --rm \
 		-v ${PWD}:/app \
-		${APP_IMAGE_NAME}:${APP_IMAGE_VERSION} npm run lint
+		${APP_IMAGE_NAME}:${APP_IMAGE_VERSION} yarn run lint
 
 test:
 	docker run --rm \
 		-v ${PWD}:/app \
-		${APP_IMAGE_NAME}:${APP_IMAGE_VERSION} npm run test
+		${APP_IMAGE_NAME}:${APP_IMAGE_VERSION} yarn run test
 
 start: docker-build-app
 	docker-compose \
@@ -61,4 +61,4 @@ attach-dev:
 		exec cli bash
 
 update-readme-toc:
-	npx doctoc --notitle --maxlevel 2 --github README.md
+	yarn doctoc --notitle --maxlevel 2 --github README.md

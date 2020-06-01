@@ -13,11 +13,11 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12
-      - name: npm
-        run: npm ci
+      - name: yarn
+        run: yarn --frozen-lockfile
       - name: 'lint configs'
-        run: npx prettier -c 'data/*.yml' 'data/*.yaml'
+        run: yarn prettier -c 'data/*.yml' 'data/*.yaml'
       - name: lint
-        run: npm run lint
+        run: yarn run lint
       - name: test
-        run: npm run test
+        run: yarn run test

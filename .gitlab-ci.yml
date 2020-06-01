@@ -36,7 +36,7 @@ lint-yaml:
     - merge_requests
   image: node:12
   script:
-    - npx prettier -c '**/*.yml' '**/*.yaml'
+    - yarn prettier -c '**/*.yml' '**/*.yaml'
 
 #
 ### BUILD
@@ -116,9 +116,9 @@ tag-app-image-release:
   stage: test
   image: ${DOCKER_REGISTRY_URL}/${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
   script:
-    - npm ci
-    - npm run lint
-    - npm run test
+    - yarn --frozen-lockfile
+    - yarn run lint
+    - yarn run test
   coverage: /All\sfiles.*?\s+(\d+.\d+)/
 
 test-review:

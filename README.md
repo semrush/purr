@@ -297,8 +297,8 @@ make attach-dev
 ## Tests
 
 Run tests:
-```
-npm run test
+```bash
+yarn run test
 ```
 
 ### Mocks
