@@ -1,8 +1,18 @@
 const originArgv = process.argv.slice();
 
+let processExit;
+const exitErrorText = 'process.exit prevented in tests. Code:';
+
 beforeEach(() => {
   jest.resetModules();
   jest.restoreAllMocks();
+
+  processExit = jest
+    .spyOn(process, 'exit')
+    .mockName('processExit')
+    .mockImplementation((code) => {
+      throw Error(`${exitErrorText} ${code}`);
+    });
 });
 
 afterEach(() => {
@@ -11,47 +21,21 @@ afterEach(() => {
 
 test('call help if check name not specified', () => {
   const commander = require('commander');
-  jest.spyOn(commander, 'help').mockImplementation(() => {
-    throw new Error('Mocked');
-  });
+  jest.spyOn(commander, 'outputHelp').mockImplementation();
 
   process.argv = [process.argv[0], './cli-check.js'];
 
   expect(() => {
     require('../cli-check');
-  }).toThrow('Mocked');
+  }).toThrow(exitErrorText);
+
+  expect(processExit).toBeCalled();
+  expect(processExit).toBeCalledWith(1);
 });
 
-test('success check', () => {
-  const run = jest.fn().mockResolvedValue('Fake success');
-
-  jest.doMock('../../check/runner', () => {
-    // TODO: test that mandatory parameters is specified
-    return jest.fn().mockImplementation(() => {
-      return { run };
-    });
-  });
-
-  const checkName = 'some-check-name';
-
-  process.argv = [process.argv[0], './cli-check.js', checkName];
-
-  require('../cli-check');
-  expect(run).toBeCalledTimes(1);
-  expect(run).toBeCalledWith(checkName);
-});
-
-test('exit with code 1 if check failed', () => {
-  // eslint-disable-next-line no-unused-vars
-  const mockExit = jest.spyOn(process, 'exit').mockResolvedValue('test');
-  // const mockConsole = jest.spyOn(console, 'error').mockResolvedValue('test');
-  const run = jest.fn().mockRejectedValue('Fake fail');
-
-  jest.doMock('../../check/runner', () => {
-    return jest.fn().mockImplementation(() => {
-      return { run };
-    });
-  });
+test('run check', () => {
+  const check = require('../check');
+  check.run = jest.fn().mockImplementation();
 
   const checkName = 'some-check-name';
 
@@ -59,10 +43,7 @@ test('exit with code 1 if check failed', () => {
 
   require('../cli-check');
 
-  expect(run).toBeCalledTimes(1);
-  expect(run).toBeCalledWith(checkName);
-
-  // TODO: Create issue in jest repo
-  // expect(mockConsole).toBeCalledWith('Check failed\n');
-  // expect(mockExit).toBeCalledWith(1);
+  expect(check.run).toBeCalledTimes(1);
+  expect(check.run).toBeCalledWith(checkName);
+  expect(processExit).not.toBeCalled();
 });
