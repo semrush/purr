@@ -1,8 +1,18 @@
 const originArgv = process.argv.slice();
 
+let processExit;
+const exitErrorText = 'process.exit prevented in tests. Code:';
+
 beforeEach(() => {
   jest.resetModules();
   jest.restoreAllMocks();
+
+  processExit = jest
+    .spyOn(process, 'exit')
+    .mockName('processExit')
+    .mockImplementation((code) => {
+      throw Error(`${exitErrorText} ${code}`);
+    });
 });
 
 afterEach(() => {
@@ -11,63 +21,34 @@ afterEach(() => {
 
 test('call help if suite name not specified', () => {
   const commander = require('commander');
-  jest.spyOn(commander, 'help').mockImplementation(() => {
-    throw new Error('Mocked');
-  });
+  jest.spyOn(commander, 'outputHelp').mockName('commander.outputHelp');
 
   process.argv = [process.argv[0], './cli-suite.js'];
 
   expect(() => {
     require('../cli-suite');
-  }).toThrow('Mocked');
+  }).toThrow(exitErrorText);
+
+  expect(commander.outputHelp).toBeCalledTimes(1);
+  expect(processExit).toBeCalledTimes(1);
+  expect(processExit).toBeCalledWith(1);
 });
 
-test('success suite', () => {
-  const run = jest.fn().mockResolvedValue({
-    shortMessage: 'Fake success',
-    success: true,
-  });
-
-  jest.doMock('../../suite/runner', () => {
-    return jest.fn().mockImplementation(() => {
-      return { run };
-    });
-  });
+test.each([true, false])('run suite', (useRedis) => {
+  const suite = require('../suite');
+  suite.run = jest.fn().mockImplementation();
 
   const suiteName = 'some-suite-name';
 
-  process.argv = [process.argv[0], './cli-suite.js', suiteName];
-
-  require('../cli-suite');
-  expect(run).toBeCalledTimes(1);
-  expect(run).toBeCalledWith(suiteName);
-});
-
-test('exit with code 1 if suite failed', () => {
-  // eslint-disable-next-line no-unused-vars
-  const mockExit = jest.spyOn(process, 'exit').mockResolvedValue('test');
-  // const mockConsole = jest.spyOn(console, 'error').mockResolvedValue('test');
-  const run = jest.fn().mockRejectedValue({
-    shortMessage: 'Fake fail',
-    success: false,
-  });
-
-  jest.doMock('../../suite/runner', () => {
-    return jest.fn().mockImplementation(() => {
-      return { run };
-    });
-  });
-
-  const suiteName = 'some-suite-name';
-
-  process.argv = [process.argv[0], './cli-suite.js', suiteName];
+  if (useRedis) {
+    process.argv = [process.argv[0], './cli-suite.js', '--redis', suiteName];
+  } else {
+    process.argv = [process.argv[0], './cli-suite.js', suiteName];
+  }
 
   require('../cli-suite');
 
-  expect(run).toBeCalledTimes(1);
-  expect(run).toBeCalledWith(suiteName);
-
-  // TODO: Create issue in jest repo
-  // expect(mockConsole).toBeCalledWith('suite failed\n');
-  // expect(mockExit).toBeCalledWith(1);
+  expect(suite.run).toBeCalledTimes(1);
+  expect(suite.run).toBeCalledWith(suiteName, useRedis);
+  expect(processExit).not.toBeCalled();
 });
