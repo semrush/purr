@@ -1,7 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [Intro](#intro)
 - [Configuration](#configuration)
 - [CLI](#cli)
@@ -15,6 +14,7 @@
   - [Methods](#methods)
   - [Includes](#includes)
   - [Variables](#variables)
+  - [Proxy](#proxy)
 - [Development](#development)
   - [Tests](#tests)
 
@@ -32,6 +32,7 @@ The tool uses puppeteer (https://pptr.dev/) to run standalone browsers (Chrome a
 Checks results are stored as JSON reports, screenshots and traces.
 
 PURR has three modes:
+
 - CLI (mainly used in CI/CD pipelines)
 - queue worker (scheduled monitoring)
 - REST service (show results and expose internal metrics for prometheus)
@@ -39,44 +40,50 @@ PURR has three modes:
 # Configuration
 
 ### data/checks.yml
+
 Stores descriptions of every single check
 
 ### data/suites.yml
+
 Organizes checks into suites
 
 ### data/parameters.yml
+
 Specifies check parameters, i.e. target host or cookie values
 
 ### data/schedules.yml
+
 Define your schedules here
 
 ### priority of parameters
+
 - Defaults from parameters.yml
 - Defaults from check/suite
 - Params from env
 - Explicitly specified params
 
-
-
 # CLI
 
 ### Build
+
 ```bash
 docker build -f ./docker/Dockerfile . -t puppeteer-runner:latest
 ```
 
 ### Run single check
+
 ```bash
 docker run -v "${PWD}/storage:/src/app/storage" puppeteer-runner:latest ./src/cli/cli.js check semrush-com
 ```
 
 ### Run suite
+
 ```bash
 docker run -v "${PWD}/storage:/src/app/storage" puppeteer-runner:latest ./src/cli/cli.js suite semrush-suite
 ```
 
-
 ### Results
+
 ```bash
 $ tree storage
 storage
@@ -96,10 +103,7 @@ storage
 
 Open trace in [Chrome DevTools Timeline Viewer](https://chromedevtools.github.io/timeline-viewer/).
 
-
-
 # Scheduled jobs
-
 
 ## Run worker
 
@@ -121,34 +125,38 @@ docker-compose exec worker /app/src/cli.js schedule apply
 docker-compose exec worker /app/src/cli.js schedule clean
 ```
 
-
 # REST API
-
 
 ## Endpoints
 
 #### `GET /metrics`
+
 Prometheus metrics
 
 #### `GET /api/v1/checks`
+
 List of existing checks
 
 ##### query strings
 
 #### `POST /api/v1/checks/:name`
+
 Add check to queue
 
 ##### Response
+
 **200**: Returns check report
 **202**: Returns id of created check job
 
 ##### Payload
+
 - **name**: string
   Check name to run
 - **params**: array
   Any check parameter
 
 ##### Query strings
+
 - **wait**: bool
   **default**: false
   Just return link for report when false
@@ -158,6 +166,7 @@ Add check to queue
   Output format
 
 ##### Example:
+
 ```
 curl -X POST \
   -d 'params[TARGET_SCHEMA]=http' \
@@ -166,18 +175,20 @@ curl -X POST \
 ```
 
 #### `GET /api/v1/reports/:id`
+
 Get report
 
 ##### Payload
+
 - **id**: string
   Check report id
 
 ##### Query strings
+
 - **view**: string
   **default**: json
   **options**: json, pretty
   Output format
-
 
 # Writing checks
 
@@ -297,11 +308,13 @@ make attach-dev
 ## Tests
 
 Run tests:
+
 ```bash
 yarn run test
 ```
 
 ### Mocks
+
 We are using Jest testing framework.
 
 You can mock module like that:
@@ -313,6 +326,7 @@ You can mock module like that:
 // Mocked module methods return `undefined`, fields return actual value.
 jest.mock('../../config');
 ```
+
 ```javascript
 // Now `config` for all scripts will be `{ concurrency: 9 }`
 jest.mock('../../config', () => ({ concurrency: 9 }));
@@ -329,8 +343,8 @@ config.getWorkingPath = jest.fn().mockImplementation(() => {
 });
 ```
 
-
 #### Be careful
+
 Methods `mock`\\`unmock` must be executed before module imports and in the
 same scope.
 Mocks state restoring after each test, but only when you did not used
