@@ -34,6 +34,13 @@ function sleep(ms = mandatory('ms')) {
   });
 }
 
+/**
+ * Force loging of unhandledRejection events.
+ *
+ * Most likely should be used only for entrypoints.
+ *
+ * @param {boolean} exitWithError - Call process.exit(1) after log
+ */
 function logUnhandledRejections(exitWithError = false) {
   /* istanbul ignore next */
   // In Node v7 unhandled promise rejections will terminate the process
@@ -52,6 +59,11 @@ function logUnhandledRejections(exitWithError = false) {
   }
 }
 
+/**
+ * Force throwing of unhandledRejection events.
+ *
+ * Most likely should be used only for entrypoints.
+ */
 function throwUnhandledRejections() {
   /* istanbul ignore next */
   // In Node v7 unhandled promise rejections will terminate the process
