@@ -63,7 +63,7 @@ class ActionReport {
    * @param {string} [fullMessage] - Full message
    * @param {string} [startDateTime] - Check start datetime
    * @param {string} [endDateTime] - Check completion datetime
-   * @param {object[]} [cookies] - Check completion datetime
+   * @param {object[]} [cookies=[]] - Check completion datetime
    */
   constructor(
     name,
@@ -74,7 +74,7 @@ class ActionReport {
     fullMessage,
     startDateTime,
     endDateTime,
-    cookies
+    cookies = []
   ) {
     this.name = name;
     this.step = step;
