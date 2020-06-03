@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 const util = require('util');
 
 const Logger = require('../Logger');
