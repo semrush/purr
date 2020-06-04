@@ -1,5 +1,5 @@
 const puppeteer = require('puppeteer');
-const uuidv4 = require('uuid/v4');
+const { v4: uuidv4 } = require('uuid');
 
 jest.mock('puppeteer');
 jest.mock('../../config');
