@@ -184,7 +184,11 @@ class CheckRunner {
 
     // TODO: do all actions in getBrowser().then and close browser after?
     const browser = await getBrowser(
-      `${config.userAgent} (checkId: ${checkId}; checkName: ${name};)`,
+      `${config.userAgent} (${JSON.stringify({
+        checkId,
+        name,
+        scheduleName,
+      })})`,
       browserArgs
     );
     const page = await getPage(browser);
