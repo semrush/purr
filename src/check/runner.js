@@ -145,8 +145,10 @@ class CheckRunner {
    * @param {object} [params={}]
    * @param {string} [scheduleName='']
    * @param {string[]} [labels=[]]
-   * @param {string} [proxy=null]
+   * @param {string|null} [proxy=null]
    * @param {string[]} [cookieWhitelist=[]]
+   *
+   * @returns {Promise<CheckReport>} Check report
    */
   async doCheck(
     name = utils.mandatory('name'),

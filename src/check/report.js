@@ -1,8 +1,8 @@
 class CheckReport {
   /**
    * Create a check report.
-   * @param {string} [name] - Check name
-   * @param {string} [id] - Check id
+   * @param {string} name - Check name
+   * @param {string} id - Check id
    * @param {boolean} [success] - Success status
    * @param {string} [shortMessage] - Short message
    * @param {string} [fullMessage] - Full message
@@ -57,7 +57,7 @@ class ActionReport {
    * Create a check action report.
    * @param {string} name - Action name
    * @param {number} step - Action step number
-   * @param {object[]} params - Action parameters
+   * @param {object} params - Action parameters
    * @param {boolean} [success] - Success status
    * @param {string} [shortMessage] - Short message
    * @param {string} [fullMessage] - Full message
