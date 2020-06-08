@@ -197,7 +197,9 @@ class CheckRunner {
         checkId,
         name,
         scheduleName,
-      })})`,
+      })
+        .replace(/["{}]/g, '')
+        .replace(/,/g, '; ')})`,
       browserArgs
     );
     const page = await getPage(browser);
