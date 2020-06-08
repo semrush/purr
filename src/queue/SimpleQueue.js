@@ -31,7 +31,7 @@ class SimpleQueue extends BaseQueue {
     params = {},
     // eslint-disable-next-line no-unused-vars
     repeat = {},
-    scheduleName = '',
+    scheduleName = null,
     // eslint-disable-next-line no-unused-vars
     scheduleInterval = 0,
     // eslint-disable-next-line no-unused-vars

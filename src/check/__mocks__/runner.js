@@ -8,14 +8,14 @@ class CheckRunner {
     this.queue = queue;
   }
 
-  async run(name, checkId, scheduleName = '') {
+  async run(name, checkId, scheduleName = null) {
     return this.doCheck(name, checkId, scheduleName);
   }
 
   async doCheck(
     name = utils.mandatory('name'),
     checkId = uuidv4(),
-    scheduleName = '',
+    scheduleName = null,
     scheduleInterval = 0
   ) {
     const checkReport = new CheckReport(name, checkId);

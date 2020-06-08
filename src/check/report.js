@@ -12,7 +12,7 @@ class CheckReport {
    * @param {string} [startDateTime] - Check start datetime
    * @param {string} [endDateTime] - Check completion datetime
    * @param {ActionReport[]} [actions=[]] - Check action list
-   * @param {string} [scheduleName=''] - Schedule name
+   * @param {string|null} [scheduleName=null] - Schedule name
    * @param {string[]} [labels=[]] - Labels
    * @param {string[]} [forbiddenCookies=[]] - Found forbidden cookies
    * @param {number} [forbiddenCookiesCount=0] - Count of forbidden cookies found
@@ -29,7 +29,7 @@ class CheckReport {
     startDateTime,
     endDateTime,
     actions = [],
-    scheduleName = '',
+    scheduleName = null,
     labels = [],
     forbiddenCookies = [],
     forbiddenCookiesCount = 0

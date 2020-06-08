@@ -152,7 +152,7 @@ class CheckRunner {
    * @param {string} name
    * @param {string} checkId
    * @param {object} [params={}]
-   * @param {string} [scheduleName='']
+   * @param {string|null} [scheduleName=null]
    * @param {string[]} [labels=[]]
    * @param {string|null} [proxy=null]
    * @param {string[]} [cookieWhitelist=[]]
@@ -163,7 +163,7 @@ class CheckRunner {
     name = utils.mandatory('name'),
     checkId = utils.mandatory('name'),
     params = {},
-    scheduleName = '',
+    scheduleName = null,
     labels = [],
     proxy = null,
     cookieWhitelist = []
@@ -415,7 +415,7 @@ class CheckRunner {
     checkId = uuidv4(),
     params = {},
     repeat = {},
-    scheduleName = '',
+    scheduleName = null,
     scheduleInterval = 0,
     wait = true,
     labels = [],
