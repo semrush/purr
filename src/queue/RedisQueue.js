@@ -45,6 +45,8 @@ class RedisQueue extends BaseQueue {
     const jobOptions = {
       jobId: checkId,
       timeout: config.redisJobTTL,
+      removeOnComplete: true,
+      removeOnFail: true,
     };
 
     if (Object.keys(repeat).length > 0) {

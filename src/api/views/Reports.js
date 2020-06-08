@@ -1,53 +1,46 @@
+const fs = require('fs');
+
 const config = require('../../config');
-const RedisQueue = require('../../queue/RedisQueue');
 
 class Reports {
-  static get(req, res, next) {
-    const queue = new RedisQueue(config.checksQueueName);
-    const checkId = req.params.id;
+  static get(req, res) {
     const { query } = req;
+    const checkIdSafe = req.params.id.replace(/[^\w]/g, '_');
+    let report;
 
-    queue.bull
-      .getJob(checkId)
-      .then(async (job) => {
-        if (job == null) {
-          res.status(404).end();
-        } else {
-          const result = {
-            state: await job.getState(),
-            report: job.returnvalue,
-          };
+    try {
+      report = JSON.parse(
+        fs.readFileSync(
+          `${config.reportsDir}/report_${checkIdSafe}.json`,
+          'utf8'
+        )
+      );
+    } catch (err) {
+      res.status(404).end();
+    }
 
-          if (result.report.tracePath) {
-            result.report.tracePath = result.report.tracePath.replace(
-              config.artifactsDir,
-              `${req.protocol}://${req.headers.host}/storage`
-            );
-          }
-          if (result.report.screenshotPath) {
-            result.report.screenshotPath = result.report.screenshotPath.replace(
-              config.artifactsDir,
-              `${req.protocol}://${req.headers.host}/storage`
-            );
-          }
-          if (result.report.consoleLogPath) {
-            result.report.consoleLogPath = result.report.consoleLogPath.replace(
-              config.artifactsDir,
-              `${req.protocol}://${req.headers.host}/storage`
-            );
-          }
+    if (report.tracePath) {
+      report.tracePath = report.tracePath.replace(
+        config.artifactsDir,
+        `${req.protocol}://${req.headers.host}/storage`
+      );
+    }
+    if (report.screenshotPath) {
+      report.screenshotPath = report.screenshotPath.replace(
+        config.artifactsDir,
+        `${req.protocol}://${req.headers.host}/storage`
+      );
+    }
+    if (report.consoleLogPath) {
+      report.consoleLogPath = report.consoleLogPath.replace(
+        config.artifactsDir,
+        `${req.protocol}://${req.headers.host}/storage`
+      );
+    }
 
-          res
-            .set({ 'Content-Type': 'application/json; charset=utf-8' })
-            .send(
-              query.view === 'pretty' ? JSON.stringify(result, null, 2) : result
-            );
-        }
-      })
-      .catch(next)
-      .finally(() => {
-        queue.close();
-      });
+    res
+      .set({ 'Content-Type': 'application/json; charset=utf-8' })
+      .send(query.view === 'pretty' ? JSON.stringify(report, null, 2) : report);
   }
 }
 
