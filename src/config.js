@@ -42,6 +42,11 @@ const config = {
   defaultPriorityLabel: 'p3',
 
   artifactsDir,
+  reports: getDefault(envParams.REPORTS !== 'false', true),
+  reportsDir: getDefault(
+    envParams.REPORTS_DIR,
+    path.resolve(artifactsDir, 'reports')
+  ),
   screenshots: getDefault(envParams.SCREENSHOTS !== 'false', true),
   screenshotsDir: getDefault(
     envParams.SCREENSHOTS_DIR,

@@ -107,6 +107,15 @@ function prepareArtifactsDirs() {
       fs.mkdirSync(config.consoleLogDir, { recursive: true });
     }
   }
+
+  if (config.reports) {
+    if (typeof config.reportsDir === 'undefined') {
+      throw new Error('Reports enabled but storage path not specified');
+    }
+    if (!fs.existsSync(config.reportsDir)) {
+      fs.mkdirSync(config.reportsDir, { recursive: true });
+    }
+  }
 }
 
 class CheckRunner {
@@ -371,6 +380,17 @@ class CheckRunner {
           } catch (err) {
             Sentry.captureException(err);
             log.error('Can not write a console log to disk:', err);
+          }
+        }
+
+        if (config.reports) {
+          const reportPath = `${config.reportsDir}/report_${checkIdSafe}.json`;
+
+          try {
+            await fs.writeFileSync(reportPath, JSON.stringify(checkReport));
+          } catch (err) {
+            Sentry.captureException(err);
+            log.error('Can not write a report to disk:', err);
           }
         }
       }

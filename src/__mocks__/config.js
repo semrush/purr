@@ -8,6 +8,7 @@ const configMock = {
   suitesFilePath: path.resolve(__dirname, './suites.yml'),
   parametersInfoFilePath: path.resolve(__dirname, './parameters.yml'),
   schedulesFilePath: path.resolve(__dirname, './schedules.yml'),
+  reports: false,
   traces: false,
   screenshots: false,
   consoleLog: false,
