@@ -26,7 +26,7 @@ class RedisQueue extends BaseQueue {
     checkId = utils.mandatory('checkId'),
     params = {},
     repeat = {},
-    scheduleName = '',
+    scheduleName = null,
     scheduleInterval = 0,
     waitJobFinish = true,
     labels = [],

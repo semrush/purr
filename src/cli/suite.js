@@ -1,11 +1,16 @@
-const util = require('util');
-
 const config = require('../config');
 const Logger = require('../Logger');
 const SuiteRunner = require('../suite/runner');
+const { processReport, stringifyReport } = require('../report/suite');
 const RedisQueue = require('../queue/RedisQueue');
 
-function run(suiteName, useRedis = false) {
+/**
+ * @param {string} suiteName Suite name
+ * @param {boolean} useRedis Use redis queue
+ * @param {import('../report/suite').SuiteReportViewOptions} options View options
+ * @returns {object}
+ */
+function run(suiteName, useRedis = false, options) {
   const log = new Logger();
 
   let suiteRunner;
@@ -24,32 +29,17 @@ function run(suiteName, useRedis = false) {
   return suiteRunner
     .run(suiteName)
     .then((result) => {
+      const prepared = processReport(result, options);
+
       if (!result.success) {
-        log.error(
-          'Suite failed\n',
-          util.inspect(result, {
-            colors: true,
-            depth: null,
-            maxArrayLength: null,
-          })
-        );
+        log.error('Suite failed\n', stringifyReport(prepared));
         process.exit(1);
       }
 
-      log.info(
-        'Suite success\n',
-        util.inspect(result, {
-          colors: true,
-          depth: null,
-          maxArrayLength: null,
-        })
-      );
+      log.info('Suite success\n', stringifyReport(prepared));
     })
     .catch((err) => {
-      log.error(
-        'Suite failed\n',
-        util.inspect(err, { colors: true, depth: null, maxArrayLength: null })
-      );
+      log.error('Suite failed\n', stringifyReport(err));
       process.exit(1);
     })
     .finally(() => {

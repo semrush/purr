@@ -2,7 +2,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const config = require('../config');
 const utils = require('../utils');
-const { SuiteReport } = require('./report');
+const { SuiteReport } = require('../report/suite');
 const { SuiteParser } = require('./parser');
 const SimpleQueue = require('../queue/SimpleQueue');
 const CheckRunner = require('../check/runner');

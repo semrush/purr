@@ -34,21 +34,72 @@ test('call help if suite name not specified', () => {
   expect(processExit).toBeCalledWith(1);
 });
 
-test.each([true, false])('run suite', (useRedis) => {
-  const suite = require('../suite');
-  suite.run = jest.fn().mockImplementation();
-
+describe('run suite', () => {
+  let suite;
   const suiteName = 'some-suite-name';
 
-  if (useRedis) {
-    process.argv = [process.argv[0], './cli-suite.js', '--redis', suiteName];
-  } else {
-    process.argv = [process.argv[0], './cli-suite.js', suiteName];
-  }
+  beforeEach(() => {
+    jest.mock('../suite');
+    suite = require('../suite');
+  });
 
-  require('../cli-suite');
+  test.each([true, false])('default options', (useRedis) => {
+    if (useRedis) {
+      process.argv = [process.argv[0], './cli-suite.js', '--redis', suiteName];
+    } else {
+      process.argv = [process.argv[0], './cli-suite.js', suiteName];
+    }
 
-  expect(suite.run).toBeCalledTimes(1);
-  expect(suite.run).toBeCalledWith(suiteName, useRedis);
-  expect(processExit).not.toBeCalled();
+    require('../cli-suite');
+
+    expect(suite.run).toBeCalledTimes(1);
+    expect(suite.run).toBeCalledWith(suiteName, useRedis, {
+      reportOptions: {
+        hideActions: false,
+        shorten: true,
+      },
+    });
+    expect(processExit).not.toBeCalled();
+  });
+
+  test('changed options', () => {
+    process.argv = [
+      process.argv[0],
+      './cli-suite.js',
+      suiteName,
+      '--hide-actions',
+    ];
+
+    require('../cli-suite');
+
+    expect(suite.run).toBeCalledTimes(1);
+    expect(suite.run).toBeCalledWith(suiteName, false, {
+      reportOptions: {
+        hideActions: true,
+        shorten: true,
+      },
+    });
+    expect(processExit).not.toBeCalled();
+  });
+
+  test('changed options to false', () => {
+    process.argv = [
+      process.argv[0],
+      './cli-suite.js',
+      suiteName,
+      '--hide-actions',
+      '--no-shorten',
+    ];
+
+    require('../cli-suite');
+
+    expect(suite.run).toBeCalledTimes(1);
+    expect(suite.run).toBeCalledWith(suiteName, false, {
+      reportOptions: {
+        hideActions: true,
+        shorten: false,
+      },
+    });
+    expect(processExit).not.toBeCalled();
+  });
 });

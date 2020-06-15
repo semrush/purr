@@ -6,7 +6,7 @@ jest.mock('../../config');
 
 const CheckRunner = require('../runner');
 const SimpleQueue = require('../../queue/SimpleQueue');
-const { CheckReport } = require('../report');
+const { CheckReport } = require('../../report/check');
 
 const browser = {
   newPage: async () => {

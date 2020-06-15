@@ -1,3 +1,5 @@
+const util = require('util');
+
 class CheckReport {
   /**
    * Create a check report.
@@ -12,7 +14,7 @@ class CheckReport {
    * @param {string} [startDateTime] - Check start datetime
    * @param {string} [endDateTime] - Check completion datetime
    * @param {ActionReport[]} [actions=[]] - Check action list
-   * @param {string} [scheduleName=''] - Schedule name
+   * @param {string|null} [scheduleName=null] - Schedule name
    * @param {string[]} [labels=[]] - Labels
    * @param {string[]} [forbiddenCookies=[]] - Found forbidden cookies
    * @param {number} [forbiddenCookiesCount=0] - Count of forbidden cookies found
@@ -29,7 +31,7 @@ class CheckReport {
     startDateTime,
     endDateTime,
     actions = [],
-    scheduleName = '',
+    scheduleName = null,
     labels = [],
     forbiddenCookies = [],
     forbiddenCookiesCount = 0
@@ -88,7 +90,67 @@ class ActionReport {
   }
 }
 
+/**
+ * Report view options.
+ * @typedef {object} CheckReportViewOptions
+ * @property {boolean} hideActions Indicates whether the actions should be showed.
+ * @property {boolean} shorten Indicates whether the successful reports should be shorten.
+ */
+
+/**
+ * Prepare report view.
+ * @param {CheckReport} report Report instance
+ * @param {CheckReportViewOptions} options View options
+ * @returns {object}
+ */
+function processReport(report, options) {
+  if (options && options.shorten && report.success === true) {
+    const allowedKeys = [
+      'name',
+      'id',
+      'success',
+      'startDateTime',
+      'endDateTime',
+      'forbiddenCookies',
+    ];
+
+    const processed = Object.fromEntries(
+      Object.entries(report).filter((entry) => {
+        return allowedKeys.includes(entry[0]);
+      })
+    );
+
+    return processed;
+  }
+
+  const processed = Object.fromEntries(
+    Object.entries(report).filter((entry) => {
+      if (options && options.hideActions && entry[0] === 'actions') {
+        return false;
+      }
+      return true;
+    })
+  );
+
+  return processed;
+}
+
+/**
+ * Prepare report view.
+ * @param {object} report Report
+ * @returns {string}
+ */
+function stringifyReport(report) {
+  return util.inspect(report, {
+    colors: true,
+    depth: null,
+    maxArrayLength: null,
+  });
+}
+
 module.exports = {
   CheckReport,
   ActionReport,
+  processReport,
+  stringifyReport,
 };

@@ -3,7 +3,7 @@ jest.mock('../../check/runner');
 
 const SuiteRunner = require('../runner');
 const SimpleQueue = require('../../queue/SimpleQueue');
-const { SuiteReport } = require('../report');
+const { SuiteReport } = require('../../report/suite');
 
 test('successful suite', () => {
   const queue = new SimpleQueue();

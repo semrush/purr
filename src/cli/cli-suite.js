@@ -14,12 +14,17 @@ let suiteName;
 commander
   .arguments('<name>')
   .option('--redis', 'use redis queue')
+  .option('--no-shorten', 'disable successful reports shortening')
+  .option('--hide-actions', 'hide actions from reports (default: false)')
   .action((name) => {
     suiteName = name;
   })
   .parse(process.argv);
 
 const useRedis = !!commander.redis;
+const { shorten } = commander;
+const hideActions =
+  commander.hideActions === undefined ? false : commander.hideActions;
 
 if (suiteName === undefined) {
   log.error('Suite name not specified!');
@@ -28,4 +33,6 @@ if (suiteName === undefined) {
 }
 
 // Workaround for tests coverage
-suite.run(suiteName, useRedis);
+suite.run(suiteName, useRedis, {
+  reportOptions: { shorten, hideActions },
+});

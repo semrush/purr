@@ -5,7 +5,7 @@ class CheckData {
     name = utils.mandatory('name'),
     id = utils.mandatory('id'),
     params = {},
-    scheduleName = '',
+    scheduleName = null,
     labels = []
   ) {
     this.name = name;

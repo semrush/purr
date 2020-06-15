@@ -13,10 +13,16 @@ let checkName;
 
 commander
   .arguments('<name>')
+  .option('--no-shorten', 'disable successful reports shortening')
+  .option('--hide-actions', 'hide actions from reports (default: false)')
   .action((name) => {
     checkName = name;
   })
   .parse(process.argv);
+
+const { shorten } = commander;
+const hideActions =
+  commander.hideActions === undefined ? false : commander.hideActions;
 
 if (checkName === undefined) {
   log.error('Check name not specified!');
@@ -25,4 +31,4 @@ if (checkName === undefined) {
 }
 
 // Workaround for tests coverage
-check.run(checkName);
+check.run(checkName, { shorten, hideActions });
