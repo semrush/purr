@@ -34,17 +34,62 @@ test('call help if check name not specified', () => {
   expect(processExit).toBeCalledWith(1);
 });
 
-test('run check', () => {
-  const check = require('../check');
-  check.run = jest.fn().mockImplementation();
-
+describe('run check', () => {
+  let check;
   const checkName = 'some-check-name';
 
-  process.argv = [process.argv[0], './cli-check.js', checkName];
+  beforeEach(() => {
+    jest.mock('../check');
+    check = require('../check');
+  });
 
-  require('../cli-check');
+  test('default options', () => {
+    process.argv = [process.argv[0], './cli-check.js', checkName];
 
-  expect(check.run).toBeCalledTimes(1);
-  expect(check.run).toBeCalledWith(checkName);
-  expect(processExit).not.toBeCalled();
+    require('../cli-check');
+
+    expect(check.run).toBeCalledTimes(1);
+    expect(check.run).toBeCalledWith(checkName, {
+      hideActions: false,
+      shorten: true,
+    });
+    expect(processExit).not.toBeCalled();
+  });
+
+  test('changed options', () => {
+    process.argv = [
+      process.argv[0],
+      './cli-check.js',
+      checkName,
+      '--hide-actions',
+    ];
+
+    require('../cli-check');
+
+    expect(check.run).toBeCalledTimes(1);
+    expect(check.run).toBeCalledWith(checkName, {
+      hideActions: true,
+      shorten: true,
+    });
+    expect(processExit).not.toBeCalled();
+  });
+
+  test('changed options to false', () => {
+    process.argv = [
+      process.argv[0],
+      './cli-check.js',
+      checkName,
+      '--hide-actions',
+      '--no-shorten',
+    ];
+
+    require('../cli-check');
+
+    expect(check.run).toBeCalledTimes(1);
+    expect(check.run).toBeCalledWith(checkName, {
+      hideActions: true,
+      shorten: false,
+    });
+    expect(processExit).not.toBeCalled();
+  });
 });

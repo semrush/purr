@@ -7,7 +7,7 @@ const Sentry = require('@sentry/node');
 const config = require('../config');
 const utils = require('../utils');
 const Logger = require('../Logger');
-const { CheckReport, ActionReport } = require('./report');
+const { CheckReport, ActionReport } = require('../report/check');
 const { CheckParser } = require('./parser');
 
 const log = new Logger();

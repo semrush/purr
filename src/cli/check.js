@@ -1,10 +1,14 @@
-const util = require('util');
-
 const Logger = require('../Logger');
 const SimpleQueue = require('../queue/SimpleQueue');
 const CheckRunner = require('../check/runner');
+const { processReport, stringifyReport } = require('../report/check');
 
-function run(checkName) {
+/**
+ * @param {string} checkName Check name
+ * @param {(import('../report/check').CheckReportViewOptions)} options View options
+ * @returns {object}
+ */
+function run(checkName, options) {
   const log = new Logger();
   const checkRunner = new CheckRunner(new SimpleQueue());
 
@@ -13,32 +17,17 @@ function run(checkName) {
   return checkRunner
     .run(checkName)
     .then((result) => {
+      const prepared = processReport(result, options);
+
       if (!result.success) {
-        log.error(
-          'Check failed\n',
-          util.inspect(result, {
-            colors: true,
-            depth: null,
-            maxArrayLength: null,
-          })
-        );
+        log.error('Check failed\n', stringifyReport(result));
         process.exit(1);
       }
 
-      log.info(
-        'Check success\n',
-        util.inspect(result, {
-          colors: true,
-          depth: null,
-          maxArrayLength: null,
-        })
-      );
+      log.info('Check success\n', stringifyReport(prepared));
     })
     .catch((err) => {
-      log.error(
-        'Check failed\n',
-        util.inspect(err, { colors: true, depth: null, maxArrayLength: null })
-      );
+      log.error('Check failed\n', stringifyReport(err));
       process.exit(1);
     });
 }

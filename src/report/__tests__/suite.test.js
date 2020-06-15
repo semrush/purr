@@ -1,4 +1,4 @@
-const { SuiteReport } = require('../report');
+const { SuiteReport } = require('../suite');
 
 const data = [
   'mocked-report',

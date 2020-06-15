@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 
 const utils = require('../../utils');
-const { CheckReport } = require('../report');
+const { CheckReport } = require('../../report/check');
 
 class CheckRunner {
   constructor(queue = utils.mandatory('queue')) {

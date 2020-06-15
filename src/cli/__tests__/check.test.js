@@ -39,6 +39,119 @@ afterEach(() => {
   process.argv = originArgv;
 });
 
+test('return full report if check is complete successful', async () => {
+  const expectedResult = {
+    shortMessage: 'Fake success',
+    success: true,
+    actions: ['fake action'],
+  };
+
+  const run = jest.fn().mockResolvedValue(expectedResult);
+
+  jest.doMock('../../check/runner', () => {
+    return jest.fn().mockImplementation(() => {
+      return { run };
+    });
+  });
+
+  const a = require('../check');
+
+  await expect(a.run(checkName, {})).resolves.toBeUndefined();
+
+  expect(run).toBeCalledTimes(1);
+  expect(run).toBeCalledWith(checkName);
+
+  expect(logInfo).toBeCalled();
+  expect(logInfo).toBeCalledWith(
+    'Check success\n',
+    expect.stringContaining('true')
+  );
+  expect(logInfo).toBeCalledWith(
+    'Check success\n',
+    expect.stringContaining('fake action')
+  );
+  expect(logInfo).toBeCalledWith(
+    'Check success\n',
+    expect.stringContaining('Fake success')
+  );
+});
+
+test('shorten report if check is complete successful', async () => {
+  const expectedResult = {
+    shortMessage: 'Fake success',
+    success: true,
+    actions: ['fake action'],
+  };
+
+  const run = jest.fn().mockResolvedValue(expectedResult);
+
+  jest.doMock('../../check/runner', () => {
+    return jest.fn().mockImplementation(() => {
+      return { run };
+    });
+  });
+
+  const a = require('../check');
+
+  await expect(a.run(checkName, { shorten: true })).resolves.toBeUndefined();
+
+  expect(run).toBeCalledTimes(1);
+  expect(run).toBeCalledWith(checkName);
+
+  expect(logInfo).toBeCalled();
+  expect(logInfo).toBeCalledWith(
+    'Check success\n',
+    expect.stringContaining('true')
+  );
+  expect(logInfo).toBeCalledWith(
+    'Check success\n',
+    expect.not.stringContaining('fake action')
+  );
+  expect(logInfo).toBeCalledWith(
+    'Check success\n',
+    expect.not.stringContaining('Fake success')
+  );
+});
+
+test('not shorten report if check is complete but not successful', async () => {
+  const expectedResult = {
+    shortMessage: 'Fake fail',
+    success: false,
+    actions: ['fake action'],
+  };
+
+  const run = jest.fn().mockResolvedValue(expectedResult);
+
+  jest.doMock('../../check/runner', () => {
+    return jest.fn().mockImplementation(() => {
+      return { run };
+    });
+  });
+
+  const a = require('../check');
+
+  await expect(a.run(checkName, { shorten: true })).rejects.toThrow(
+    exitErrorText
+  );
+
+  expect(run).toBeCalledTimes(1);
+  expect(run).toBeCalledWith(checkName);
+
+  expect(logError).toBeCalled();
+  expect(logError).toBeCalledWith(
+    'Check failed\n',
+    expect.stringContaining('false')
+  );
+  expect(logError).toBeCalledWith(
+    'Check failed\n',
+    expect.stringContaining('fake action')
+  );
+  expect(logError).toBeCalledWith(
+    'Check failed\n',
+    expect.stringContaining('Fake fail')
+  );
+});
+
 test('exit with code 0 if check is complete successful', async () => {
   const expectedResult = {
     shortMessage: 'Fake success',
@@ -55,7 +168,7 @@ test('exit with code 0 if check is complete successful', async () => {
 
   const a = require('../check');
 
-  await expect(a.run(checkName)).resolves.toBeUndefined();
+  await expect(a.run(checkName, {})).resolves.toBeUndefined();
 
   expect(run).toBeCalledTimes(1);
   expect(run).toBeCalledWith(checkName);
@@ -83,7 +196,7 @@ test('exit with code 1 if check is complete but not successful', async () => {
 
   const a = require('../check');
 
-  await expect(a.run(checkName)).rejects.toThrow(exitErrorText);
+  await expect(a.run(checkName, {})).rejects.toThrow(exitErrorText);
 
   expect(run).toBeCalledTimes(1);
   expect(run).toBeCalledWith(checkName);
@@ -110,7 +223,7 @@ test('exit with code 1 if check failed', async () => {
 
   const a = require('../check');
 
-  await expect(a.run(checkName)).rejects.toThrow(exitErrorText);
+  await expect(a.run(checkName, {})).rejects.toThrow(exitErrorText);
 
   expect(run).toBeCalledTimes(1);
   expect(run).toBeCalledWith(checkName);
