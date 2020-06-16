@@ -31,7 +31,7 @@ class RedisQueue extends BaseQueue {
     waitJobFinish = true,
     labels = [],
     proxy = null,
-    cookieWhitelist = []
+    allowedCookies = []
   ) {
     if (typeof name !== 'string') {
       throw new Error(`Task name should be 'string', now: '${typeof task}'`);
@@ -66,7 +66,7 @@ class RedisQueue extends BaseQueue {
         scheduleInterval,
         labels,
         proxy,
-        cookieWhitelist,
+        allowedCookies,
       },
       jobOptions
     );

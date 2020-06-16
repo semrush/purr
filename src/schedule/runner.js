@@ -66,7 +66,7 @@ class ScheduleRunner {
           false,
           schedule.labels,
           schedule.proxy,
-          schedule.cookieWhitelist
+          schedule.allowedCookies
         );
       })
     );

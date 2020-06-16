@@ -38,8 +38,8 @@ class ScheduleParser {
 
     preparedData.interval = utils.humanReadableTimeToMS(preparedData.interval);
 
-    if (preparedData.cookieWhitelist === undefined) {
-      preparedData.cookieWhitelist = [];
+    if (preparedData.allowedCookies === undefined) {
+      preparedData.allowedCookies = [];
     }
 
     if (preparedData.labels === undefined) {
