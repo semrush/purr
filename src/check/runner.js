@@ -155,7 +155,7 @@ class CheckRunner {
    * @param {string|null} [scheduleName=null]
    * @param {string[]} [labels=[]]
    * @param {string|null} [proxy=null]
-   * @param {string[]} [cookieWhitelist=[]]
+   * @param {string[]} [allowedCookies=[]]
    *
    * @returns {Promise<CheckReport>} Check report
    */
@@ -166,7 +166,7 @@ class CheckRunner {
     scheduleName = null,
     labels = [],
     proxy = null,
-    cookieWhitelist = []
+    allowedCookies = []
   ) {
     if (typeof checkId !== 'string') {
       throw new Error(
@@ -312,28 +312,26 @@ class CheckRunner {
       const forbiddenCookies = new Set();
 
       if (config.cookieTracking) {
-        const cookieWhitelistNames = [];
-        const cookieWhitelistRegexps = [];
+        const allowedCookieNames = [];
+        const allowedCookieRegexps = [];
 
         // Separate plain strings from regexps
-        cookieWhitelist.forEach((whitelistedName) => {
-          if (whitelistedName.startsWith('/')) {
-            cookieWhitelistRegexps.push(utils.stringToRegExp(whitelistedName));
+        allowedCookies.forEach((allowedName) => {
+          if (allowedName.startsWith('/')) {
+            allowedCookieRegexps.push(utils.stringToRegExp(allowedName));
           } else {
-            cookieWhitelistNames.push(whitelistedName);
+            allowedCookieNames.push(allowedName);
           }
         });
 
         checkReport.actions.forEach((action) => {
           action.cookies.forEach((cookie) => {
-            if (cookieWhitelistNames.includes(cookie.name)) {
+            if (allowedCookieNames.includes(cookie.name)) {
               return;
             }
 
             if (
-              cookieWhitelistRegexps.some((pattern) =>
-                pattern.test(cookie.name)
-              )
+              allowedCookieRegexps.some((pattern) => pattern.test(cookie.name))
             ) {
               return;
             }
@@ -420,7 +418,7 @@ class CheckRunner {
     wait = true,
     labels = [],
     proxy = null,
-    cookieWhitelist = []
+    allowedCookies = []
   ) {
     return this.queue.add(
       name,
@@ -432,7 +430,7 @@ class CheckRunner {
       wait,
       labels,
       proxy,
-      cookieWhitelist
+      allowedCookies
     );
   }
 }

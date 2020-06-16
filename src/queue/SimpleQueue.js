@@ -38,7 +38,7 @@ class SimpleQueue extends BaseQueue {
     waitJobFinish = true,
     labels = [],
     proxy = null,
-    cookieWhitelist = []
+    allowedCookies = []
   ) {
     if (typeof name !== 'string') {
       throw new Error(`Task name should be 'string', now: '${typeof task}'`);
@@ -59,7 +59,7 @@ class SimpleQueue extends BaseQueue {
             scheduleName,
             labels,
             proxy,
-            cookieWhitelist
+            allowedCookies
           )
           .then((result) => result)
           .catch((result) => result);
