@@ -33,6 +33,12 @@ const checksScheduled = new prom.Gauge({
 
 const labelNames = ['name', 'schedule', 'team', 'product', 'priority'];
 
+const checkIntervalSeconds = new prom.Gauge({
+  name: `${metrics.prefix}${metrics.names.checkIntervalSeconds}`,
+  help: 'Check schedule interval',
+  labelNames,
+});
+
 const checkWaitTimeSeconds = new prom.Gauge({
   name: `${metrics.prefix}${metrics.names.checkWaitTimeSeconds}`,
   help: 'Time from last check completion',
@@ -96,7 +102,6 @@ class Metrics {
     });
 
     const schedules = {};
-    let checksCount = 0;
 
     await redis
       .keys('purr:schedules:*')
@@ -107,9 +112,6 @@ class Metrics {
               .get(key)
               .then((result) => {
                 const checks = JSON.parse(result);
-
-                checksCount += checks.length;
-
                 schedules[key.replace('purr:schedules:', '')] = checks;
               })
               .catch((err) => {
@@ -122,8 +124,6 @@ class Metrics {
         log.error('Can not get schedule list from redis:', err);
       });
 
-    checksScheduled.set(checksCount);
-
     await Promise.all(
       Object.entries(schedules).map(async ([scheduleName, checks]) => {
         return Promise.all(
@@ -134,6 +134,11 @@ class Metrics {
             return redis
               .multi()
               .get(reportKey)
+              .get(
+                [metrics.redisKeyPrefix, metrics.names.checksScheduled].join(
+                  ':'
+                )
+              )
               .get(
                 [
                   metrics.redisKeyPrefix,
@@ -157,6 +162,13 @@ class Metrics {
                   metrics.redisKeyPrefix,
                   metrics.names.checkWaitTimeSeconds,
                   checkIdentifier,
+                ].join(':')
+              )
+              .get(
+                [
+                  metrics.redisKeyPrefix,
+                  metrics.names.checkIntervalSeconds,
+                  scheduleName,
                 ].join(':')
               )
               .exec()
@@ -195,10 +207,28 @@ class Metrics {
                 };
 
                 try {
-                  checksSuccessfulTotal.set(JSON.parse(result[1][1]));
-                  checksFailedTotal.set(JSON.parse(result[2][1]));
-                  checkDurationSeconds.set(labels, JSON.parse(result[3][1]));
-                  checkWaitTimeSeconds.set(labels, JSON.parse(result[4][1]));
+                  const scheduled = JSON.parse(result[1][1]);
+                  if (scheduled) {
+                    checksScheduled.set(scheduled);
+                  }
+
+                  const successful = JSON.parse(result[2][1]);
+                  if (successful) {
+                    checksSuccessfulTotal.set(successful);
+                  }
+
+                  const failed = JSON.parse(result[3][1]);
+                  if (failed) {
+                    checksFailedTotal.set(failed);
+                  }
+
+                  checkDurationSeconds.set(labels, JSON.parse(result[4][1]));
+                  checkWaitTimeSeconds.set(labels, JSON.parse(result[5][1]));
+
+                  const interval = JSON.parse(result[6][1]);
+                  if (interval) {
+                    checkIntervalSeconds.set(labels, interval);
+                  }
 
                   reportCheckSuccess.set(
                     labels,
