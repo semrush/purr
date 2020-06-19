@@ -1,17 +1,14 @@
-#!/usr/bin/env node
 const commander = require('commander');
 
-const Logger = require('../Logger');
+const log = require('../logger');
 const Server = require('../api/Server');
 
-const log = new Logger();
-
-let actionArg;
+let action;
 
 commander
   .arguments('<action>')
-  .action((action) => {
-    actionArg = action;
+  .action((actionArg) => {
+    action = actionArg;
   })
   .parse(process.argv);
 
@@ -19,11 +16,11 @@ if (!process.argv.slice(2).length) {
   commander.help();
 }
 
-if (actionArg !== 'start') {
-  log.error(`Action '${actionArg}' does not exists`);
+if (action !== 'start') {
+  log.error('Action does not exists', { action });
   process.exit(1);
 } else {
-  log.info(`Running api server`);
+  log.info('Running api server');
 
   Server.start();
 }

@@ -1,12 +1,10 @@
 const prom = require('prom-client');
 const Redis = require('ioredis');
 
-const Logger = require('../../Logger');
+const log = require('../../logger');
 const config = require('../../config');
 const RedisQueue = require('../../queue/RedisQueue');
 const metrics = require('../../metrics/metrics');
-
-const log = new Logger();
 
 prom.collectDefaultMetrics({ timeout: 5000, prefix: metrics.prefix });
 
@@ -115,13 +113,13 @@ class Metrics {
                 schedules[key.replace('purr:schedules:', '')] = checks;
               })
               .catch((err) => {
-                log.error('Can not get schedule from redis:', err);
+                log.error('Can not get schedule from redis: ', err);
               });
           })
         );
       })
       .catch((err) => {
-        log.error('Can not get schedule list from redis:', err);
+        log.error('Can not get schedule list from redis: ', err);
       });
 
     await Promise.all(
@@ -180,9 +178,9 @@ class Metrics {
                   !Object.prototype.hasOwnProperty.call(report, 'success')
                 ) {
                   log.warn(
-                    `Can not fill report metrics(report key: ${reportKey}) ` +
-                      `because the report is in wrong format. Report:`,
-                    report
+                    'Can not fill report metrics because the report is in ' +
+                      'wrong format.',
+                    { reportKey, report }
                   );
                 }
 
@@ -253,14 +251,15 @@ class Metrics {
                     report ? report.actions.length : 0
                   );
                 } catch (err) {
-                  log.error(
-                    `Can not fill report metrics(report key: ${reportKey}):`,
-                    err
-                  );
+                  log.error('Can not fill report metrics: ', err, {
+                    reportKey,
+                  });
                 }
               })
               .catch((err) => {
-                log.error('Can not get report from redis:', err);
+                log.error('Can not get report from redis: ', err, {
+                  reportKey,
+                });
               });
           })
         );

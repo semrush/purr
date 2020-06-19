@@ -1,14 +1,13 @@
 const { v4: uuidv4 } = require('uuid');
 const Redis = require('ioredis');
 
+const log = require('../logger');
 const config = require('../config');
 const utils = require('../utils');
-const Logger = require('../Logger');
 const { ScheduleParser } = require('./parser');
 const CheckRunner = require('../check/runner');
 const metrics = require('../metrics/metrics');
 
-const log = new Logger();
 const redisParams = {
   port: config.redisPort,
   host: config.redisHost,
@@ -65,7 +64,7 @@ class ScheduleRunner {
         )
         .exec();
     } catch (err) {
-      log.error('Can not save info about schedule to redis:', err);
+      log.error('Can not save info about schedule to redis: ', err);
     } finally {
       redis.quit();
     }
@@ -105,13 +104,13 @@ class ScheduleRunner {
           return Promise.all(
             keys.map(async (key) => {
               return redis.del(key).catch((err) => {
-                log.error('Can not remove schedule from redis:', err);
+                log.error('Can not remove schedule from redis: ', err);
               });
             })
           );
         })
         .catch((err) => {
-          log.error('Can not get a list of schedules from redis:', err);
+          log.error('Can not get a list of schedules from redis: ', err);
         });
 
       await redis
@@ -120,13 +119,13 @@ class ScheduleRunner {
           return Promise.all(
             keys.map(async (key) => {
               return redis.del(key).catch((err) => {
-                log.error('Can not remove metric from redis:', err);
+                log.error('Can not remove metric from redis: ', err);
               });
             })
           );
         })
         .catch((err) => {
-          log.error('Can not get a list of metrics from redis:', err);
+          log.error('Can not get a list of metrics from redis: ', err);
         });
     } finally {
       redis.quit();

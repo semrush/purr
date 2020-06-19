@@ -1,16 +1,24 @@
 const originArgv = process.argv.slice();
 
-let logInfo;
-let logError;
+let logger;
 let processExit;
 
 const exitErrorText = 'process.exit prevented in tests. Code:';
 
 const suiteName = 'some-suite-name';
 
-const successfulSuiteReport = {
+const successfulSuiteReportShort = {
   shortMessage: 'Fake suite success',
   success: true,
+  checks: [
+    {
+      success: true,
+    },
+  ],
+};
+
+const successfulSuiteReport = {
+  ...successfulSuiteReportShort,
   checks: [
     {
       shortMessage: 'Fake check success',
@@ -36,14 +44,8 @@ beforeEach(() => {
   jest.resetModules();
   jest.restoreAllMocks();
 
-  logInfo = jest
-    .fn()
-    .mockName('logInfo')
-    .mockImplementation();
-  logError = jest
-    .fn()
-    .mockName('logError')
-    .mockImplementation();
+  jest.doMock('../../logger');
+  logger = require('../../logger');
 
   processExit = jest
     .spyOn(process, 'exit')
@@ -51,12 +53,6 @@ beforeEach(() => {
     .mockImplementation((code) => {
       throw Error(`${exitErrorText} ${code}`);
     });
-
-  jest.doMock('../../Logger', () => {
-    return jest.fn().mockImplementation(() => {
-      return { info: logInfo, error: logError };
-    });
-  });
 });
 
 afterEach(() => {
@@ -97,11 +93,10 @@ describe('exit code', () => {
       expect(run).toBeCalledTimes(1);
       expect(run).toBeCalledWith(suiteName);
 
-      expect(logInfo).toBeCalled();
-      expect(logInfo).toBeCalledWith(
-        'Suite success\n',
-        expect.stringContaining('true')
-      );
+      expect(logger.info).toBeCalled();
+      expect(logger.info).toBeCalledWith('Suite success', {
+        report: successfulSuiteReport,
+      });
     }
   );
 
@@ -127,11 +122,10 @@ describe('exit code', () => {
     expect(run).toBeCalledTimes(1);
     expect(run).toBeCalledWith(suiteName);
 
-    expect(logError).toBeCalled();
-    expect(logError).toBeCalledWith(
-      'Suite failed\n',
-      expect.stringContaining('false')
-    );
+    expect(logger.error).toBeCalled();
+    expect(logger.error).toBeCalledWith('Suite failed', {
+      report: expectedResult,
+    });
 
     expect(processExit).toBeCalled();
     expect(processExit).toBeCalledWith(1);
@@ -154,11 +148,10 @@ describe('exit code', () => {
     expect(run).toBeCalledTimes(1);
     expect(run).toBeCalledWith(suiteName);
 
-    expect(logError).toBeCalled();
-    expect(logError).toBeCalledWith(
-      'Suite failed\n',
-      expect.stringContaining(suiteRunResult)
-    );
+    expect(logger.error).toBeCalled();
+    expect(logger.error).toBeCalledWith('Suite failed', {
+      report: suiteRunResult,
+    });
 
     expect(processExit).toBeCalled();
     expect(processExit).toBeCalledWith(1);
@@ -182,27 +175,10 @@ describe('suite options', () => {
     expect(run).toBeCalledTimes(1);
     expect(run).toBeCalledWith(suiteName);
 
-    expect(logInfo).toBeCalled();
-    expect(logInfo).toBeCalledWith(
-      'Suite success\n',
-      expect.stringContaining('true')
-    );
-    expect(logInfo).toBeCalledWith(
-      'Suite success\n',
-      expect.not.stringContaining('false')
-    );
-    expect(logInfo).toBeCalledWith(
-      'Suite success\n',
-      expect.stringContaining('Fake suite success')
-    );
-    expect(logInfo).toBeCalledWith(
-      'Suite success\n',
-      expect.stringContaining('fake action')
-    );
-    expect(logInfo).toBeCalledWith(
-      'Suite success\n',
-      expect.stringContaining('Fake check success')
-    );
+    expect(logger.info).toBeCalled();
+    expect(logger.info).toBeCalledWith('Suite success', {
+      report: successfulSuiteReport,
+    });
   });
 
   test('shorten report if check is complete successful', async () => {
@@ -223,27 +199,10 @@ describe('suite options', () => {
     expect(run).toBeCalledTimes(1);
     expect(run).toBeCalledWith(suiteName);
 
-    expect(logInfo).toBeCalled();
-    expect(logInfo).toBeCalledWith(
-      'Suite success\n',
-      expect.stringContaining('true')
-    );
-    expect(logInfo).toBeCalledWith(
-      'Suite success\n',
-      expect.not.stringContaining('false')
-    );
-    expect(logInfo).toBeCalledWith(
-      'Suite success\n',
-      expect.stringContaining('Fake suite success')
-    );
-    expect(logInfo).toBeCalledWith(
-      'Suite success\n',
-      expect.not.stringContaining('fake action')
-    );
-    expect(logInfo).toBeCalledWith(
-      'Suite success\n',
-      expect.not.stringContaining('Fake check success')
-    );
+    expect(logger.info).toBeCalled();
+    expect(logger.info).toBeCalledWith('Suite success', {
+      report: successfulSuiteReportShort,
+    });
   });
 
   test('not shorten report if check is complete but not successful', async () => {
@@ -270,26 +229,9 @@ describe('suite options', () => {
     expect(run).toBeCalledTimes(1);
     expect(run).toBeCalledWith(suiteName);
 
-    expect(logError).toBeCalled();
-    expect(logError).toBeCalledWith(
-      'Suite failed\n',
-      expect.stringContaining('false')
-    );
-    expect(logError).toBeCalledWith(
-      'Suite failed\n',
-      expect.not.stringContaining('true')
-    );
-    expect(logError).toBeCalledWith(
-      'Suite failed\n',
-      expect.not.stringContaining('Fake suite fail')
-    );
-    expect(logError).toBeCalledWith(
-      'Suite failed\n',
-      expect.not.stringContaining('fake action')
-    );
-    expect(logError).toBeCalledWith(
-      'Suite failed\n',
-      expect.not.stringContaining('Fake check fail')
-    );
+    expect(logger.error).toBeCalled();
+    expect(logger.error).toBeCalledWith('Suite failed', {
+      report: failedSuiteReport,
+    });
   });
 });

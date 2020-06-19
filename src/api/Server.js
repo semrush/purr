@@ -4,14 +4,12 @@ const Sentry = require('@sentry/node');
 const morgan = require('morgan');
 const serveFavicon = require('serve-favicon');
 
-const Logger = require('../Logger');
+const log = require('../logger');
 const utils = require('../utils');
 const config = require('../config');
 const Metrics = require('./views/Metrics');
 const Checks = require('./views/Checks');
 const Reports = require('./views/Reports');
-
-const log = new Logger();
 
 Sentry.init({
   dsn: config.sentryDSN,
@@ -46,7 +44,7 @@ app.use(Sentry.Handlers.errorHandler());
 
 class Server {
   static start() {
-    app.listen(port, () => log.info(`App listening on port ${port}`));
+    app.listen(port, () => log.info('App listening on port', { port }));
   }
 }
 

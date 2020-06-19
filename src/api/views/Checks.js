@@ -1,12 +1,10 @@
 const { v4: uuidv4 } = require('uuid');
 
-const Logger = require('../../Logger');
+const log = require('../../logger');
 const config = require('../../config');
 const { CheckParser } = require('../../check/parser');
 const CheckRunner = require('../../check/runner');
 const RedisQueue = require('../../queue/RedisQueue');
-
-const log = new Logger();
 
 class Checks {
   static list(req, res) {
@@ -31,13 +29,14 @@ class Checks {
 
         isRequestComplete = true;
 
-        const errMessage = `Check waiting timeout exceeded. Id: ${checkId}`;
+        const errMessage = `Check waiting timeout exceeded`;
 
-        log.info(errMessage);
+        log.info(errMessage, { checkId });
 
         res.status(408).json({
           status: 'error',
           error: errMessage,
+          checkId,
         });
       }, config.apiWaitTimeout);
 
