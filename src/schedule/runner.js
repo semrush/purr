@@ -48,7 +48,24 @@ class ScheduleRunner {
     }
 
     try {
-      redis.set(`purr:schedules:${name}`, JSON.stringify(schedule.checks));
+      redis
+        .multi()
+        .set(`purr:schedules:${name}`, JSON.stringify(schedule.checks))
+        .set(
+          [
+            metrics.redisKeyPrefix,
+            metrics.names.checkIntervalSeconds,
+            name,
+          ].join(':'),
+          schedule.interval / 1000
+        )
+        .incrby(
+          `${metrics.redisKeyPrefix}:${metrics.names.checksScheduled}`,
+          schedule.checks.length
+        )
+        .exec();
+    } catch (err) {
+      log.error('Can not save info about schedule to redis:', err);
     } finally {
       redis.quit();
     }

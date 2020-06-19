@@ -7,6 +7,7 @@ const names = {
   checksFailedTotal: 'checks_failed_total',
   checkDurationSeconds: 'check_duration_seconds',
   checkWaitTimeSeconds: 'check_wait_time_seconds',
+  checkIntervalSeconds: 'check_interval_seconds',
 
   reportCheckSuccess: `report_check_success`,
   reportCheckForbiddenCookies: `report_check_forbidden_cookies`,
