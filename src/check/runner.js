@@ -44,7 +44,7 @@ async function getPage(browser = utils.mandatory('browser')) {
       const url = new URL(request.url());
 
       if (config.blockedResourceDomains.includes(url.host.toLowerCase())) {
-        log.info('Request blocked', { url: request.url() });
+        log.debug('Request blocked', { url: request.url() });
         request.abort();
       } else {
         request.continue();
