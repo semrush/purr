@@ -4,45 +4,73 @@ const Redis = require('ioredis');
 const Logger = require('../../Logger');
 const config = require('../../config');
 const RedisQueue = require('../../queue/RedisQueue');
+const metrics = require('../../metrics/metrics');
 
 const log = new Logger();
-const metricPrefix = 'purr_';
 
-prom.collectDefaultMetrics({ timeout: 5000, prefix: metricPrefix });
+prom.collectDefaultMetrics({ timeout: 5000, prefix: metrics.prefix });
+
+const checksSuccessfulTotal = new prom.Gauge({
+  name: `${metrics.prefix}${metrics.names.checksSuccessfulTotal}`,
+  help: 'Count of successful checks',
+});
+
+const checksFailedTotal = new prom.Gauge({
+  name: `${metrics.prefix}${metrics.names.checksFailedTotal}`,
+  help: 'Count of failed checks',
+});
 
 const queueJobCountGauge = new prom.Gauge({
-  name: `${metricPrefix}queue_job_count`,
+  name: `${metrics.prefix}queue_job_count`,
   help: 'Count of jobs in queue',
   labelNames: ['queue', 'state'],
 });
 
+const checksScheduled = new prom.Gauge({
+  name: `${metrics.prefix}${metrics.names.checksScheduled}`,
+  help: 'Count of scheduled checks',
+});
+
 const labelNames = ['name', 'schedule', 'team', 'product', 'priority'];
-const reportCheckSuccessGauge = new prom.Gauge({
-  name: `${metricPrefix}report_check_success`,
+
+const checkWaitTimeSeconds = new prom.Gauge({
+  name: `${metrics.prefix}${metrics.names.checkWaitTimeSeconds}`,
+  help: 'Time from last check completion',
+  labelNames,
+});
+
+const checkDurationSeconds = new prom.Gauge({
+  name: `${metrics.prefix}${metrics.names.checkDurationSeconds}`,
+  help: 'Last check duration',
+  labelNames,
+});
+
+const reportCheckSuccess = new prom.Gauge({
+  name: `${metrics.prefix}${metrics.names.reportCheckSuccess}`,
   help: 'Status of last check execution',
   labelNames,
 });
 
-const reportCheckForbiddenCookiesGauge = new prom.Gauge({
-  name: `${metricPrefix}report_check_forbidden_cookies`,
+const reportCheckForbiddenCookies = new prom.Gauge({
+  name: `${metrics.prefix}${metrics.names.reportCheckForbiddenCookies}`,
   help: 'Count of forbidden cookies found',
   labelNames,
 });
 
-const reportCheckStartGauge = new prom.Gauge({
-  name: `${metricPrefix}report_check_start_date`,
+const reportCheckStart = new prom.Gauge({
+  name: `${metrics.prefix}${metrics.names.reportCheckStart}`,
   help: 'Start time',
   labelNames,
 });
 
-const reportCheckEndGauge = new prom.Gauge({
-  name: `${metricPrefix}report_check_end_date`,
+const reportCheckEnd = new prom.Gauge({
+  name: `${metrics.prefix}${metrics.names.reportCheckEnd}`,
   help: 'End time',
   labelNames,
 });
 
-const reportCheckLastStepGauge = new prom.Gauge({
-  name: `${metricPrefix}report_check_last_step`,
+const reportCheckLastStep = new prom.Gauge({
+  name: `${metrics.prefix}${metrics.names.reportCheckLastStep}`,
   help: 'Number of last executed step(from 0)',
   labelNames,
 });
@@ -68,6 +96,7 @@ class Metrics {
     });
 
     const schedules = {};
+    let checksCount = 0;
 
     await redis
       .keys('purr:schedules:*')
@@ -77,9 +106,11 @@ class Metrics {
             return redis
               .get(key)
               .then((result) => {
-                schedules[key.replace('purr:schedules:', '')] = JSON.parse(
-                  result
-                );
+                const checks = JSON.parse(result);
+
+                checksCount += checks.length;
+
+                schedules[key.replace('purr:schedules:', '')] = checks;
               })
               .catch((err) => {
                 log.error('Can not get schedule from redis:', err);
@@ -91,22 +122,53 @@ class Metrics {
         log.error('Can not get schedule list from redis:', err);
       });
 
+    checksScheduled.set(checksCount);
+
     await Promise.all(
       Object.entries(schedules).map(async ([scheduleName, checks]) => {
         return Promise.all(
           checks.map((checkName) => {
-            const key = `purr:reports:checks:${scheduleName}:${checkName}`;
+            const checkIdentifier = `${scheduleName}:${checkName}`;
+            const reportKey = `purr:reports:checks:${checkIdentifier}`;
 
             return redis
-              .get(key)
+              .multi()
+              .get(reportKey)
+              .get(
+                [
+                  metrics.redisKeyPrefix,
+                  metrics.names.checksSuccessfulTotal,
+                ].join(':')
+              )
+              .get(
+                [metrics.redisKeyPrefix, metrics.names.checksFailedTotal].join(
+                  ':'
+                )
+              )
+              .get(
+                [
+                  metrics.redisKeyPrefix,
+                  metrics.names.checkDurationSeconds,
+                  checkIdentifier,
+                ].join(':')
+              )
+              .get(
+                [
+                  metrics.redisKeyPrefix,
+                  metrics.names.checkWaitTimeSeconds,
+                  checkIdentifier,
+                ].join(':')
+              )
+              .exec()
               .then((result) => {
-                const report = JSON.parse(result);
+                const report = JSON.parse(result[0][1]);
+
                 if (
                   !report ||
                   !Object.prototype.hasOwnProperty.call(report, 'success')
                 ) {
                   log.warn(
-                    `Can not fill report metrics(report key: ${key}) ` +
+                    `Can not fill report metrics(report key: ${reportKey}) ` +
                       `because the report is in wrong format. Report:`,
                     report
                   );
@@ -133,31 +195,36 @@ class Metrics {
                 };
 
                 try {
-                  reportCheckSuccessGauge.set(
+                  checksSuccessfulTotal.set(JSON.parse(result[1][1]));
+                  checksFailedTotal.set(JSON.parse(result[2][1]));
+                  checkDurationSeconds.set(labels, JSON.parse(result[3][1]));
+                  checkWaitTimeSeconds.set(labels, JSON.parse(result[4][1]));
+
+                  reportCheckSuccess.set(
                     labels,
                     report && report.success ? 1 : 0
                   );
 
-                  reportCheckForbiddenCookiesGauge.set(
+                  reportCheckForbiddenCookies.set(
                     labels,
                     report ? report.forbiddenCookiesCount : 0
                   );
 
-                  reportCheckStartGauge.set(
+                  reportCheckStart.set(
                     labels,
                     report ? Date.parse(report.startDateTime) : 0
                   );
-                  reportCheckEndGauge.set(
+                  reportCheckEnd.set(
                     labels,
                     report ? Date.parse(report.endDateTime) : 0
                   );
-                  reportCheckLastStepGauge.set(
+                  reportCheckLastStep.set(
                     labels,
                     report ? report.actions.length : 0
                   );
                 } catch (err) {
                   log.error(
-                    `Can not fill report metrics(report key: ${key}):`,
+                    `Can not fill report metrics(report key: ${reportKey}):`,
                     err
                   );
                 }

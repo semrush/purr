@@ -5,6 +5,7 @@ const Redis = require('ioredis');
 
 const config = require('../config');
 const utils = require('../utils');
+const metrics = require('../metrics/metrics');
 const Logger = require('../Logger');
 const RedisQueue = require('../queue/RedisQueue');
 const RedisQueueWorker = require('../queue/RedisQueueWorker');
@@ -32,7 +33,11 @@ function checkProcessor(job, done) {
 
   log.info(`Check running.`, checkInfoString);
 
-  function saveReport(report) {
+  /**
+   *
+   * @param {InstanceType<import('../report/check')['CheckReport']>} report Report instance
+   */
+  async function saveReport(report) {
     if (job.data.scheduleInterval > 0) {
       const redis = new Redis({
         port: config.redisPort,
@@ -40,13 +45,48 @@ function checkProcessor(job, done) {
         password: config.redisPassword,
       });
 
+      const checkIdentifier = `${report.scheduleName}:${report.name}`;
+
+      const oldReport = JSON.parse(
+        await redis.get(`purr:reports:checks:${checkIdentifier}`)
+      );
+
+      const executionTime =
+        (new Date(report.endDateTime).getTime() -
+          new Date(report.startDateTime).getTime()) /
+        1000;
+
+      let waitTime = 0;
+      if (oldReport !== null) {
+        waitTime =
+          (new Date(report.startDateTime).getTime() -
+            new Date(oldReport.endDateTime).getTime()) /
+          1000;
+      }
+
+      let checksStatusCount = metrics.names.checksSuccessfulTotal;
+      if (!report.success) {
+        checksStatusCount = metrics.names.checksFailedTotal;
+      }
+
       redis
+        .multi()
+        .incr(`${metrics.redisKeyPrefix}:${checksStatusCount}`)
         .set(
-          `purr:reports:checks:${report.scheduleName}:${report.name}`,
+          `purr:reports:checks:${checkIdentifier}`,
           JSON.stringify(report),
           'ex',
           (job.data.scheduleInterval / 1000) * 2
         )
+        .set(
+          `${metrics.redisKeyPrefix}:${metrics.names.checkDurationSeconds}:${checkIdentifier}`,
+          executionTime
+        )
+        .set(
+          `${metrics.redisKeyPrefix}:${metrics.names.checkWaitTimeSeconds}:${checkIdentifier}`,
+          waitTime
+        )
+        .exec()
         .catch((err) => {
           log.error('Can not write report to redis:', err);
         })
@@ -66,14 +106,14 @@ function checkProcessor(job, done) {
       job.data.proxy,
       job.data.allowedCookies
     )
-    .then((result) => {
+    .then(async (result) => {
       log.info(`Check complete.`, checkInfoString);
 
-      saveReport(result);
+      await saveReport(result);
 
       done(null, result);
     })
-    .catch((result) => {
+    .catch(async (result) => {
       log.info(`Check failed.`, checkInfoString);
 
       if (result instanceof Error) {
@@ -81,7 +121,7 @@ function checkProcessor(job, done) {
         return;
       }
 
-      saveReport(result);
+      await saveReport(result);
 
       done(null, result);
     })

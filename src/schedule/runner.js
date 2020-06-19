@@ -6,6 +6,7 @@ const utils = require('../utils');
 const Logger = require('../Logger');
 const { ScheduleParser } = require('./parser');
 const CheckRunner = require('../check/runner');
+const metrics = require('../metrics/metrics');
 
 const log = new Logger();
 const redisParams = {
@@ -46,11 +47,11 @@ class ScheduleRunner {
       schedule.proxy = null;
     }
 
-    redis
-      .set(`purr:schedules:${name}`, JSON.stringify(schedule.checks))
-      .finally(() => {
-        redis.quit();
-      });
+    try {
+      redis.set(`purr:schedules:${name}`, JSON.stringify(schedule.checks));
+    } finally {
+      redis.quit();
+    }
 
     return Promise.all(
       schedule.checks.map((check) => {
@@ -80,23 +81,39 @@ class ScheduleRunner {
     const checks = await this.getScheduledChecks();
     const redis = new Redis(redisParams);
 
-    await redis
-      .keys('purr:schedules:*')
-      .then((keys) => {
-        return Promise.all(
-          keys.map(async (key) => {
-            return redis.del(key).catch((err) => {
-              log.error('Can not remove schedule from redis:', err);
-            });
-          })
-        );
-      })
-      .catch((err) => {
-        log.error('Can not get schedule list from redis:', err);
-      })
-      .finally(() => {
-        redis.quit();
-      });
+    try {
+      await redis
+        .keys('purr:schedules:*')
+        .then((keys) => {
+          return Promise.all(
+            keys.map(async (key) => {
+              return redis.del(key).catch((err) => {
+                log.error('Can not remove schedule from redis:', err);
+              });
+            })
+          );
+        })
+        .catch((err) => {
+          log.error('Can not get a list of schedules from redis:', err);
+        });
+
+      await redis
+        .keys(`${metrics.redisKeyPrefix}:*`)
+        .then((keys) => {
+          return Promise.all(
+            keys.map(async (key) => {
+              return redis.del(key).catch((err) => {
+                log.error('Can not remove metric from redis:', err);
+              });
+            })
+          );
+        })
+        .catch((err) => {
+          log.error('Can not get a list of metrics from redis:', err);
+        });
+    } finally {
+      redis.quit();
+    }
 
     return Promise.all(
       checks.map(async (check) => {
