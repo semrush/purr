@@ -6,11 +6,9 @@ const Sentry = require('@sentry/node');
 
 const config = require('../config');
 const utils = require('../utils');
-const Logger = require('../Logger');
+const log = require('../logger');
 const { CheckReport, ActionReport } = require('../report/check');
 const { CheckParser } = require('./parser');
-
-const log = new Logger();
 
 async function getBrowser(userAgent = config.userAgent, customArgs = []) {
   return puppeteer.launch({
@@ -46,7 +44,7 @@ async function getPage(browser = utils.mandatory('browser')) {
       const url = new URL(request.url());
 
       if (config.blockedResourceDomains.includes(url.host.toLowerCase())) {
-        log.info(`blocked ${request.url()}`);
+        log.debug('Request blocked', { url: request.url() });
         request.abort();
       } else {
         request.continue();
@@ -251,7 +249,7 @@ class CheckRunner {
                   });
                 })
                 .catch((err) => {
-                  log.error('Could not get a cookies:', err);
+                  log.error('Could not get a cookies: ', err);
                 });
             }
 
@@ -350,7 +348,7 @@ class CheckRunner {
             await page.tracing.stop();
           } catch (err) {
             Sentry.captureException(err);
-            log.error('Can not stop puppeteer tracing:', err);
+            log.error('Can not stop puppeteer tracing: ', err);
           }
         }
 
@@ -365,7 +363,7 @@ class CheckRunner {
             });
           } catch (err) {
             Sentry.captureException(err);
-            log.error('Can not take a screenshot:', err);
+            log.error('Can not take a screenshot: ', err);
           }
         }
 
@@ -379,7 +377,7 @@ class CheckRunner {
             );
           } catch (err) {
             Sentry.captureException(err);
-            log.error('Can not write a console log to disk:', err);
+            log.error('Can not write a console log to disk: ', err);
           }
         }
 
@@ -390,7 +388,7 @@ class CheckRunner {
             await fs.writeFileSync(reportPath, JSON.stringify(checkReport));
           } catch (err) {
             Sentry.captureException(err);
-            log.error('Can not write a report to disk:', err);
+            log.error('Can not write a report to disk: ', err);
           }
         }
       }
@@ -399,7 +397,7 @@ class CheckRunner {
         await saveArtifacts();
       } catch (err) {
         Sentry.captureException(err);
-        log.error('Can not write an artifacts to disk:', err);
+        log.error('Can not write an artifacts to disk: ', err);
       } finally {
         browser.close();
       }

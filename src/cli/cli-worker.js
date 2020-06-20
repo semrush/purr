@@ -1,17 +1,14 @@
-#!/usr/bin/env node
 const commander = require('commander');
 const Sentry = require('@sentry/node');
 const Redis = require('ioredis');
 
+const log = require('../logger');
 const config = require('../config');
 const utils = require('../utils');
 const metrics = require('../metrics/metrics');
-const Logger = require('../Logger');
 const RedisQueue = require('../queue/RedisQueue');
 const RedisQueueWorker = require('../queue/RedisQueueWorker');
 const CheckRunner = require('../check/runner');
-
-const log = new Logger();
 
 Sentry.init({
   dsn: config.sentryDSN,
@@ -25,13 +22,13 @@ utils.logUnhandledRejections();
 function checkProcessor(job, done) {
   const checksQueue = new RedisQueue(config.checksQueueName);
 
-  const checkInfoString = JSON.stringify({
+  const checkInfo = {
     name: job.data.name,
     schedule: job.data.scheduleName,
     id: job.id,
-  });
+  };
 
-  log.info(`Check running.`, checkInfoString);
+  log.info('Check running', checkInfo);
 
   /**
    *
@@ -88,7 +85,7 @@ function checkProcessor(job, done) {
         )
         .exec()
         .catch((err) => {
-          log.error('Can not write report to redis:', err);
+          log.error('Can not write report to redis: ', err);
         })
         .finally(() => {
           redis.quit();
@@ -107,14 +104,14 @@ function checkProcessor(job, done) {
       job.data.allowedCookies
     )
     .then(async (result) => {
-      log.info(`Check complete.`, checkInfoString);
+      log.info('Check complete', checkInfo);
 
       await saveReport(result);
 
       done(null, result);
     })
     .catch(async (result) => {
-      log.info(`Check failed.`, checkInfoString);
+      log.info('Check failed', checkInfo);
 
       if (result instanceof Error) {
         done(result);
@@ -147,11 +144,11 @@ function createWorker(queueName, concurrency, queueProcessor) {
       await queueWorker.stop();
     });
 
-    log.info(`Running worker on queue '${queueName}'`);
+    log.info('Running queue worker', { queue: queueName });
 
     return queueWorker.start().catch((err) => {
       Sentry.captureException(err);
-      log.error(`Worker start failed: ${err}`);
+      log.error('Worker start failed: ', err);
       process.exit(1);
     });
   };
@@ -165,7 +162,9 @@ commander
   );
 
 commander.command('*', { isDefault: true, noHelp: true }).action(async () => {
-  log.error(`Worker with name '${commander.args[0]}' does not exist`);
+  log.error('Worker with specified name does not exist', {
+    name: commander.args[0],
+  });
   process.exit(1);
 });
 

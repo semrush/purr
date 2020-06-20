@@ -1,11 +1,9 @@
 const Bull = require('bull');
 const Sentry = require('@sentry/node');
 
-const Logger = require('../Logger');
+const log = require('../logger');
 const config = require('../config');
 const utils = require('../utils');
-
-const log = new Logger();
 
 class RedisQueueWorker {
   constructor(
@@ -32,7 +30,7 @@ class RedisQueueWorker {
       await this.bull
         .on('error', (err) => {
           Sentry.captureException(err);
-          log.error('Bull: error:', err);
+          log.error('Bull: error: ', err);
         })
         .on('stalled', (job) => {
           const err = new Error('Bull: job is stalled');
@@ -50,7 +48,7 @@ class RedisQueueWorker {
             Sentry.captureException(err);
           });
 
-          log.error('Bull: job failed:', err);
+          log.error('Bull: job failed: ', err);
         })
         .process('*', this.concurrency, this.processor);
     } catch (err) {

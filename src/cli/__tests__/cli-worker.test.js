@@ -3,9 +3,14 @@ jest.mock('../../check/runner');
 
 const originArgv = process.argv.slice();
 
+let logger;
+
 beforeEach(() => {
   jest.resetModules();
   jest.restoreAllMocks();
+
+  jest.doMock('../../logger');
+  logger = require('../../logger');
 });
 
 afterEach(() => {
@@ -16,15 +21,11 @@ describe('run', () => {
   test('success run', () => {
     process.argv = [process.argv[0], './cli-worker.js', 'check'];
 
-    const consoleInfoMock = jest
-      .spyOn(console, 'info')
-      .mockImplementation(() => {});
-
     require('../cli-worker');
 
-    expect(consoleInfoMock).toHaveBeenCalledWith(
-      expect.stringContaining("Running worker on queue 'checks-queue'")
-    );
+    expect(logger.info).toBeCalledWith('Running queue worker', {
+      queue: 'checks-queue',
+    });
   });
 });
 
@@ -42,22 +43,21 @@ describe('validate parameters', () => {
     }).toThrow('Mocked');
   });
 
-  test.each([['dummy', "Worker with name 'dummy' does not exist"]])(
-    'do not run worker for unknown type %s',
-    (type, message) => {
-      process.argv = [process.argv[0], './cli-worker.js', type];
+  test('do not run worker for incorrect name', () => {
+    const name = 'dummy';
 
-      const consoleErrorMock = jest
-        .spyOn(console, 'error')
-        .mockImplementation(() => {});
-      const exitMock = jest.spyOn(process, 'exit').mockImplementation(() => {});
+    process.argv = [process.argv[0], './cli-worker.js', name];
 
-      require('../cli-worker');
+    const exitMock = jest.spyOn(process, 'exit').mockImplementation(() => {});
 
-      expect(consoleErrorMock).toHaveBeenCalledWith(
-        expect.stringContaining(message)
-      );
-      expect(exitMock).toHaveBeenCalledWith(1);
-    }
-  );
+    require('../cli-worker');
+
+    expect(logger.error).toHaveBeenCalledWith(
+      'Worker with specified name does not exist',
+      {
+        name,
+      }
+    );
+    expect(exitMock).toHaveBeenCalledWith(1);
+  });
 });

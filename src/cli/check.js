@@ -1,33 +1,32 @@
-const Logger = require('../Logger');
+const log = require('../logger');
 const SimpleQueue = require('../queue/SimpleQueue');
 const CheckRunner = require('../check/runner');
-const { processReport, stringifyReport } = require('../report/check');
+const { processReport } = require('../report/check');
 
 /**
- * @param {string} checkName Check name
+ * @param {string} name Check name
  * @param {(import('../report/check').CheckReportViewOptions)} options View options
  * @returns {object}
  */
-function run(checkName, options) {
-  const log = new Logger();
+function run(name, options) {
   const checkRunner = new CheckRunner(new SimpleQueue());
 
-  log.info(`Running check ${JSON.stringify(checkName)}`);
+  log.info(`Running check`, { name });
 
   return checkRunner
-    .run(checkName)
+    .run(name)
     .then((result) => {
       const prepared = processReport(result, options);
 
       if (!result.success) {
-        log.error('Check failed\n', stringifyReport(result));
+        log.error('Check failed', { report: result });
         process.exit(1);
       }
 
-      log.info('Check success\n', stringifyReport(prepared));
+      log.info('Check success', { report: prepared });
     })
     .catch((err) => {
-      log.error('Check failed\n', stringifyReport(err));
+      log.error('Check failed', { report: err });
       process.exit(1);
     });
 }

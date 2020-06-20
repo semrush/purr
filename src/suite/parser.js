@@ -22,6 +22,10 @@ class SuiteParser {
       throw new Error(`Suite with name '${name}' does not exist`);
     }
 
+    if (this.rawDoc.suites[name] === null) {
+      throw new Error(`Suite with name '${name}' is empty`);
+    }
+
     const mergedParams = this.paramParser.mergeParams(
       this.rawDoc.suites[name].parameters,
       params
@@ -35,7 +39,7 @@ class SuiteParser {
 
   getSuiteSteps(name = utils.mandatory('name')) {
     const suite = this.getSuite(name);
-    if (typeof suite.steps === 'undefined') {
+    if (!suite.steps) {
       throw new Error(`Suite with name '${name}' has no steps`);
     }
     return suite.steps;

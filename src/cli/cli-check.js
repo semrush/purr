@@ -1,13 +1,11 @@
-#!/usr/bin/env node
 const commander = require('commander');
 
+process.env.PRETTY_LOG = 'true';
+const log = require('../logger');
 const utils = require('../utils');
 const check = require('./check');
-const Logger = require('../Logger');
 
 utils.logUnhandledRejections(true);
-
-const log = new Logger();
 
 let checkName;
 

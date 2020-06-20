@@ -36,6 +36,13 @@ class ScheduleParser {
   static parseSchedule(data = utils.mandatory('data')) {
     const preparedData = data;
 
+    if (!preparedData.interval) {
+      throw new Error(
+        `Schedule should have interval in format "60(s|m)". Now: ` +
+          `${preparedData.interval}`
+      );
+    }
+
     preparedData.interval = utils.humanReadableTimeToMS(preparedData.interval);
 
     if (preparedData.allowedCookies === undefined) {
@@ -63,7 +70,7 @@ class ScheduleParser {
       !allowedPriorities.includes(preparedData.labels.priority)
     ) {
       throw new Error(
-        `This schedule priority is not allowed ` +
+        `This value is not allowed for label priority` +
           `"${preparedData.labels.priority}"`
       );
     }

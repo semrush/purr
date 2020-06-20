@@ -1,7 +1,6 @@
 const originArgv = process.argv.slice();
 
-let logInfo;
-let logError;
+let logger;
 let processExit;
 
 const exitErrorText = 'process.exit prevented in tests. Code:';
@@ -12,14 +11,8 @@ beforeEach(() => {
   jest.resetModules();
   jest.restoreAllMocks();
 
-  logInfo = jest
-    .fn()
-    .mockName('logInfo')
-    .mockImplementation();
-  logError = jest
-    .fn()
-    .mockName('logError')
-    .mockImplementation();
+  jest.doMock('../../logger');
+  logger = require('../../logger');
 
   processExit = jest
     .spyOn(process, 'exit')
@@ -27,12 +20,6 @@ beforeEach(() => {
     .mockImplementation((code) => {
       throw Error(`${exitErrorText} ${code}`);
     });
-
-  jest.doMock('../../Logger', () => {
-    return jest.fn().mockImplementation(() => {
-      return { info: logInfo, error: logError };
-    });
-  });
 });
 
 afterEach(() => {
@@ -61,29 +48,23 @@ test('return full report if check is complete successful', async () => {
   expect(run).toBeCalledTimes(1);
   expect(run).toBeCalledWith(checkName);
 
-  expect(logInfo).toBeCalled();
-  expect(logInfo).toBeCalledWith(
-    'Check success\n',
-    expect.stringContaining('true')
-  );
-  expect(logInfo).toBeCalledWith(
-    'Check success\n',
-    expect.stringContaining('fake action')
-  );
-  expect(logInfo).toBeCalledWith(
-    'Check success\n',
-    expect.stringContaining('Fake success')
-  );
+  expect(logger.info).toBeCalled();
+  expect(logger.info).toBeCalledWith('Check success', {
+    report: expectedResult,
+  });
 });
 
 test('shorten report if check is complete successful', async () => {
   const expectedResult = {
-    shortMessage: 'Fake success',
     success: true,
+  };
+  const report = {
+    shortMessage: 'Fake success',
     actions: ['fake action'],
+    ...expectedResult,
   };
 
-  const run = jest.fn().mockResolvedValue(expectedResult);
+  const run = jest.fn().mockResolvedValue(report);
 
   jest.doMock('../../check/runner', () => {
     return jest.fn().mockImplementation(() => {
@@ -98,19 +79,10 @@ test('shorten report if check is complete successful', async () => {
   expect(run).toBeCalledTimes(1);
   expect(run).toBeCalledWith(checkName);
 
-  expect(logInfo).toBeCalled();
-  expect(logInfo).toBeCalledWith(
-    'Check success\n',
-    expect.stringContaining('true')
-  );
-  expect(logInfo).toBeCalledWith(
-    'Check success\n',
-    expect.not.stringContaining('fake action')
-  );
-  expect(logInfo).toBeCalledWith(
-    'Check success\n',
-    expect.not.stringContaining('Fake success')
-  );
+  expect(logger.info).toBeCalled();
+  expect(logger.info).toBeCalledWith('Check success', {
+    report: expectedResult,
+  });
 });
 
 test('not shorten report if check is complete but not successful', async () => {
@@ -137,19 +109,10 @@ test('not shorten report if check is complete but not successful', async () => {
   expect(run).toBeCalledTimes(1);
   expect(run).toBeCalledWith(checkName);
 
-  expect(logError).toBeCalled();
-  expect(logError).toBeCalledWith(
-    'Check failed\n',
-    expect.stringContaining('false')
-  );
-  expect(logError).toBeCalledWith(
-    'Check failed\n',
-    expect.stringContaining('fake action')
-  );
-  expect(logError).toBeCalledWith(
-    'Check failed\n',
-    expect.stringContaining('Fake fail')
-  );
+  expect(logger.error).toBeCalled();
+  expect(logger.error).toBeCalledWith('Check failed', {
+    report: expectedResult,
+  });
 });
 
 test('exit with code 0 if check is complete successful', async () => {
@@ -173,11 +136,10 @@ test('exit with code 0 if check is complete successful', async () => {
   expect(run).toBeCalledTimes(1);
   expect(run).toBeCalledWith(checkName);
 
-  expect(logInfo).toBeCalled();
-  expect(logInfo).toBeCalledWith(
-    'Check success\n',
-    expect.stringContaining('true')
-  );
+  expect(logger.info).toBeCalled();
+  expect(logger.info).toBeCalledWith('Check success', {
+    report: expectedResult,
+  });
 });
 
 test('exit with code 1 if check is complete but not successful', async () => {
@@ -201,11 +163,10 @@ test('exit with code 1 if check is complete but not successful', async () => {
   expect(run).toBeCalledTimes(1);
   expect(run).toBeCalledWith(checkName);
 
-  expect(logError).toBeCalled();
-  expect(logError).toBeCalledWith(
-    'Check failed\n',
-    expect.stringContaining('false')
-  );
+  expect(logger.error).toBeCalled();
+  expect(logger.error).toBeCalledWith('Check failed', {
+    report: expectedResult,
+  });
 
   expect(processExit).toBeCalled();
   expect(processExit).toBeCalledWith(1);
@@ -228,11 +189,10 @@ test('exit with code 1 if check failed', async () => {
   expect(run).toBeCalledTimes(1);
   expect(run).toBeCalledWith(checkName);
 
-  expect(logError).toBeCalled();
-  expect(logError).toBeCalledWith(
-    'Check failed\n',
-    expect.stringContaining(checkRunResult)
-  );
+  expect(logger.error).toBeCalled();
+  expect(logger.error).toBeCalledWith('Check failed', {
+    report: 'Fake unexpected fail',
+  });
 
   expect(processExit).toBeCalled();
   expect(processExit).toBeCalledWith(1);
