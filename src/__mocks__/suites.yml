@@ -1,5 +1,6 @@
 suites:
   mocked-suite:
+    proxy: some_url
     steps:
       - mocked-check
       - mocked-check-with-param
@@ -13,3 +14,8 @@ suites:
     steps:
       - mocked-check
       - check-with-exception
+
+  empty-suite:
+
+  empty-steps-suite:
+    steps:

@@ -1,0 +1,34 @@
+schedules:
+  schedule-full:
+    interval: 60s
+    labels:
+      team: some-team
+      product: some-product
+      priority: p1
+    allowedCookies:
+      - /^regex_test{1,30}$/
+    checks:
+      - mocked-check
+
+  schedule-without-labels:
+    interval: 60s
+    allowedCookies:
+      - /^regex_test{1,30}$/
+    checks:
+      - mocked-check
+
+  empty-schedule: {}
+
+  schedule-with-incorrect-labels-type:
+    interval: 60s
+    labels: 'NOPE'
+
+  schedule-with-incorrect-label-priority:
+    interval: 60s
+    labels:
+      priority: p10
+
+  schedule-with-incorrect-labels:
+    interval: 60s
+    labels:
+      all-in-fire: true
