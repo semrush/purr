@@ -1,7 +1,13 @@
 #!/usr/bin/env node
 const commander = require('commander');
 
+const log = require('../logger');
 const utils = require('../utils');
+const config = require('../config');
+
+log.info('Request blocking is enabled for the following URLs:', {
+  urls: config.blockedResourceDomains,
+});
 
 utils.throwUnhandledRejections();
 
