@@ -34,6 +34,12 @@ async function getBrowser(userAgent = config.userAgent, customArgs = []) {
   });
 }
 
+/**
+ * Get puppeteer Page instance
+ *
+ * @param {puppeteer.Browser} browser Puppeteer Browser instance
+ * @returns {Promise<puppeteer.Page>}
+ */
 async function getPage(browser = utils.mandatory('browser')) {
   const page = await browser.newPage();
 
