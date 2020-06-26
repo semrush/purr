@@ -10,6 +10,11 @@ function getDefault(value, defaultValue = utils.mandatory('default')) {
   return value;
 }
 
+const dataDir = getDefault(
+  envParams.DATA_DIR,
+  path.resolve(__dirname, '../data')
+);
+
 const artifactsDir = getDefault(
   envParams.ARTIFACTS_DIR,
   path.resolve(__dirname, '../storage')
@@ -22,25 +27,26 @@ const config = {
 
   checksFilePath: getDefault(
     envParams.CHECKS_FILE_PATH,
-    path.resolve(__dirname, '../data/checks.yml')
+    path.resolve(dataDir, 'checks.yml')
   ),
   suitesFilePath: getDefault(
     envParams.SUITES_FILE_PATH,
-    path.resolve(__dirname, '../data/suites.yml')
+    path.resolve(dataDir, 'suites.yml')
   ),
   parametersInfoFilePath: getDefault(
     envParams.PARAMETERS_INFO_FILE_PATH,
-    path.resolve(__dirname, '../data/parameters.yml')
+    path.resolve(dataDir, 'parameters.yml')
   ),
   schedulesFilePath: getDefault(
     envParams.SCHEDULES_FILE_PATH,
-    path.resolve(__dirname, '../data/schedules.yml')
+    path.resolve(dataDir, 'schedules.yml')
   ),
 
   defaultTeamLabel: 'sre',
   defaultProductLabel: '',
   defaultPriorityLabel: 'p3',
 
+  artifactsGroupByCheckName: false,
   artifactsDir,
   reports: getDefault(envParams.REPORTS !== 'false', true),
   reportsDir: getDefault(

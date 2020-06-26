@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const puppeteer = require('puppeteer');
 
 const { v4: uuidv4 } = require('uuid');
@@ -84,48 +85,8 @@ function consoleLogToJSON(consoleLogsArray) {
   );
 }
 
-function prepareArtifactsDirs() {
-  if (config.traces) {
-    if (typeof config.tracesDir === 'undefined') {
-      throw new Error('Traces enabled but storage path not specified');
-    }
-    if (!fs.existsSync(config.tracesDir)) {
-      fs.mkdirSync(config.tracesDir, { recursive: true });
-    }
-  }
-
-  if (config.screenshots) {
-    if (typeof config.screenshotsDir === 'undefined') {
-      throw new Error('Screenshots enabled but storage path not specified');
-    }
-    if (!fs.existsSync(config.screenshotsDir)) {
-      fs.mkdirSync(config.screenshotsDir, { recursive: true });
-    }
-  }
-
-  if (config.consoleLog) {
-    if (typeof config.consoleLogDir === 'undefined') {
-      throw new Error('Console logging enabled but storage path not specified');
-    }
-    if (!fs.existsSync(config.consoleLogDir)) {
-      fs.mkdirSync(config.consoleLogDir, { recursive: true });
-    }
-  }
-
-  if (config.reports) {
-    if (typeof config.reportsDir === 'undefined') {
-      throw new Error('Reports enabled but storage path not specified');
-    }
-    if (!fs.existsSync(config.reportsDir)) {
-      fs.mkdirSync(config.reportsDir, { recursive: true });
-    }
-  }
-}
-
 class CheckRunner {
   constructor(queue = utils.mandatory('queue')) {
-    prepareArtifactsDirs();
-
     this.checkParser = new CheckParser();
 
     if (typeof queue !== 'object') {
@@ -185,6 +146,83 @@ class CheckRunner {
     checkReport.scheduleName = scheduleName;
     checkReport.labels = labels;
 
+    const checkIdSafe = checkId.replace(/[^\w]/g, '_');
+
+    let tracePath = `${checkIdSafe}_trace.json`;
+    let screenshotPath = `${checkIdSafe}_screenshot.png`;
+    let consoleLogPath = `${checkIdSafe}_console.log`;
+    let reportPath = `${checkIdSafe}_report.json`;
+
+    if (config.artifactsGroupByCheckName) {
+      if (typeof config.artifactsDir === 'undefined') {
+        throw new Error('Artifacts path not specified');
+      }
+
+      tracePath = path.resolve(config.artifactsDir, name, tracePath);
+      screenshotPath = path.resolve(config.artifactsDir, name, screenshotPath);
+      consoleLogPath = path.resolve(config.artifactsDir, name, consoleLogPath);
+      reportPath = path.resolve(config.artifactsDir, name, reportPath);
+    } else {
+      tracePath = path.resolve(config.tracesDir, tracePath);
+      screenshotPath = path.resolve(config.screenshotsDir, screenshotPath);
+      consoleLogPath = path.resolve(config.consoleLogDir, consoleLogPath);
+      reportPath = path.resolve(config.reportsDir, reportPath);
+    }
+
+    if (config.traces) {
+      if (
+        !config.artifactsGroupByCheckName &&
+        typeof config.tracesDir === 'undefined'
+      ) {
+        throw new Error('Traces enabled but storage path not specified');
+      }
+      const dirName = path.dirname(tracePath);
+      if (!fs.existsSync(dirName)) {
+        fs.mkdirSync(dirName, { recursive: true });
+      }
+    }
+
+    if (config.screenshots) {
+      if (
+        !config.artifactsGroupByCheckName &&
+        typeof config.screenshotsDir === 'undefined'
+      ) {
+        throw new Error('Screenshots enabled but storage path not specified');
+      }
+      const dirName = path.dirname(screenshotPath);
+      if (!fs.existsSync(dirName)) {
+        fs.mkdirSync(dirName, { recursive: true });
+      }
+    }
+
+    if (config.consoleLog) {
+      if (
+        !config.artifactsGroupByCheckName &&
+        typeof config.consoleLogDir === 'undefined'
+      ) {
+        throw new Error(
+          'Console logging enabled but storage path not specified'
+        );
+      }
+      const dirName = path.dirname(consoleLogPath);
+      if (!fs.existsSync(dirName)) {
+        fs.mkdirSync(dirName, { recursive: true });
+      }
+    }
+
+    if (config.reports) {
+      if (
+        !config.artifactsGroupByCheckName &&
+        typeof config.reportsDir === 'undefined'
+      ) {
+        throw new Error('Reports enabled but storage path not specified');
+      }
+      const dirName = path.dirname(reportPath);
+      if (!fs.existsSync(dirName)) {
+        fs.mkdirSync(dirName, { recursive: true });
+      }
+    }
+
     const check = this.checkParser.getParsedCheck(name);
 
     const browserArgs = [];
@@ -208,12 +246,10 @@ class CheckRunner {
     );
     const page = await getPage(browser);
 
-    const checkIdSafe = checkId.replace(/[^\w]/g, '_');
-
     if (config.traces) {
-      checkReport.tracePath = `${config.tracesDir}/trace_${name}_${checkIdSafe}.json`;
+      checkReport.tracePath = tracePath;
       await page.tracing.start({
-        path: checkReport.tracePath,
+        path: tracePath,
         screenshots: true,
       });
     }
@@ -359,7 +395,7 @@ class CheckRunner {
         }
 
         if (config.screenshots) {
-          checkReport.screenshotPath = `${config.screenshotsDir}/screenshot_${name}_${checkIdSafe}.png`;
+          checkReport.screenshotPath = screenshotPath;
 
           try {
             // TODO: try fullPage:false on error
@@ -374,7 +410,7 @@ class CheckRunner {
         }
 
         if (config.consoleLog) {
-          checkReport.consoleLogPath = `${config.consoleLogDir}/console_${name}_${checkIdSafe}.log`;
+          checkReport.consoleLogPath = consoleLogPath;
 
           try {
             await fs.writeFileSync(
@@ -388,8 +424,6 @@ class CheckRunner {
         }
 
         if (config.reports) {
-          const reportPath = `${config.reportsDir}/report_${checkIdSafe}.json`;
-
           try {
             await fs.writeFileSync(reportPath, JSON.stringify(checkReport));
           } catch (err) {
