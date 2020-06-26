@@ -46,6 +46,7 @@ const config = {
   defaultProductLabel: '',
   defaultPriorityLabel: 'p3',
 
+  artifactsGroupByCheckName: false,
   artifactsDir,
   reports: getDefault(envParams.REPORTS !== 'false', true),
   reportsDir: getDefault(

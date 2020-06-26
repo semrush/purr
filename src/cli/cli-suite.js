@@ -2,8 +2,11 @@ const commander = require('commander');
 
 process.env.PRETTY_LOG = 'true';
 const log = require('../logger');
+const config = require('../config');
 const utils = require('../utils');
 const suite = require('./suite');
+
+config.artifactsGroupByCheckName = true;
 
 utils.logUnhandledRejections(true);
 
