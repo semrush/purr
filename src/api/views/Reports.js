@@ -11,7 +11,7 @@ class Reports {
     try {
       report = JSON.parse(
         fs.readFileSync(
-          `${config.reportsDir}/report_${checkIdSafe}.json`,
+          `${config.reportsDir}/${checkIdSafe}_report.json`,
           'utf8'
         )
       );
