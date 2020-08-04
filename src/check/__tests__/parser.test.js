@@ -125,7 +125,7 @@ describe('CheckParser', () => {
   });
 
   test('get scenario with custom parameters from env', () => {
-    const originEnv = Object.assign({}, process.env);
+    const originEnv = { ...process.env };
 
     const prefix = config.envVarParamPrefix;
     const customParameters = {

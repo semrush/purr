@@ -1,9 +1,5 @@
-const {
-  CheckReport,
-  ActionReport,
-  processReport,
-  stringifyReport,
-} = require('../check');
+const { ActionReport } = require('../action');
+const { CheckReport, processReport, stringifyReport } = require('../check');
 
 test('CheckReport constructor', () => {
   const report = new CheckReport(
