@@ -8,7 +8,8 @@ const Sentry = require('@sentry/node');
 const config = require('../config');
 const utils = require('../utils');
 const log = require('../logger');
-const { CheckReport, ActionReport } = require('../report/check');
+const { ActionReport } = require('../report/action');
+const { CheckReport } = require('../report/check');
 const { CheckParser } = require('./parser');
 
 async function getBrowser(userAgent = config.userAgent, customArgs = []) {
