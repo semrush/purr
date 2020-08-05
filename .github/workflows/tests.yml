@@ -16,7 +16,7 @@ jobs:
       - name: yarn
         run: yarn --frozen-lockfile
       - name: 'lint configs'
-        run: yarn prettier -c 'data/*.yml' 'data/*.yaml'
+        run: yarn prettier -c 'data/*'
       - name: lint
         run: yarn run lint
       - name: test
