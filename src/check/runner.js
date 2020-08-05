@@ -86,6 +86,12 @@ function consoleLogToJSON(consoleLogsArray) {
   );
 }
 
+function createDirIfNotExist(dirName) {
+  if (!fs.existsSync(dirName)) {
+    fs.mkdirSync(dirName, { recursive: true });
+  }
+}
+
 class CheckRunner {
   constructor(queue = utils.mandatory('queue')) {
     this.checkParser = new CheckParser();
@@ -154,6 +160,8 @@ class CheckRunner {
     let consoleLogPath = `${checkIdSafe}_console.log`;
     let reportPath = `${checkIdSafe}_report.json`;
 
+    const traceTempPath = path.resolve(config.tracesTempDir, tracePath);
+
     if (config.artifactsGroupByCheckName) {
       if (typeof config.artifactsDir === 'undefined') {
         throw new Error('Artifacts path not specified');
@@ -177,10 +185,8 @@ class CheckRunner {
       ) {
         throw new Error('Traces enabled but storage path not specified');
       }
-      const dirName = path.dirname(tracePath);
-      if (!fs.existsSync(dirName)) {
-        fs.mkdirSync(dirName, { recursive: true });
-      }
+      createDirIfNotExist(path.dirname(traceTempPath));
+      createDirIfNotExist(path.dirname(tracePath));
     }
 
     if (config.screenshots) {
@@ -190,10 +196,7 @@ class CheckRunner {
       ) {
         throw new Error('Screenshots enabled but storage path not specified');
       }
-      const dirName = path.dirname(screenshotPath);
-      if (!fs.existsSync(dirName)) {
-        fs.mkdirSync(dirName, { recursive: true });
-      }
+      createDirIfNotExist(path.dirname(screenshotPath));
     }
 
     if (config.consoleLog) {
@@ -205,10 +208,7 @@ class CheckRunner {
           'Console logging enabled but storage path not specified'
         );
       }
-      const dirName = path.dirname(consoleLogPath);
-      if (!fs.existsSync(dirName)) {
-        fs.mkdirSync(dirName, { recursive: true });
-      }
+      createDirIfNotExist(path.dirname(consoleLogPath));
     }
 
     if (config.reports) {
@@ -218,10 +218,7 @@ class CheckRunner {
       ) {
         throw new Error('Reports enabled but storage path not specified');
       }
-      const dirName = path.dirname(reportPath);
-      if (!fs.existsSync(dirName)) {
-        fs.mkdirSync(dirName, { recursive: true });
-      }
+      createDirIfNotExist(path.dirname(reportPath));
     }
 
     const check = this.checkParser.getParsedCheck(name);
@@ -250,7 +247,7 @@ class CheckRunner {
     if (config.traces) {
       checkReport.tracePath = tracePath;
       await page.tracing.start({
-        path: tracePath,
+        path: traceTempPath,
         screenshots: true,
       });
     }
@@ -392,6 +389,41 @@ class CheckRunner {
           } catch (err) {
             Sentry.captureException(err);
             log.error('Can not stop puppeteer tracing: ', err);
+          }
+        }
+
+        if (checkReport.success && !config.artifactsKeepSuccessful) {
+          if (config.traces) {
+            fs.unlinkSync(traceTempPath);
+          }
+          return;
+        }
+
+        if (config.traces) {
+          try {
+            fs.renameSync(traceTempPath, tracePath);
+          } catch (renameErr) {
+            if (renameErr.code === 'EXDEV') {
+              try {
+                fs.copyFileSync(traceTempPath, tracePath);
+              } catch (copyErr) {
+                Sentry.captureException(copyErr);
+                log.error('Can not save puppeteer trace: ', copyErr);
+              }
+            } else {
+              Sentry.captureException(renameErr);
+              log.error('Can not save puppeteer trace: ', renameErr);
+            }
+          } finally {
+            try {
+              fs.unlinkSync(traceTempPath);
+            } catch (unlinkErr) {
+              Sentry.captureException(unlinkErr);
+              log.error(
+                'Can not unlink puppeteer trace temporary file: ',
+                unlinkErr
+              );
+            }
           }
         }
 
