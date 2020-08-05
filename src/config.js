@@ -3,6 +3,11 @@ const utils = require('./utils');
 
 const envParams = utils.getPrefixedEnvVars('PURR_CONFIG_');
 
+/**
+ *
+ * @param {any} value
+ * @param {any} defaultValue
+ */
 function getDefault(value, defaultValue = utils.mandatory('default')) {
   if (value === undefined || Number.isNaN(value)) {
     return defaultValue;
@@ -19,6 +24,16 @@ const artifactsDir = getDefault(
   envParams.ARTIFACTS_DIR,
   path.resolve(__dirname, '../storage')
 );
+
+const artifactsTempDir = getDefault(
+  envParams.ARTIFACTS_TEMP_DIR,
+  path.resolve(__dirname, '../storage_tmp')
+);
+
+const reportsDirName = 'reports';
+const screenshotsDirName = 'screenshots';
+const tracesDirName = 'traces';
+const consoleLogDirName = 'console_log';
 
 const config = {
   concurrency: getDefault(parseInt(envParams.CONCURRENCY, 10), 4),
@@ -46,27 +61,37 @@ const config = {
   defaultProductLabel: '',
   defaultPriorityLabel: 'p3',
 
+  artifactsKeepSuccessful: getDefault(
+    envParams.ARTIFACTS_KEEP_SUCCESSFUL !== 'false',
+    true
+  ),
   artifactsGroupByCheckName: false,
   artifactsDir,
+  artifactsTempDir,
+
   reports: getDefault(envParams.REPORTS !== 'false', true),
   reportsDir: getDefault(
     envParams.REPORTS_DIR,
-    path.resolve(artifactsDir, 'reports')
+    path.resolve(artifactsDir, reportsDirName)
   ),
+
   screenshots: getDefault(envParams.SCREENSHOTS !== 'false', true),
   screenshotsDir: getDefault(
     envParams.SCREENSHOTS_DIR,
-    path.resolve(artifactsDir, 'screenshots')
+    path.resolve(artifactsDir, screenshotsDirName)
   ),
+
   traces: getDefault(envParams.TRACES !== 'false', true),
   tracesDir: getDefault(
     envParams.TRACES_DIR,
-    path.resolve(artifactsDir, 'traces')
+    path.resolve(artifactsDir, tracesDirName)
   ),
+  tracesTempDir: path.resolve(artifactsTempDir, tracesDirName),
+
   consoleLog: getDefault(envParams.CONSOLE_LOG !== 'false', true),
   consoleLogDir: getDefault(
     envParams.CONSOLE_LOG_DIR,
-    path.resolve(artifactsDir, 'console_log')
+    path.resolve(artifactsDir, consoleLogDirName)
   ),
 
   envVarParamPrefix: getDefault(envParams.ENV_VAR_PARAM_PREFIX, 'PURR_PARAM_'),
