@@ -392,7 +392,11 @@ class CheckRunner {
           }
         }
 
-        if (checkReport.success && !config.artifactsKeepSuccessful) {
+        if (
+          checkReport.success &&
+          checkReport.forbiddenCookiesCount < 1 &&
+          !config.artifactsKeepSuccessful
+        ) {
           if (config.traces) {
             fs.unlinkSync(traceTempPath);
           }
