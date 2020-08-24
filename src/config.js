@@ -20,6 +20,9 @@ const dataDir = getDefault(
   path.resolve(__dirname, '../data')
 );
 
+const checksDir = path.resolve(dataDir, 'checks');
+const suitesDir = path.resolve(dataDir, 'suites');
+
 const artifactsDir = getDefault(
   envParams.ARTIFACTS_DIR,
   path.resolve(__dirname, '../storage')
@@ -40,14 +43,9 @@ const config = {
 
   checksQueueName: getDefault(envParams.CHECKS_QUEUE_NAME, 'checks-queue'),
 
-  checksFilePath: getDefault(
-    envParams.CHECKS_FILE_PATH,
-    path.resolve(dataDir, 'checks.yml')
-  ),
-  suitesFilePath: getDefault(
-    envParams.SUITES_FILE_PATH,
-    path.resolve(dataDir, 'suites.yml')
-  ),
+  checksDir,
+  suitesDir,
+
   parametersInfoFilePath: getDefault(
     envParams.PARAMETERS_INFO_FILE_PATH,
     path.resolve(dataDir, 'parameters.yml')

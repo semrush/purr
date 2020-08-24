@@ -9,7 +9,7 @@ const CheckRunner = require('../check/runner');
 
 class SuiteRunner {
   constructor(queue = new SimpleQueue()) {
-    this.suiteParser = new SuiteParser(config.suitesFilePath);
+    this.suiteParser = new SuiteParser(config.suitesDir);
     this.checkRunner = new CheckRunner(queue);
   }
 

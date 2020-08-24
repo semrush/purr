@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const yaml = require('js-yaml');
 const nunjucks = require('nunjucks');
 
@@ -8,39 +9,61 @@ const ParamParser = require('../parameters/ParamParser');
 
 class CheckParser {
   constructor() {
-    this.rawContent = fs.readFileSync(config.checksFilePath, 'utf8');
+    const rawContent = [];
+
+    const dir = fs.opendirSync(config.checksDir);
+    let dirent = dir.readSync();
+
+    while (dirent !== null) {
+      if (dirent.isFile()) {
+        const file = fs.readFileSync(
+          path.resolve(config.checksDir, dirent.name)
+        );
+
+        if (dirent.name.startsWith('.common.')) {
+          rawContent.unshift(file);
+        } else {
+          rawContent.push(file);
+        }
+      }
+      dirent = dir.readSync();
+    }
+
+    dir.close();
+
+    this.rawContent = rawContent.join('\n');
     this.rawDoc = yaml.safeLoad(this.rawContent);
     this.paramParser = new ParamParser();
     this.preparedDoc = null;
   }
 
   getList() {
-    return Object.keys(this.rawDoc.checks);
+    return Object.keys(this.rawDoc);
   }
 
   getParsedCheck(name = utils.mandatory('name')) {
-    if (typeof this.preparedDoc.checks[name] === 'undefined') {
+    if (typeof this.preparedDoc[name] === 'undefined') {
       throw new Error(`Check with name '${name}' was not parsed`);
     }
-    return this.preparedDoc.checks[name];
+    return this.preparedDoc[name];
   }
 
   getScenario(name = utils.mandatory('name'), params = {}) {
-    if (typeof this.rawDoc.checks[name] === 'undefined') {
+    if (typeof this.rawDoc[name] === 'undefined') {
       throw new Error(`Check with name '${name}' does not exist`);
     }
 
     const scenario = [];
 
     const mergedParams = this.paramParser.mergeParams(
-      this.rawDoc.checks[name].parameters,
+      this.rawDoc[name].parameters,
       params
     );
 
     this.preparedDoc = yaml.safeLoad(
       nunjucks.renderString(this.rawContent, mergedParams)
     );
-    const check = this.preparedDoc.checks[name];
+    const check = this.preparedDoc[name];
 
     const flattenedSteps = utils.flattenArray(check.steps, true);
 

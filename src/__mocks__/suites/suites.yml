@@ -1,0 +1,20 @@
+mocked-suite:
+  proxy: some_url
+  steps:
+    - mocked-check
+    - mocked-check-with-param
+
+failing-mocked-suite:
+  steps:
+    - mocked-check
+    - failing-fake-check
+
+mocked-suite-with-exception:
+  steps:
+    - mocked-check
+    - check-with-exception
+
+empty-suite:
+
+empty-steps-suite:
+  steps:

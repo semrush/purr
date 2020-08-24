@@ -1,0 +1,8 @@
+semrush-suite:
+  steps:
+    - semrush-com
+
+example-com-suite:
+  steps:
+    - example-com
+    - example-com-fail
