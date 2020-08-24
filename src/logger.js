@@ -11,7 +11,6 @@ const logger = winston.createLogger({
     winston.format.metadata(),
     winston.format.json()
   ),
-  defaultMeta: { service: 'purr' },
   transports: [
     new winston.transports.Console({
       handleExceptions: true,
@@ -19,11 +18,13 @@ const logger = winston.createLogger({
       // handleRejections: true,
     }),
   ],
+  defaultMeta: { service: 'purr' },
 });
 
 // TODO: Should there be a better solution?
 if (process.env.PRETTY_LOG) {
   const cliTransport = new winston.transports.Console({
+    handleExceptions: true,
     format: winston.format.prettyPrint({ depth: 0 }),
   });
 
