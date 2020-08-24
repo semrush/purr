@@ -1,33 +1,27 @@
+# PURR
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [Intro](#intro)
-- [Configuration](#configuration)
-- [CLI](#cli)
-- [Scheduled jobs](#scheduled-jobs)
-  - [Run worker](#run-worker)
-  - [Apply schedules](#apply-schedules)
-  - [Stop schedules](#stop-schedules)
-- [REST API](#rest-api)
-  - [Endpoints](#endpoints)
-- [Writing checks](#writing-checks)
-  - [Methods](#methods)
-  - [Includes](#includes)
-  - [Variables](#variables)
-  - [Proxy](#proxy)
-- [Development](#development)
-  - [Tests](#tests)
+- [PURR](#purr)
+  - [Intro](#intro)
+  - [Configuration](#configuration)
+  - [CLI](#cli)
+  - [Scheduled jobs](#scheduled-jobs)
+  - [REST API](#rest-api)
+  - [Writing checks](#writing-checks)
+  - [Development](#development)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Intro
+## Intro
 
 PURR (SEMrush puppeteer runner) is a devops-friendly tool for browser testing and monitoring.
 
 The goal of this project is to have single set of browser checks, that could be used as tests,
 as canaries in CI/CD pipelines and as scenarios for production monitoring.
 
-The tool uses puppeteer (https://pptr.dev/) to run standalone browsers (Chrome and Firefox are supported currently).
+The tool uses puppeteer (<https://pptr.dev/>) to run standalone browsers (Chrome and Firefox are supported currently).
 
 Checks results are stored as JSON reports, screenshots and traces.
 
@@ -37,13 +31,13 @@ PURR has three modes:
 - queue worker (scheduled monitoring)
 - REST service (show results and expose internal metrics for prometheus)
 
-# Configuration
+## Configuration
 
-### data/checks.yml
+### data/checks
 
 Stores descriptions of every single check
 
-### data/suites.yml
+### data/suites
 
 Organizes checks into suites
 
@@ -62,7 +56,7 @@ Define your schedules here
 - Params from env
 - Explicitly specified params
 
-# CLI
+## CLI
 
 ### Build
 
@@ -103,31 +97,31 @@ storage
 
 Open trace in [Chrome DevTools Timeline Viewer](https://chromedevtools.github.io/timeline-viewer/).
 
-# Scheduled jobs
+## Scheduled jobs
 
-## Run worker
+### Run worker
 
 ```bash
 APP_IMAGE_NAME="puppeteer-runner" APP_IMAGE_VERSION="latest" NGINX_IMAGE_NAME="nginx" docker-compose up
 
 ```
 
-## Apply schedules
+### Apply schedules
 
 ```bash
 docker-compose exec worker /app/src/cli.js schedule clean
 docker-compose exec worker /app/src/cli.js schedule apply
 ```
 
-## Stop schedules
+### Stop schedules
 
 ```bash
 docker-compose exec worker /app/src/cli.js schedule clean
 ```
 
-# REST API
+## REST API
 
-## Endpoints
+### Endpoints
 
 #### `GET /metrics`
 
@@ -167,7 +161,7 @@ Add check to queue
 
 ##### Example:
 
-```
+```bash
 curl -X POST \
   -d 'params[TARGET_SCHEMA]=http' \
   -d 'params[TARGET_DOMAIN]=rc.example.com' \
@@ -190,122 +184,126 @@ Get report
   **options**: json, pretty
   Output format
 
-# Writing checks
+## Writing checks
 
-PURR translate scenatio steps described in ./data/checks.yml into method call of puppeteer.Page object
+PURR translate scenario steps described in ./data/checks into method call of puppeteer.Page object
 You can check [puppeteer reference documentation](https://github.com/GoogleChrome/puppeteer/blob/v1.19.0/docs/api.md#class-page) for up-to-date capabilities.
 
-## Methods
+### Methods
 
 List of methods which were tested by the PURR dev team
 
-      - goto:
-          - '{{ TARGET_SCHEMA }}://{{ TARGET_DOMAIN }}/{{ TARGET_PAGE }}/'
+```yaml
+- goto:
+    - '{{ TARGET_SCHEMA }}://{{ TARGET_DOMAIN }}/{{ TARGET_PAGE }}/'
 
-      - goto:
-          - '{{ TARGET_SCHEMA }}://{{ TARGET_DOMAIN }}/{{ TARGET_PAGE }}/'
-          - waitUntil: networkidle2
+- goto:
+    - '{{ TARGET_SCHEMA }}://{{ TARGET_DOMAIN }}/{{ TARGET_PAGE }}/'
+    - waitUntil: networkidle2
 
-      - waitForNavigation:
-          - waitUntil: domcontentloaded
+- waitForNavigation:
+    - waitUntil: domcontentloaded
 
-      - click:
-          - {{ CSS_OR_DOM_SELECTOR }}
+- click:
+    - '{{ CSS_OR_DOM_SELECTOR }}'
 
-      - type:
-        - {{ CSS_OR_DOM_SELECTOR }}
-        - {{ STRING_TO_TYPE }}
+- type:
+    - '{{ CSS_OR_DOM_SELECTOR }}'
+    - '{{ STRING_TO_TYPE }}'
 
-      - waitForSelector:
-          - {{ CSS_OR_DOM_SELECTOR }}
+- waitForSelector:
+    - '{{ CSS_OR_DOM_SELECTOR }}'
 
-      - waitForSelector:
-          - {{ CSS_OR_DOM_SELECTOR }}
-          - contains: {{ EXPECTED_TEXT }}
+- waitForSelector:
+    - '{{ CSS_OR_DOM_SELECTOR }}'
+    - contains: '{{ EXPECTED_TEXT }}'
 
-      - setCookie:
-          - name: {{ COOKIE_NAME }}
-            value: {{ COOKIE_VALUE }}
-            domain: .{{ TARGET_DOMAIN.split('.').slice(-2).join('.') }}
+- setCookie:
+    - name: '{{ COOKIE_NAME }}'
+      value: '{{ COOKIE_VALUE }}'
+      domain: .{{ TARGET_DOMAIN.split('.').slice(-2).join('.') }}
+```
 
-## Includes
+### Includes
 
-Feel free to use YAML includes in your scenatios
+Feel free to use YAML anchors in your scenarios
 
-    .login_via_popup: &login_via_popup
-      - click:
-        - '[data-test="login"]'
-      - waitForSelector:
-        - '[data-test="email"]'
-      - type:
-        - '[data-test="email"]'
-        - {{USER_EMAIL}}
-      - type:
-        - '[data-test="password"]'
-        - {{USER_PASSWORD}}
-      - click:
-        - '[data-test="login-submit"]'
+```yaml
+.login_via_popup: &login_via_popup
+  - click:
+    - '[data-test="login"]'
+  - waitForSelector:
+    - '[data-test="email"]'
+  - type:
+    - '[data-test="email"]'
+    - '{{ USER_EMAIL }}'
+  - type:
+    - '[data-test="password"]'
+    - '{{ USER_PASSWORD }}'
+  - click:
+    - '[data-test="login-submit"]'
 
-    checks:
-      logged-user-dashboard:
-        parameters:
-          USER_PASSWORD: secret
-        steps:
-          - goto:
-            - {{ TARGET_URL }}
-            - waitUntil: networkidle2
-          <<: *login_via_popup
-            parameters:
-              USER_EMAIL: root@localhost
-          - waitForSelector:
-            - '[data-test="user-profile"]'
-            - contains: 'User Name:'
 
-## Variables
+logged-user-dashboard:
+  parameters:
+    USER_PASSWORD: secret
+  steps:
+    - goto:
+      - '{{ TARGET_URL }}'
+      - waitUntil: networkidle2
+    <<: *login_via_popup
+      parameters:
+        USER_EMAIL: root@localhost
+    - waitForSelector:
+      - '[data-test="user-profile"]'
+      - contains: 'User Name:'
+```
+
+### Variables
 
 You can specify parameters in checks and suites yaml files under 'parameters' key
 
-    parameters:
-      TARGET_HOST: localhost
+```yaml
+parameters:
+  TARGET_HOST: localhost
 
-    checks:
-      parameters:
-        USER_EMAIL: root@localhost
-        USER_PASSOWRD: secret
+valid-password:
+  <<: *login_via_popup
+  parameters:
+    USER_EMAIL: root@localhost
+    USER_PASSOWRD: secret
 
-      valid-password:
-        <<: *login_via_popup
+invalid-password:
+  <<: *login_via_popup
+  parameters:
+    USER_PASSOWRD: invalid
+```
 
-      invalid-password:
-        <<: *login_via_popup
-          parameters:
-            USER_PASSOWRD: invalid
-
-## Proxy
+### Proxy
 
 To run a check, suite or schedule throw proxy use 'proxy' key
 
-```
-  check-page-from-india:
-    proxy: 'socks5h://user:password@proxy.service:8080'
-    steps:
-      - goto:
-          - {{ TARGET_URL }}
-      - waitForSelector:
-          - body
-          - contains: 'Your location: India'
+```yaml
+check-page-from-india:
+  proxy: 'socks5h://user:password@proxy.service:8080'
+  steps:
+    - goto:
+        - '{{ TARGET_URL }}'
+    - waitForSelector:
+        - body
+        - contains: 'Your location: India'
 ```
 
-# Development
+## Development
 
 > **IMPORTANT**: It's expected that for convenient experience you will use [vscode](https://code.visualstudio.com/) as an IDE with recommended extensions(configs are available in this repository).
 
-```
+```bash
 make start-dev
 make attach-dev
 ```
 
-## Tests
+### Tests
 
 Run tests:
 
@@ -313,7 +311,7 @@ Run tests:
 yarn run test
 ```
 
-### Mocks
+#### Mocks
 
 We are using Jest testing framework.
 
@@ -343,7 +341,7 @@ config.getWorkingPath = jest.fn().mockImplementation(() => {
 });
 ```
 
-#### Be careful
+##### Be careful
 
 Methods `mock`\\`unmock` must be executed before module imports and in the
 same scope.
