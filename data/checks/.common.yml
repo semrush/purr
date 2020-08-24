@@ -1,0 +1,5 @@
+.set_cookie: &set_cookie
+  - setCookie:
+      - name: purr_test_cookie
+        value: 'true'
+        domain: .{{ TARGET_DOMAIN.split('.').slice(-2).join('.') }}

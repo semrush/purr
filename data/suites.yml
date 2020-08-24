@@ -1,4 +1,0 @@
-suites:
-  semrush-suite:
-    steps:
-      - semrush-com

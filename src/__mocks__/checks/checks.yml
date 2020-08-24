@@ -1,0 +1,94 @@
+.action_template: &action_template
+  - someAction:
+      - {{SOME_PARAMETER}}
+
+.another_action_template: &another_action_template
+  - anotherAction:
+      - {{SOME_PARAMETER}}
+      - anotherArgument: .{{ SOME_COMPLEX_PARAMETER.split('.').slice(-2).join('.') }}
+
+.nested_action_template: &nested_action_template
+  - *action_template
+  - *another_action_template
+
+extra-action-check:
+  steps:
+    - someAction:
+        - 3600
+      extraAction:
+        - 3600
+
+mocked-check:
+  steps:
+    - someAction:
+        - 3600
+    - anotherAction:
+        - someArgument
+        - anotherArgument: anotherValue
+
+mocked-check-with-params:
+  parameters:
+    PARAMETRIZED_VALUE: https
+    TARGET_DOMAIN: en.example.cn
+  steps:
+    - someAction:
+        - {{SOME_PARAMETER}}
+    - anotherAction:
+        - {{SOME_PARAMETER}}
+        - anotherArgument: .{{ SOME_COMPLEX_PARAMETER.split('.').slice(-2).join('.') }}
+
+failing-fake-check:
+  steps:
+    - someAction:
+        - 3600
+
+check-with-exception:
+  steps:
+    - errorAction:
+        - 3600
+
+check-with-template:
+  steps:
+    - *action_template
+    - someAction:
+        - 3600
+    - *action_template
+
+check-with-template-expected:
+  steps:
+    - someAction:
+        - {{SOME_PARAMETER}}
+
+    - someAction:
+        - 3600
+
+    - someAction:
+        - {{SOME_PARAMETER}}
+
+check-with-nested-template:
+  steps:
+    - *nested_action_template
+    - someAction:
+        - 3600
+    - *nested_action_template
+
+check-with-nested-template-expected:
+  steps:
+    - someAction:
+        - {{SOME_PARAMETER}}
+    - anotherAction:
+        - {{SOME_PARAMETER}}
+        - anotherArgument: .{{ SOME_COMPLEX_PARAMETER.split('.').slice(-2).join('.') }}
+
+    - someAction:
+        - 3600
+
+    - someAction:
+        - {{SOME_PARAMETER}}
+    - anotherAction:
+        - {{SOME_PARAMETER}}
+        - anotherArgument: .{{ SOME_COMPLEX_PARAMETER.split('.').slice(-2).join('.') }}
+
+check-with-invalid-step:
+  steps:
+    - 'someAction'

@@ -5,7 +5,7 @@ const RedisQueue = require('../../queue/RedisQueue');
 
 class Suites {
   static list(req, res) {
-    res.send(new SuiteParser(config.suitesFilePath).getList());
+    res.send(new SuiteParser(config.suitesDir).getList());
   }
 
   static exec(req, res, next) {

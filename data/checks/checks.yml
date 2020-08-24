@@ -1,0 +1,25 @@
+semrush-com:
+  steps:
+    - goto:
+        - '{{ TARGET_SCHEMA }}://{{ TARGET_DOMAIN }}/'
+    - waitForSelector:
+        - '.srf-copyright'
+        - contains: 'SEMrush. All rights reserved.'
+
+example-com:
+  steps:
+    - *set_cookie
+    - goto:
+        - '{{ TARGET_SCHEMA }}://example.com/'
+    - waitForSelector:
+        - 'body'
+        - contains: 'Example Domain'
+
+example-com-fail:
+  steps:
+    - *set_cookie
+    - goto:
+        - '{{ TARGET_SCHEMA }}://example.com/'
+    - waitForSelector:
+        - 'body'
+        - contains: 'No Way'

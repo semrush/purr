@@ -6,7 +6,7 @@ const { SuiteParser } = require('../parser');
 let parser;
 
 beforeEach(async () => {
-  parser = new SuiteParser(config.suitesFilePath);
+  parser = new SuiteParser(config.suitesDir);
 });
 
 describe('SuiteParser', () => {
