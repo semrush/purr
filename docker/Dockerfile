@@ -5,23 +5,22 @@
 ARG PUPPETEER_ENV_IMAGE=puppeteer-environment
 FROM node:12 as puppeteer-environment
 
-# Install latest chrome dev package and fonts to support major charsets
+# Install latest chrome package and fonts to support major charsets
 # (Chinese, Japanese, Arabic, Hebrew, Thai and a few others)
 # Note: this installs the necessary libs to make the bundled version of
 # Chromium that Puppeteer installs, work.
-# FIXME: remove trusted=true https://askubuntu.com/questions/1133199/the-following-signatures-were-invalid-expkeysig-1397bc53640db551/1133208#1133208
 RUN : \
-  && sh -c 'echo "deb [arch=amd64, trusted=true] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+  && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
   && curl -s https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
   && apt-get update \
   && apt-get install -yq --no-install-recommends \
-  libgconf-2-4 \
   google-chrome-stable \
   fonts-ipafont-gothic \
   fonts-wqy-zenhei \
   fonts-thai-tlwg \
   fonts-kacst \
-  ttf-freefont \
+  fonts-freefont-ttf \
+  libxss1 \
   && rm -rf /var/lib/apt/lists/* /src/*.deb /tmp/* /var/tmp/*
 
 # It's a good idea to use dumb-init to help prevent zombie chrome processes.
