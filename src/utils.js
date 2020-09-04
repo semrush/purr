@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 function mandatory(name) {
   if (name === undefined) {
     throw new Error('Mandatory parameter name is not specified');
@@ -140,6 +142,28 @@ function stringToRegExp(str = mandatory('str')) {
   return new RegExp(pattern, flags);
 }
 
+/**
+ * Move file
+ * @param {string} sourcePath
+ * @param {string} targetPath
+ */
+function moveFile(sourcePath, targetPath) {
+  try {
+    fs.renameSync(sourcePath, targetPath);
+  } catch (renameErr) {
+    try {
+      if (renameErr.code === 'EXDEV') {
+        // Source and target paths on different devices
+        fs.copyFileSync(sourcePath, targetPath);
+      } else {
+        throw renameErr;
+      }
+    } finally {
+      fs.unlinkSync(sourcePath);
+    }
+  }
+}
+
 module.exports = {
   mandatory,
   enrichError,
@@ -150,4 +174,5 @@ module.exports = {
   getPrefixedEnvVars,
   humanReadableTimeToMS,
   stringToRegExp,
+  moveFile,
 };

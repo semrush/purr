@@ -25,6 +25,12 @@ class Reports {
         `${req.protocol}://${req.headers.host}/storage`
       );
     }
+    if (report.harPath) {
+      report.harPath = report.harPath.replace(
+        config.artifactsDir,
+        `${req.protocol}://${req.headers.host}/storage`
+      );
+    }
     if (report.screenshotPath) {
       report.screenshotPath = report.screenshotPath.replace(
         config.artifactsDir,

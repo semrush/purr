@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const puppeteer = require('puppeteer');
+const PuppeteerHar = require('puppeteer-har');
 
 const { v4: uuidv4 } = require('uuid');
 const Sentry = require('@sentry/node');
@@ -156,11 +157,13 @@ class CheckRunner {
     const checkIdSafe = checkId.replace(/[^\w]/g, '_');
 
     let tracePath = `${checkIdSafe}_trace.json`;
+    let harPath = `${checkIdSafe}.har`;
     let screenshotPath = `${checkIdSafe}_screenshot.png`;
     let consoleLogPath = `${checkIdSafe}_console.log`;
     let reportPath = `${checkIdSafe}_report.json`;
 
     const traceTempPath = path.resolve(config.tracesTempDir, tracePath);
+    const harTempPath = path.resolve(config.harsTempDir, harPath);
 
     if (config.artifactsGroupByCheckName) {
       if (typeof config.artifactsDir === 'undefined') {
@@ -168,11 +171,13 @@ class CheckRunner {
       }
 
       tracePath = path.resolve(config.artifactsDir, name, tracePath);
+      harPath = path.resolve(config.artifactsDir, name, harPath);
       screenshotPath = path.resolve(config.artifactsDir, name, screenshotPath);
       consoleLogPath = path.resolve(config.artifactsDir, name, consoleLogPath);
       reportPath = path.resolve(config.artifactsDir, name, reportPath);
     } else {
       tracePath = path.resolve(config.tracesDir, tracePath);
+      harPath = path.resolve(config.harsDir, harPath);
       screenshotPath = path.resolve(config.screenshotsDir, screenshotPath);
       consoleLogPath = path.resolve(config.consoleLogDir, consoleLogPath);
       reportPath = path.resolve(config.reportsDir, reportPath);
@@ -187,6 +192,17 @@ class CheckRunner {
       }
       createDirIfNotExist(path.dirname(traceTempPath));
       createDirIfNotExist(path.dirname(tracePath));
+    }
+
+    if (config.hars) {
+      if (
+        !config.artifactsGroupByCheckName &&
+        typeof config.harsDir === 'undefined'
+      ) {
+        throw new Error('HARs enabled but storage path not specified');
+      }
+      createDirIfNotExist(path.dirname(harTempPath));
+      createDirIfNotExist(path.dirname(harPath));
     }
 
     if (config.screenshots) {
@@ -250,6 +266,14 @@ class CheckRunner {
         path: traceTempPath,
         screenshots: true,
       });
+    }
+
+    let har;
+
+    if (config.hars) {
+      checkReport.harPath = harPath;
+      har = new PuppeteerHar(page);
+      await har.start({ path: harTempPath });
     }
 
     if (config.consoleLog) {
@@ -392,6 +416,15 @@ class CheckRunner {
           }
         }
 
+        if (config.hars) {
+          try {
+            await har.stop();
+          } catch (err) {
+            Sentry.captureException(err);
+            log.error('Can not stop har generation: ', err);
+          }
+        }
+
         if (
           checkReport.success &&
           checkReport.forbiddenCookiesCount < 1 &&
@@ -400,34 +433,27 @@ class CheckRunner {
           if (config.traces) {
             fs.unlinkSync(traceTempPath);
           }
+          if (config.hars) {
+            fs.unlinkSync(harTempPath);
+          }
           return;
         }
 
         if (config.traces) {
           try {
-            fs.renameSync(traceTempPath, tracePath);
-          } catch (renameErr) {
-            if (renameErr.code === 'EXDEV') {
-              try {
-                fs.copyFileSync(traceTempPath, tracePath);
-              } catch (copyErr) {
-                Sentry.captureException(copyErr);
-                log.error('Can not save puppeteer trace: ', copyErr);
-              }
-            } else {
-              Sentry.captureException(renameErr);
-              log.error('Can not save puppeteer trace: ', renameErr);
-            }
-          } finally {
-            try {
-              fs.unlinkSync(traceTempPath);
-            } catch (unlinkErr) {
-              Sentry.captureException(unlinkErr);
-              log.error(
-                'Can not unlink puppeteer trace temporary file: ',
-                unlinkErr
-              );
-            }
+            utils.moveFile(traceTempPath, tracePath);
+          } catch (err) {
+            Sentry.captureException(err);
+            log.error('Can not save trace file: ', err);
+          }
+        }
+
+        if (config.hars) {
+          try {
+            utils.moveFile(harTempPath, harPath);
+          } catch (err) {
+            Sentry.captureException(err);
+            log.error('Can not save HAR file: ', err);
           }
         }
 

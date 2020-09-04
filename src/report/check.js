@@ -18,6 +18,7 @@ class CheckReport {
    * @param {string[]} [labels=[]] - Labels
    * @param {string[]} [forbiddenCookies=[]] - Found forbidden cookies
    * @param {number} [forbiddenCookiesCount=0] - Count of forbidden cookies found
+   * @param {string} [harPath=null] - Har path
    */
   constructor(
     name,
@@ -34,7 +35,8 @@ class CheckReport {
     scheduleName = null,
     labels = [],
     forbiddenCookies = [],
-    forbiddenCookiesCount = 0
+    forbiddenCookiesCount = 0,
+    harPath = null
   ) {
     this.name = name;
     this.id = id;
@@ -51,6 +53,7 @@ class CheckReport {
     this.labels = labels;
     this.forbiddenCookies = forbiddenCookies;
     this.forbiddenCookiesCount = forbiddenCookiesCount;
+    this.harPath = harPath;
   }
 }
 

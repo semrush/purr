@@ -93,9 +93,12 @@ storage
 
 ```
 
-### Traces
+### Traces and HARs
 
-Open trace in [Chrome DevTools Timeline Viewer](https://chromedevtools.github.io/timeline-viewer/).
+PURR have a feature to save Chromium traces and [HARs](<https://en.wikipedia.org/wiki/HAR_(file_format)>).
+
+You can open traces in Chromium Devtools Network Inspector or [Chrome DevTools Timeline Viewer](https://chromedevtools.github.io/timeline-viewer/).
+For HAR you can use [GSuite Toolbox HAR Analyze](https://toolbox.googleapps.com/apps/har_analyzer/).
 
 ## Scheduled jobs
 
