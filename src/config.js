@@ -36,6 +36,7 @@ const artifactsTempDir = getDefault(
 const reportsDirName = 'reports';
 const screenshotsDirName = 'screenshots';
 const tracesDirName = 'traces';
+const harsDirName = 'hars';
 const consoleLogDirName = 'console_log';
 
 const config = {
@@ -85,6 +86,13 @@ const config = {
     path.resolve(artifactsDir, tracesDirName)
   ),
   tracesTempDir: path.resolve(artifactsTempDir, tracesDirName),
+
+  hars: getDefault(envParams.HARS === 'true', false),
+  harsDir: getDefault(
+    envParams.HARS_DIR,
+    path.resolve(artifactsDir, harsDirName)
+  ),
+  harsTempDir: path.resolve(artifactsTempDir, harsDirName),
 
   consoleLog: getDefault(envParams.CONSOLE_LOG !== 'false', true),
   consoleLogDir: getDefault(
