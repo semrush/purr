@@ -44,6 +44,7 @@ class CheckReport {
     this.shortMessage = shortMessage;
     this.fullMessage = fullMessage;
     this.tracePath = tracePath;
+    this.harPath = harPath;
     this.screenshotPath = screenshotPath;
     this.consoleLogPath = consoleLogPath;
     this.startDateTime = startDateTime;
@@ -53,7 +54,6 @@ class CheckReport {
     this.labels = labels;
     this.forbiddenCookies = forbiddenCookies;
     this.forbiddenCookiesCount = forbiddenCookiesCount;
-    this.harPath = harPath;
   }
 }
 
