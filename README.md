@@ -67,13 +67,13 @@ docker build -f ./docker/Dockerfile . -t puppeteer-runner:latest
 ### Run single check
 
 ```bash
-docker run -v "${PWD}/storage:/src/app/storage" puppeteer-runner:latest ./src/cli/cli.js check semrush-com
+docker run -v --init "${PWD}/storage:/src/app/storage" puppeteer-runner:latest ./src/cli/cli.js check semrush-com
 ```
 
 ### Run suite
 
 ```bash
-docker run -v "${PWD}/storage:/src/app/storage" puppeteer-runner:latest ./src/cli/cli.js suite semrush-suite
+docker run -v --init "${PWD}/storage:/src/app/storage" puppeteer-runner:latest ./src/cli/cli.js suite semrush-suite
 ```
 
 ### Results
