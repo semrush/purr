@@ -16,28 +16,27 @@
 
 ## Intro
 
-PURR (SEMrush puppeteer runner) is a devops-friendly tool for browser testing and monitoring.
+PURR (PUppeteer RunneR) is a devops-friendly tool for browser testing and monitoring.
 
-The goal of this project is to have single set of browser checks, that could be used as tests,
-as canaries in CI/CD pipelines and as scenarios for production monitoring.
+The goal of this project is to have single set of browser checks, that could be used as tests, canaries in CI/CD pipelines and scenarios for production monitoring.
 
 The tool uses puppeteer (<https://pptr.dev/>) to run standalone browsers (Chrome and Firefox are supported currently).
 
-Checks results are stored as JSON reports, screenshots and traces.
+Checks results are stored as JSON reports, screenshots, traces and HAR files.
 
 PURR has three modes:
 
 - CLI (mainly used in CI/CD pipelines)
-- queue worker (scheduled monitoring)
+- Queue worker (scheduled monitoring checks)
 - REST service (show results and expose internal metrics for prometheus)
 
 ## Configuration
 
-### data/checks
+### data/checks dir
 
 Stores descriptions of every single check
 
-### data/suites
+### data/suites dir
 
 Organizes checks into suites
 
@@ -189,7 +188,7 @@ Get report
 
 ## Writing checks
 
-PURR translate scenario steps described in ./data/checks into method call of puppeteer.Page object
+PURR translates scenario steps described in ./data/checks into methods of puppeteer.Page object.
 You can check [puppeteer reference documentation](https://github.com/GoogleChrome/puppeteer/blob/v1.19.0/docs/api.md#class-page) for up-to-date capabilities.
 
 ### Methods
@@ -217,14 +216,20 @@ List of methods which were tested by the PURR dev team
 - waitForSelector:
     - '{{ CSS_OR_DOM_SELECTOR }}'
 
-- waitForSelector:
-    - '{{ CSS_OR_DOM_SELECTOR }}'
-    - contains: '{{ EXPECTED_TEXT }}'
-
 - setCookie:
     - name: '{{ COOKIE_NAME }}'
       value: '{{ COOKIE_VALUE }}'
       domain: .{{ TARGET_DOMAIN.split('.').slice(-2).join('.') }}
+```
+
+### Custom Methods
+
+Custom steps methods are described in [src/actions](./src/actions/common/index.js) dir and can be executed in checks.
+
+```yaml
+- actions.common.selectorContains:
+    - '[data-test="user-profile"]'
+    - 'User Name:'
 ```
 
 ### Includes
@@ -259,7 +264,9 @@ logged-user-dashboard:
         USER_EMAIL: root@localhost
     - waitForSelector:
       - '[data-test="user-profile"]'
-      - contains: 'User Name:'
+    - actions.common.selectorContains:
+      - '[data-test="user-profile"]'
+      - 'User Name:'
 ```
 
 ### Variables
@@ -294,7 +301,9 @@ check-page-from-india:
         - '{{ TARGET_URL }}'
     - waitForSelector:
         - body
-        - contains: 'Your location: India'
+    - actions.common.selectorContains:
+        - body
+        - 'Your location: India'
 ```
 
 ## Development

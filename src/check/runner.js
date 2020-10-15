@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const puppeteer = require('puppeteer');
 const PuppeteerHar = require('puppeteer-har');
 
 const { v4: uuidv4 } = require('uuid');
@@ -9,61 +8,11 @@ const Sentry = require('@sentry/node');
 const config = require('../config');
 const utils = require('../utils');
 const log = require('../logger');
+const { getBrowser } = require('../browser/browser');
+const { getPage } = require('../browser/page');
 const { ActionReport } = require('../report/action');
 const { CheckReport } = require('../report/check');
 const { CheckParser } = require('./parser');
-
-async function getBrowser(userAgent = config.userAgent, customArgs = []) {
-  return puppeteer.launch({
-    args: [
-      `--window-size=${config.windowWidth},${config.windowHeight}`,
-      `--user-agent=${userAgent}`,
-      '--no-sandbox',
-      '--disk-cache-size=0',
-      ...customArgs,
-    ],
-
-    defaultViewport: {
-      width: config.windowWidth,
-      height: config.windowHeight,
-    },
-
-    // We want to handle it manually in bull workers
-    handleSIGTERM: false,
-    handleSIGINT: false,
-    handleSIGHUP: false,
-
-    // headless: false,
-  });
-}
-
-/**
- * Get puppeteer Page instance
- *
- * @param {puppeteer.Browser} browser Puppeteer Browser instance
- * @returns {Promise<puppeteer.Page>}
- */
-async function getPage(browser = utils.mandatory('browser')) {
-  const page = await browser.newPage();
-
-  if (config.blockedResourceDomains.length > 0) {
-    await page.setRequestInterception(true);
-
-    page.on('request', (request) => {
-      const url = new URL(request.url());
-
-      if (config.blockedResourceDomains.includes(url.host.toLowerCase())) {
-        log.debug('Request blocked', { url: request.url() });
-        request.abort();
-      } else {
-        request.continue();
-      }
-    });
-  }
-
-  await page.setDefaultNavigationTimeout(config.navigationTimeout);
-  return page;
-}
 
 function consoleLogToJSON(consoleLogsArray) {
   const seen = [];
@@ -105,19 +54,34 @@ class CheckRunner {
     this.queue = queue;
   }
 
-  static async doAction(
-    page = utils.mandatory('page'),
-    action = utils.mandatory('action'),
-    params = []
-  ) {
-    if (typeof page[action] !== 'function') {
+  /**
+   *
+   * @param {import('../browser/page').PageExtended} page
+   * @param {string} action Action name
+   * @param {Array} params Action parameters
+   */
+  static async doAction(page, action, params = []) {
+    const actionNested = action.split('.').slice();
+
+    /** @type Function */
+    let actionFunction;
+
+    actionNested.forEach((element) => {
+      if (!actionFunction) {
+        actionFunction = page[element];
+      } else {
+        actionFunction = actionFunction[element];
+      }
+    });
+
+    if (typeof actionFunction !== 'function') {
       throw new Error(`Action '${action}' does not exists`);
     }
     if (typeof params !== 'object') {
       throw new Error(`Action params should be array, not '${typeof params}'`);
     }
 
-    return page[action](...params);
+    return actionFunction.call(page, ...params);
   }
 
   /**
@@ -314,29 +278,6 @@ class CheckRunner {
                 })
                 .catch((err) => {
                   log.error('Could not get a cookies: ', err);
-                });
-            }
-
-            if (
-              stepName === 'waitForSelector' &&
-              typeof stepParameters[1] !== 'undefined' &&
-              (typeof stepParameters[1].contains !== 'undefined' ||
-                typeof stepParameters[1].notContains !== 'undefined')
-            ) {
-              await page
-                .$eval(stepParameters[0], (el) => {
-                  return el.innerText;
-                })
-                .then((content) => {
-                  if (!content.includes(stepParameters[1].contains)) {
-                    throw new Error(
-                      `Element '${stepParameters[0]}' does not contains '${stepParameters[1].contains}'`
-                    );
-                  } else if (content.includes(stepParameters[1].notContains)) {
-                    throw new Error(
-                      `Element '${stepParameters[0]}' should not contains '${stepParameters[1].notContains}'`
-                    );
-                  }
                 });
             }
           })

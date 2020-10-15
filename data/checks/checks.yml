@@ -4,7 +4,9 @@ semrush-com:
         - '{{ TARGET_SCHEMA }}://{{ TARGET_DOMAIN }}/'
     - waitForSelector:
         - '.srf-copyright'
-        - contains: 'SEMrush. All rights reserved.'
+    - actions.common.selectorContains:
+        - '.srf-copyright'
+        - 'SEMrush. All rights reserved.'
 
 example-com:
   steps:
@@ -13,7 +15,9 @@ example-com:
         - '{{ TARGET_SCHEMA }}://example.com/'
     - waitForSelector:
         - 'body'
-        - contains: 'Example Domain'
+    - actions.common.selectorContains:
+        - 'body'
+        - 'Example Domain'
 
 example-com-fail:
   steps:
@@ -22,4 +26,6 @@ example-com-fail:
         - '{{ TARGET_SCHEMA }}://example.com/'
     - waitForSelector:
         - 'body'
-        - contains: 'No Way'
+    - actions.common.selectorContains:
+        - 'body'
+        - 'No Way'
