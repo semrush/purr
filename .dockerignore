@@ -12,3 +12,4 @@ Dockerfile
 
 # app
 /storage/
+/storage_tmp/

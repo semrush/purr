@@ -1,5 +1,6 @@
 /node_modules/
 /coverage/
 /storage/
+/storage_tmp/
 .env
 *.tgz

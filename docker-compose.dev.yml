@@ -31,7 +31,7 @@ services:
         && set -x
         && echo Installing node modules
         && yarn
-        && yarn nodemon --ignore ./storage ./src/cli.js worker check
+        && yarn nodemon -V -w ./src ./src/cli.js worker check
         '
     environment:
       NODE_ENV: development
@@ -47,7 +47,7 @@ services:
         && set -x
         && echo Installing node modules
         && yarn
-        && yarn nodemon --ignore ./storage ./src/cli.js server start
+        && yarn nodemon -V -w ./src ./src/cli.js worker check
         '
     environment:
       NODE_ENV: development
@@ -55,11 +55,6 @@ services:
     volumes:
       - ./:/app
       - node_home:/home/node
-
-  storage:
-    volumes:
-      # TODO: fix permission if ./storage not exists
-      - ./storage:/usr/share/nginx/html/storage
 
 volumes:
   node_home:

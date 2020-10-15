@@ -32,11 +32,14 @@ services:
       traefik.frontend.rule: 'Host:purr.traefik.lcl'
 
   storage:
-    image: nginx
+    image: nginx:alpine
     restart: always
     tty: true # Colorize logs
     env_file:
       - ./.env
+    volumes:
+      # TODO: fix permission if ./storage not exists
+      - ./storage:/usr/share/nginx/html/storage:ro
     labels:
       traefik.enable: 'true'
       traefik.frontend.rule: 'Host:purr.traefik.lcl;PathPrefix:/storage'
