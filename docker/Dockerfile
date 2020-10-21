@@ -21,6 +21,7 @@ RUN : \
   fonts-kacst \
   fonts-freefont-ttf \
   libxss1 \
+  libxtst6 \
   && rm -rf /var/lib/apt/lists/* /src/*.deb /tmp/* /var/tmp/*
 
 # Add user so we don't need --no-sandbox.
