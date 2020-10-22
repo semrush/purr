@@ -24,6 +24,10 @@ RUN : \
   libxtst6 \
   && rm -rf /var/lib/apt/lists/* /src/*.deb /tmp/* /var/tmp/*
 
+# It's a good idea to use dumb-init to help prevent zombie chrome processes.
+ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64 /usr/local/bin/dumb-init
+RUN chmod +x /usr/local/bin/dumb-init
+
 # Add user so we don't need --no-sandbox.
 # RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
 #     && mkdir -p /home/pptruser/Downloads \
@@ -32,6 +36,8 @@ RUN : \
 
 # Run everything after as non-privileged user.
 # USER pptruser
+
+ENTRYPOINT ["dumb-init", "--"]
 
 
 FROM ${PUPPETEER_ENV_IMAGE} as app
