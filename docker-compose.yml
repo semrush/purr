@@ -5,7 +5,6 @@ services:
     depends_on:
       - redis
     image: ${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
-    init: true
     stop_grace_period: 2m
     restart: always
     tty: true # Colorize logs
@@ -20,7 +19,6 @@ services:
     depends_on:
       - redis
     image: ${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
-    init: true
     restart: always
     tty: true # Colorize logs
     env_file:

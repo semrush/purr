@@ -31,7 +31,7 @@ lint:
 		${APP_IMAGE_NAME}:${APP_IMAGE_VERSION} yarn run lint
 
 test:
-	docker run --rm --init \
+	docker run --rm \
 		-v ${PWD}:/app \
 		${APP_IMAGE_NAME}:${APP_IMAGE_VERSION} yarn run test
 
