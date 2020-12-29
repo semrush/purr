@@ -21,3 +21,25 @@ jobs:
         run: yarn run lint
       - name: test
         run: yarn run test
+
+      - name: test check should succeed
+        run: |
+          ./src/cli/cli.js check example-com > check_should_succeed.out
+          [ $? -eq 1 ] && echo 'Error: Check should succeed' && exit 1
+
+          cat check_should_succeed.out
+
+          grep 'success: true' check_should_succeed.out
+      - name: test check should fail
+        run: |
+          set +e
+          ./src/cli/cli.js check example-com-fail > check_should_fail.out
+          code=$?
+          set -e
+
+          [ $code -eq 0 ] && echo 'Error: Check should fail' && exit 1
+
+          cat check_should_fail.out
+
+          grep 'success: false' check_should_fail.out
+          grep "Element 'body' does not contain 'No Way'" check_should_fail.out
