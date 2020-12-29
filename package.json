@@ -42,7 +42,7 @@
     "morgan": "^1.10.0",
     "nunjucks": "^3.2.1",
     "prom-client": "^11.5.3",
-    "puppeteer": "^2.1.1",
+    "puppeteer": "^5.5.0",
     "puppeteer-har": "^1.1.2",
     "serve-favicon": "^2.5.0",
     "uuid": "^8.1.0",
