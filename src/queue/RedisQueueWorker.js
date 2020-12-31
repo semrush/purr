@@ -36,7 +36,11 @@ class RedisQueueWorker {
           const err = new Error('Bull: job is stalled');
 
           Sentry.withScope((scope) => {
-            scope.setLevel('warning').setExtra('job', job);
+            scope.setExtra('job', job);
+            scope.setTags({
+              checkName: job.data.name,
+              scheduleName: job.data.scheduleName,
+            });
             Sentry.captureException(err);
           });
 
@@ -44,7 +48,11 @@ class RedisQueueWorker {
         })
         .on('failed', (job, err) => {
           Sentry.withScope((scope) => {
-            scope.setLevel('warning').setExtra('job', job);
+            scope.setExtra('job', job);
+            scope.setTags({
+              checkName: job.data.name,
+              scheduleName: job.data.scheduleName,
+            });
             Sentry.captureException(err);
           });
 

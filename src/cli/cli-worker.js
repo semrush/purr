@@ -93,6 +93,12 @@ function checkProcessor(job, done) {
     }
   }
 
+  Sentry.setExtra('job', job);
+  Sentry.setTags({
+    checkName: job.data.name,
+    scheduleName: job.data.scheduleName,
+  });
+
   return new CheckRunner(checksQueue)
     .doCheck(
       job.data.name,
@@ -123,6 +129,12 @@ function checkProcessor(job, done) {
       done(null, result);
     })
     .finally(() => {
+      Sentry.setExtra('job', undefined);
+      Sentry.setTags({
+        checkName: undefined,
+        scheduleName: undefined,
+      });
+
       checksQueue.close();
     });
 }
