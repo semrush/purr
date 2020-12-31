@@ -33,6 +33,7 @@ exports.getBrowser = async (userAgent = config.userAgent, customArgs = []) => {
     handleSIGINT: false,
     handleSIGHUP: false,
 
+    dumpio: true,
     // headless: false,
   });
 };
