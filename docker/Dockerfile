@@ -50,7 +50,7 @@ USER node
 COPY package*.json ./
 RUN yarn --frozen-lockfile
 
-COPY src ./src
+COPY --chown=node:node src ./src
 CMD ["./src/cli.js"]
 
 
