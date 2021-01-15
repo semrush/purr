@@ -50,11 +50,11 @@ USER node
 COPY package*.json ./
 RUN yarn --frozen-lockfile
 
-COPY src ./src
+COPY --chown=node:node src ./src
 CMD ["./src/cli.js"]
 
 
 FROM app as cli-runner
-COPY data ./data
+COPY --chown=node:node data ./data
 
 EXPOSE 8080
