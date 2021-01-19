@@ -56,6 +56,8 @@ exports.getPage = async (browser) => {
   const context = { browser, page };
 
   glob.sync('../actions/**/*.js', { cwd: __dirname }).forEach((file) => {
+    log.debug(`Actions file found: ${file}`);
+
     const objectPath = file.split(path.sep).slice(1, -1);
 
     // eslint-disable-next-line import/no-dynamic-require,global-require
@@ -66,6 +68,8 @@ exports.getPage = async (browser) => {
     Object.keys(actionsModule).forEach((actionFn) => {
       page.actions[objectPath[1]][actionFn] = (...args) =>
         actionsModule[actionFn](context, ...args);
+
+      log.debug(`Action added: ${objectPath[1]}.${actionFn}`);
     });
   });
 
