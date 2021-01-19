@@ -192,7 +192,7 @@ module.exports = {
   verbose: true,
 
   // An array of regexp patterns that are matched against all source file paths before re-running tests in watch mode
-  watchPathIgnorePatterns: ['storage/*'],
+  watchPathIgnorePatterns: ['storage/*', 'storage_tmp/*'],
 
   // Whether to use watchman for file crawling
   // watchman: true,
