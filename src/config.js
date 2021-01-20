@@ -139,6 +139,19 @@ const config = {
       return domain.length > 0;
     }),
 
+  /**
+   * Additional arguments to pass to the browser instance
+   * @type String[]
+   */
+  chromiumLaunchArgs: getDefault(envParams.CHROMIUM_LAUNCH_ARGS, '')
+    .split(',')
+    .map((arg) => {
+      return arg.trim();
+    })
+    .filter((arg) => {
+      return arg.length > 0;
+    }),
+
   cookieTracking: getDefault(envParams.COOKIE_TRACKING === 'true', false),
 
   cookieTrackingHideValue: getDefault(
