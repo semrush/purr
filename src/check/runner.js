@@ -203,7 +203,7 @@ class CheckRunner {
 
     const check = this.checkParser.getParsedCheck(name);
 
-    const browserArgs = [];
+    const browserArgs = [...config.chromiumLaunchArgs];
 
     if (typeof check.proxy !== 'undefined') {
       browserArgs.push(`--proxy-server=${check.proxy}`);
