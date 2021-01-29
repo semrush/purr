@@ -13,6 +13,7 @@ const { getPage } = require('../browser/page');
 const { ActionReport } = require('../report/action');
 const { CheckReport } = require('../report/check');
 const { CheckParser } = require('./parser');
+const CheckReportCustomData = require('../report/CheckReportCustomData');
 
 function consoleLogToJSON(consoleLogsArray) {
   const seen = [];
@@ -264,8 +265,12 @@ class CheckRunner {
         actionReport.startDateTime = new Date().toISOString();
 
         await actionPromise
-          .then(async () => {
+          .then(async (actionResult) => {
             actionReport.success = true;
+
+            if (actionResult instanceof CheckReportCustomData) {
+              checkReport.metrics.push(...actionResult.metrics);
+            }
 
             if (config.cookieTracking) {
               await page
