@@ -152,6 +152,8 @@ const config = {
       return arg.length > 0;
     }),
 
+  chromiumRemoteDebuggingPort: 9222,
+
   cookieTracking: getDefault(envParams.COOKIE_TRACKING === 'true', false),
 
   cookieTrackingHideValue: getDefault(

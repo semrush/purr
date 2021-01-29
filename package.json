@@ -48,6 +48,7 @@
     "glob": "^7.1.6",
     "ioredis": "^4.17.1",
     "js-yaml": "^3.14.0",
+    "lighthouse": "^7.0.1",
     "morgan": "^1.10.0",
     "nunjucks": "^3.2.1",
     "prom-client": "^11.5.3",

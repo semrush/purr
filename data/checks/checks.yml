@@ -35,3 +35,9 @@ example-com-fail:
     - actions.common.selectorContains:
         - 'body'
         - 'No Way'
+
+example-com-lighthouse:
+  steps:
+    - actions.common.runLighthouse:
+        - 'lh-one'
+        - '{{ TARGET_SCHEMA }}://example.com/'

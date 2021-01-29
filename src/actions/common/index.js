@@ -1,3 +1,6 @@
+const lighthouse = require('lighthouse');
+
+const config = require('../../config');
 const CheckReportCustomData = require('../../report/CheckReportCustomData');
 
 /**
@@ -37,6 +40,66 @@ exports.selectorNotContains = async (context, selector, targetText) => {
     }
     throw new Error(`Element '${selector}' should not contain '${targetText}'`);
   });
+};
+
+/**
+ * Logs lighthouse report performance metrics
+ *
+ * @param {import('../context').ActionContext} context
+ * @param {string} id Id label for reported metrics
+ * @param {string} url URL to measure
+ *
+ * @returns {Promise<CheckReportCustomData>}
+ */
+exports.runLighthouse = async (context, id, url) => {
+  if (config.traces) {
+    throw new Error(
+      'Lighthouse can be called only if tracing feature is disabled'
+    );
+  }
+
+  const result = await lighthouse(url, {
+    port: config.chromiumRemoteDebuggingPort,
+    onlyCategories: ['performance'],
+  });
+  const { lhr } = result;
+
+  const customReport = new CheckReportCustomData();
+  customReport.metrics = [
+    {
+      value: lhr.audits['first-contentful-paint'].numericValue,
+      labels: { name: 'first-contentful-paint', id },
+    },
+    {
+      value: lhr.audits['largest-contentful-paint'].numericValue,
+      labels: { name: 'largest-contentful-paint', id },
+    },
+    {
+      value: lhr.audits['first-meaningful-paint'].numericValue,
+      labels: { name: 'first-meaningful-paint', id },
+    },
+    {
+      value: lhr.audits['speed-index'].numericValue,
+      labels: { name: 'speed-index', id },
+    },
+    {
+      value: lhr.audits['server-response-time'].numericValue,
+      labels: { name: 'server-response-time', id },
+    },
+    {
+      value: lhr.audits.interactive.numericValue,
+      labels: { name: 'interactive', id },
+    },
+    {
+      value: lhr.audits['total-blocking-time'].numericValue,
+      labels: { name: 'total-blocking-time', id },
+    },
+    {
+      value: lhr.audits['cumulative-layout-shift'].numericValue,
+      labels: { name: 'cumulative-layout-shift', id },
+    },
+  ];
+  return customReport;
 };
 
 /**
