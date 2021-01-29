@@ -15,6 +15,7 @@ const names = {
   reportCheckStart: `report_check_start_date`,
   reportCheckEnd: `report_check_end_date`,
   reportCheckLastStep: `report_check_last_step`,
+  reportCheckCustomMetric: `report_check_custom_metric`,
 };
 
 /**
