@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 
 const config = require('../config');
+const log = require('../logger');
 
 /**
  * Returns Puppeteer Browser instance
@@ -10,18 +11,21 @@ const config = require('../config');
  * @returns {Promise<puppeteer.Browser>}
  */
 exports.getBrowser = async (userAgent = config.userAgent, customArgs = []) => {
+  const args = [
+    `--window-size=${config.windowWidth},${config.windowHeight}`,
+    `--user-agent=${userAgent}`,
+    '--no-sandbox',
+    '--disk-cache-size=0',
+    ...customArgs,
+  ];
+
+  log.debug('Lauching browser with args', { args });
   return puppeteer.launch({
     // executablePath: 'google-chrome',
     // executablePath: 'google-chrome-unstable',
     // pipe: true,
 
-    args: [
-      `--window-size=${config.windowWidth},${config.windowHeight}`,
-      `--user-agent=${userAgent}`,
-      '--no-sandbox',
-      '--disk-cache-size=0',
-      ...customArgs,
-    ],
+    args,
 
     defaultViewport: {
       width: config.windowWidth,
