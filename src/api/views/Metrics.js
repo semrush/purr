@@ -79,6 +79,12 @@ const reportCheckLastStep = new prom.Gauge({
   labelNames,
 });
 
+const reportCheckCustomMetric = new prom.Gauge({
+  name: `${metrics.prefix}${metrics.names.reportCheckCustomMetric}`,
+  help: 'Custom report metrics',
+  labelNames: ['name', 'schedule', 'metric_name', 'metric_id'],
+});
+
 class Metrics {
   static async get(req, res) {
     // Queues status
@@ -171,6 +177,9 @@ class Metrics {
               )
               .exec()
               .then((result) => {
+                /**
+                 * @type {import('../../report/check').CheckReport | null}
+                 */
                 const report = JSON.parse(result[0][1]);
 
                 if (
@@ -184,17 +193,20 @@ class Metrics {
                   );
                 }
 
-                const team = report.labels.team
-                  ? report.labels.team
-                  : config.defaultTeamLabel;
+                const team =
+                  report && report.labels.team
+                    ? report.labels.team
+                    : config.defaultTeamLabel;
 
-                const product = report.labels.product
-                  ? report.labels.product
-                  : config.defaultProductLabel;
+                const product =
+                  report && report.labels.product
+                    ? report.labels.product
+                    : config.defaultProductLabel;
 
-                const priority = report.labels.priority
-                  ? report.labels.priority
-                  : config.defaultPriorityLabel;
+                const priority =
+                  report && report.labels.priority
+                    ? report.labels.priority
+                    : config.defaultPriorityLabel;
 
                 const labels = {
                   name: checkName,
@@ -250,6 +262,20 @@ class Metrics {
                     labels,
                     report ? report.actions.length : 0
                   );
+
+                  if (report) {
+                    report.metrics.forEach((metric) => {
+                      reportCheckCustomMetric.set(
+                        {
+                          name: checkName,
+                          schedule: scheduleName,
+                          metric_name: metric.labels.name,
+                          metric_id: metric.labels.id,
+                        },
+                        metric.value
+                      );
+                    });
+                  }
                 } catch (err) {
                   log.error('Can not fill report metrics: ', err, {
                     reportKey,
