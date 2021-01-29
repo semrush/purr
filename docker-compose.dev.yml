@@ -47,7 +47,7 @@ services:
         && set -x
         && echo Installing node modules
         && yarn
-        && yarn nodemon -V -w ./src ./src/cli.js worker check
+        && yarn nodemon -V -w ./src ./src/cli.js server start
         '
     environment:
       NODE_ENV: development
