@@ -47,3 +47,18 @@ jobs:
 
           grep 'success: false' check_report
           grep "Element 'body' does not contain 'No Way'" check_report
+      - name: test check lighthouse
+        run: |
+          set +e
+          PURR_CONFIG_TRACES=false ./src/cli/cli.js check --no-shorten \
+            example-com-lighthouse > check_report
+          code=$?
+          set -e
+
+          cat check_report
+
+          [ $code -eq 1 ] && echo 'Error: Check should succeed' && exit 1
+
+          grep 'success: true' check_report
+          grep "labels: { name: 'first-contentful-paint', id: 'lh-one' }" \
+            check_report

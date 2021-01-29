@@ -16,6 +16,7 @@ exports.getBrowser = async (userAgent = config.userAgent, customArgs = []) => {
     `--user-agent=${userAgent}`,
     '--no-sandbox',
     '--disk-cache-size=0',
+    `--remote-debugging-port=${config.chromiumRemoteDebuggingPort}`,
     ...customArgs,
   ];
 
