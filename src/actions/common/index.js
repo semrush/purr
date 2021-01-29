@@ -1,3 +1,5 @@
+const CheckReportCustomData = require('../../report/CheckReportCustomData');
+
 /**
  * @param {HTMLElement} el
  */
@@ -35,6 +37,67 @@ exports.selectorNotContains = async (context, selector, targetText) => {
     }
     throw new Error(`Element '${selector}' should not contain '${targetText}'`);
   });
+};
+
+/**
+ * Logs browser performance metrics
+ *
+ * @param {import('../context').ActionContext} context
+ * @param {string} id Id label for reported metrics
+ *
+ * @returns {Promise<CheckReportCustomData>}
+ */
+exports.logPerformanceMetrics = async (context, id) => {
+  const firstPaint = JSON.parse(
+    await context.page.evaluate(() =>
+      JSON.stringify(window.performance.getEntriesByName('first-paint'))
+    )
+  );
+
+  const firstContentfulPaint = JSON.parse(
+    await context.page.evaluate(() =>
+      JSON.stringify(
+        window.performance.getEntriesByName('first-contentful-paint')
+      )
+    )
+  );
+
+  const windowPerformance = JSON.parse(
+    await context.page.evaluate(() =>
+      JSON.stringify(window.performance.toJSON())
+    )
+  );
+
+  const customReport = new CheckReportCustomData();
+  customReport.metrics = [
+    {
+      value: firstPaint[0].startTime,
+      labels: { name: 'first-paint', id },
+    },
+    {
+      value: firstContentfulPaint[0].startTime,
+      labels: { name: 'first-contentful-paint', id },
+    },
+    {
+      value:
+        windowPerformance.timing.domainLookupEnd -
+        windowPerformance.timing.domainLookupStart,
+      labels: { name: 'domain-lookup', id },
+    },
+    {
+      value:
+        windowPerformance.timing.connectEnd -
+        windowPerformance.timing.connectStart,
+      labels: { name: 'connect', id },
+    },
+    {
+      value:
+        windowPerformance.timing.responseStart -
+        windowPerformance.timing.requestStart,
+      labels: { name: 'server-response-time', id },
+    },
+  ];
+  return customReport;
 };
 
 module.exports = exports;

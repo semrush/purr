@@ -54,6 +54,11 @@ class CheckReport {
     this.labels = labels;
     this.forbiddenCookies = forbiddenCookies;
     this.forbiddenCookiesCount = forbiddenCookiesCount;
+
+    /**
+     * @type {import('../metrics/metrics').CustomMetric[]}
+     */
+    this.metrics = [];
   }
 }
 
