@@ -53,8 +53,12 @@ exports.selectorNotContains = async (context, selector, targetText) => {
  */
 exports.runLighthouse = async (context, id, url) => {
   if (config.traces) {
+    throw new Error('traces config option must be false to run Lighthouse');
+  }
+
+  if (!config.chromiumRemoteDebugging) {
     throw new Error(
-      'Lighthouse can be called only if tracing feature is disabled'
+      'chromiumRemoteDebugging config option must be true to run Lighthouse'
     );
   }
 

@@ -152,7 +152,18 @@ const config = {
       return arg.length > 0;
     }),
 
-  chromiumRemoteDebuggingPort: 9222,
+  chromiumRemoteDebugging: getDefault(
+    envParams.CHROMIUM_REMOTE_DEBUGGING === 'true',
+    false
+  ),
+  chromiumRemoteDebuggingAddress: getDefault(
+    envParams.CHROMIUM_REMOTE_DEBUGGING_ADDRESS,
+    '127.0.0.1'
+  ),
+  chromiumRemoteDebuggingPort: getDefault(
+    parseInt(envParams.CHROMIUM_REMOTE_DEBUGGING_PORT, 10),
+    9222
+  ),
 
   cookieTracking: getDefault(envParams.COOKIE_TRACKING === 'true', false),
 

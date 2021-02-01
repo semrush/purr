@@ -50,7 +50,9 @@ jobs:
       - name: test check lighthouse
         run: |
           set +e
-          PURR_CONFIG_TRACES=false ./src/cli/cli.js check --no-shorten \
+          PURR_CONFIG_CONCURRENCY=1 PURR_CONFIG_TRACES=false \
+            PURR_CONFIG_CHROMIUM_REMOTE_DEBUGGING=true \
+            ./src/cli/cli.js check --no-shorten \
             example-com-lighthouse > check_report
           code=$?
           set -e
