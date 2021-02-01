@@ -16,9 +16,21 @@ exports.getBrowser = async (userAgent = config.userAgent, customArgs = []) => {
     `--user-agent=${userAgent}`,
     '--no-sandbox',
     '--disk-cache-size=0',
-    `--remote-debugging-port=${config.chromiumRemoteDebuggingPort}`,
     ...customArgs,
   ];
+
+  if (config.chromiumRemoteDebugging) {
+    if (config.concurrency > 1) {
+      throw new Error(
+        'chromiumRemoteDebugging config option is not compatible with concurrency > 1'
+      );
+    }
+
+    args.push(
+      `--remote-debugging-address=${config.chromiumRemoteDebuggingAddress}`,
+      `--remote-debugging-port=${config.chromiumRemoteDebuggingPort}`
+    );
+  }
 
   log.debug('Lauching browser with args', { args });
   return puppeteer.launch({
