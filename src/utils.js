@@ -1,5 +1,9 @@
 const fs = require('fs');
 
+/**
+ *
+ * @param {string} name
+ */
 function mandatory(name) {
   if (name === undefined) {
     throw new Error('Mandatory parameter name is not specified');
@@ -10,8 +14,17 @@ function mandatory(name) {
   throw new Error(`Mandatory parameter '${name}' is missing`);
 }
 
+/**
+ * Enrich error with custom message
+ *
+ * @param {Error} error
+ * @param {string} message
+ * @returns
+ */
 function enrichError(
+  // @ts-ignore
   error = mandatory('error'),
+  // @ts-ignore
   message = mandatory('message')
 ) {
   const newError = new Error(message);
@@ -30,6 +43,12 @@ function flattenArray(arr, recursive = false) {
   );
 }
 
+/**
+ *
+ * @param {number} ms
+ * @returns
+ */
+// @ts-ignore
 function sleep(ms = mandatory('ms')) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
@@ -57,7 +76,7 @@ function logUnhandledRejections(exitWithError = false) {
     });
 
     // Avoid memory leak by adding too many listeners
-    process.env.LOG_UNHANDLED_REJECTION = true;
+    process.env.LOG_UNHANDLED_REJECTION = 'true';
   }
 }
 
@@ -75,10 +94,16 @@ function throwUnhandledRejections() {
     });
 
     // Avoid memory leak by adding too many listeners
-    process.env.LISTENING_TO_UNHANDLED_REJECTION = true;
+    process.env.LISTENING_TO_UNHANDLED_REJECTION = 'true';
   }
 }
 
+/**
+ *
+ * @param {string} prefix
+ * @returns {object}
+ */
+// @ts-ignore
 function getPrefixedEnvVars(prefix = mandatory('prefix')) {
   const prefixPattern = new RegExp(`^${prefix}`, 'i');
   const params = {};
@@ -92,6 +117,12 @@ function getPrefixedEnvVars(prefix = mandatory('prefix')) {
   return params;
 }
 
+/**
+ * Convert human friendly time format to ms.
+ * @param {string} timeString
+ * @returns
+ */
+// @ts-ignore
 function humanReadableTimeToMS(timeString = mandatory('timeString')) {
   if (typeof timeString !== 'string') {
     throw new Error(
@@ -134,6 +165,7 @@ function humanReadableTimeToMS(timeString = mandatory('timeString')) {
  * @param {string} str
  * @returns {RegExp}
  */
+// @ts-ignore
 function stringToRegExp(str = mandatory('str')) {
   const lastSlashIndex = str.lastIndexOf('/');
   const pattern = str.slice(1, lastSlashIndex);
