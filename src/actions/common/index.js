@@ -44,6 +44,32 @@ exports.selectorNotContains = async (context, selector, targetText) => {
 };
 
 /**
+ * Returns iframe with specified selector
+ *
+ * @param {import('../context').ActionContext} context
+ * @param {string} frameSelector
+ * @param {string} selector
+ */
+exports.getFrame = async (context, frameSelector) => {
+  let frame;
+  try {
+    const frameElement = await context.page.waitForSelector(frameSelector);
+    frame = await frameElement.contentFrame();
+
+    if (!frame) {
+      throw new Error(`Selector '${frameSelector}' is not IFrame`);
+    }
+  } catch (err) {
+    throw utils.enrichError(
+      err,
+      `IFrame '${frameSelector}' not found: ${err.message}`
+    );
+  }
+
+  return frame;
+};
+
+/**
  * Checks that iframe contains specified selector
  *
  * @param {import('../context').ActionContext} context
@@ -52,19 +78,79 @@ exports.selectorNotContains = async (context, selector, targetText) => {
  */
 exports.frameWaitForSelector = async (context, frameSelector, selector) => {
   try {
-    const frameElement = await context.page.waitForSelector(frameSelector);
-    const frame = await frameElement.contentFrame();
-
-    if (!frame) {
-      throw new Error(`Selector '${frameSelector}' is not IFrame`);
-    }
-
+    const frame = await exports.getFrame(context, frameSelector, selector);
     await frame.waitForSelector(selector);
   } catch (err) {
     throw utils.enrichError(
       err,
       `Selector '${selector}' not found in IFrame '${frameSelector}': ` +
         `${err.message}`
+    );
+  }
+};
+
+/**
+ * Checks that iframe selector's innerText contains the target text
+ *
+ * @param {import('../context').ActionContext} context
+ * @param {string} frameSelector
+ * @param {string} selector
+ * @param {string} targetText
+ */
+exports.frameSelectorContains = async (
+  context,
+  frameSelector,
+  selector,
+  targetText
+) => {
+  try {
+    const frame = await exports.getFrame(context, frameSelector, selector);
+
+    await frame.$eval(selector, getInnerText).then((content) => {
+      if (content.includes(targetText)) {
+        return;
+      }
+      throw new Error(`Element '${selector}' does not contain '${targetText}'`);
+    });
+  } catch (err) {
+    throw utils.enrichError(
+      err,
+      `IFrame '${frameSelector}' selector '${selector}' does not contain ` +
+        `'${targetText}':  ${err.message}`
+    );
+  }
+};
+
+/**
+ * Checks that iframe selector's innerText doesn't contain target text
+ *
+ * @param {import('../context').ActionContext} context
+ * @param {string} frameSelector
+ * @param {string} selector
+ * @param {string} targetText
+ */
+exports.frameSelectorNotContains = async (
+  context,
+  frameSelector,
+  selector,
+  targetText
+) => {
+  try {
+    const frame = await exports.getFrame(context, frameSelector, selector);
+
+    await frame.$eval(selector, getInnerText).then((content) => {
+      if (!content.includes(targetText)) {
+        return;
+      }
+      throw new Error(
+        `Element '${selector}' should not contain '${targetText}'`
+      );
+    });
+  } catch (err) {
+    throw utils.enrichError(
+      err,
+      `IFrame '${frameSelector}' selector '${selector}' should not contain ` +
+        `'${targetText}': ${err.message}`
     );
   }
 };
