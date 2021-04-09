@@ -1,6 +1,7 @@
 const lighthouse = require('lighthouse');
 
 const config = require('../../config');
+const utils = require('../../utils');
 const CheckReportCustomData = require('../../report/CheckReportCustomData');
 
 /**
@@ -40,6 +41,32 @@ exports.selectorNotContains = async (context, selector, targetText) => {
     }
     throw new Error(`Element '${selector}' should not contain '${targetText}'`);
   });
+};
+
+/**
+ * Checks that iframe contains specified selector
+ *
+ * @param {import('../context').ActionContext} context
+ * @param {string} frameSelector
+ * @param {string} selector
+ */
+exports.frameWaitForSelector = async (context, frameSelector, selector) => {
+  try {
+    const frameElement = await context.page.waitForSelector(frameSelector);
+    const frame = await frameElement.contentFrame();
+
+    if (!frame) {
+      throw new Error(`Selector '${frameSelector}' is not IFrame`);
+    }
+
+    await frame.waitForSelector(selector);
+  } catch (err) {
+    throw utils.enrichError(
+      err,
+      `Selector '${selector}' not found in IFrame '${frameSelector}': ` +
+        `${err.message}`
+    );
+  }
 };
 
 /**
