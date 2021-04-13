@@ -88,3 +88,39 @@ describe('stringToRegExp', () => {
     );
   });
 });
+
+test('splitArray', () => {
+  const originArray = ['a', 'b', 'c', 'd', 'e'];
+
+  expect(utils.splitArray(originArray.slice(), 1)).toEqual([originArray]);
+  expect(utils.splitArray(originArray.slice(), 2)).toEqual([
+    ['a', 'b', 'c'],
+    ['d', 'e'],
+  ]);
+  expect(utils.splitArray(originArray.slice(), 3)).toEqual([
+    ['a', 'b'],
+    ['c', 'd'],
+    ['e'],
+  ]);
+  expect(utils.splitArray(originArray.slice(), 4)).toEqual([
+    ['a', 'b'],
+    ['c'],
+    ['d'],
+    ['e'],
+  ]);
+  expect(utils.splitArray(originArray.slice(), 5)).toEqual([
+    ['a'],
+    ['b'],
+    ['c'],
+    ['d'],
+    ['e'],
+  ]);
+  expect(utils.splitArray(originArray.slice(), 6)).toEqual([
+    ['a'],
+    ['b'],
+    ['c'],
+    ['d'],
+    ['e'],
+    [],
+  ]);
+});

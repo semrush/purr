@@ -196,6 +196,22 @@ function moveFile(sourcePath, targetPath) {
   }
 }
 
+/**
+ * Splits an array into parts
+ * @param {Array} array
+ * @param {number} parts
+ * @returns {any[][]}
+ */
+function splitArray(array, parts) {
+  const restElements = array.slice();
+  const resultArray = [];
+  for (let i = 0; i < parts; i += 1) {
+    const partSize = Math.ceil(restElements.length / (parts - i));
+    resultArray.push(restElements.splice(0, partSize));
+  }
+  return resultArray;
+}
+
 module.exports = {
   mandatory,
   enrichError,
@@ -207,4 +223,5 @@ module.exports = {
   humanReadableTimeToMS,
   stringToRegExp,
   moveFile,
+  splitArray,
 };
