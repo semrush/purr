@@ -7,7 +7,9 @@ const RedisQueue = require('../queue/RedisQueue');
 /**
  * @param {string} name Suite name
  * @param {boolean} useRedis Use redis queue
- * @param {import('../report/suite').SuiteReportViewOptions} options View options
+ * @param {object} options Suite options
+ * @param {import('../report/suite').SuiteReportViewOptions} options.report Report options
+ * @param {import('../suite/runner').SuiteRunOptions} options.run Run options
  * @returns {object}
  */
 function run(name, useRedis = false, options) {
@@ -25,9 +27,9 @@ function run(name, useRedis = false, options) {
   log.info('Running suite', { name });
 
   return suiteRunner
-    .run(name)
+    .run(name, options.run)
     .then((result) => {
-      const prepared = processReport(result, options);
+      const prepared = processReport(result, options.report);
 
       if (!result.success) {
         log.error('Suite failed', { report: prepared });

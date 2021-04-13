@@ -6,6 +6,20 @@ let processExit;
 const exitErrorText = 'process.exit prevented in tests. Code:';
 
 const suiteName = 'some-suite-name';
+const defaultReportOptions = {
+  checkOptions: {
+    hideActions: false,
+    shorten: false,
+  },
+};
+const defaultRunOptions = {
+  part: 1,
+  split: 1,
+};
+const defaultOptions = {
+  report: defaultReportOptions,
+  run: defaultRunOptions,
+};
 
 const successfulSuiteReportShort = {
   shortMessage: 'Fake suite success',
@@ -80,7 +94,9 @@ describe('exit code', () => {
 
       const a = require('../suite');
 
-      await expect(a.run(suiteName, useRedis, {})).resolves.toBeUndefined();
+      await expect(
+        a.run(suiteName, useRedis, defaultOptions)
+      ).resolves.toBeUndefined();
 
       if (useRedis) {
         const RedisQueue = require('../../queue/RedisQueue');
@@ -91,7 +107,7 @@ describe('exit code', () => {
       }
 
       expect(run).toBeCalledTimes(1);
-      expect(run).toBeCalledWith(suiteName);
+      expect(run).toBeCalledWith(suiteName, defaultRunOptions);
 
       expect(logger.info).toBeCalled();
       expect(logger.info).toBeCalledWith('Suite success', {
@@ -117,10 +133,12 @@ describe('exit code', () => {
 
     const a = require('../suite');
 
-    await expect(a.run(suiteName)).rejects.toThrow(exitErrorText);
+    await expect(a.run(suiteName, false, defaultOptions)).rejects.toThrow(
+      exitErrorText
+    );
 
     expect(run).toBeCalledTimes(1);
-    expect(run).toBeCalledWith(suiteName);
+    expect(run).toBeCalledWith(suiteName, defaultRunOptions);
 
     expect(logger.error).toBeCalled();
     expect(logger.error).toBeCalledWith('Suite failed', {
@@ -143,10 +161,12 @@ describe('exit code', () => {
 
     const a = require('../suite');
 
-    await expect(a.run(suiteName)).rejects.toThrow(exitErrorText);
+    await expect(a.run(suiteName, false, defaultOptions)).rejects.toThrow(
+      exitErrorText
+    );
 
     expect(run).toBeCalledTimes(1);
-    expect(run).toBeCalledWith(suiteName);
+    expect(run).toBeCalledWith(suiteName, defaultRunOptions);
 
     expect(logger.error).toBeCalled();
     expect(logger.error).toBeCalledWith('Suite failed', {
@@ -170,10 +190,12 @@ describe('suite options', () => {
 
     const a = require('../suite');
 
-    await expect(a.run(suiteName, false, {})).resolves.toBeUndefined();
+    await expect(
+      a.run(suiteName, false, defaultOptions)
+    ).resolves.toBeUndefined();
 
     expect(run).toBeCalledTimes(1);
-    expect(run).toBeCalledWith(suiteName);
+    expect(run).toBeCalledWith(suiteName, defaultRunOptions);
 
     expect(logger.info).toBeCalled();
     expect(logger.info).toBeCalledWith('Suite success', {
@@ -193,11 +215,19 @@ describe('suite options', () => {
     const a = require('../suite');
 
     await expect(
-      a.run(suiteName, false, { reportOptions: { shorten: true } })
+      a.run(suiteName, false, {
+        ...defaultOptions,
+        report: {
+          checkOptions: {
+            hideActions: true,
+            shorten: true,
+          },
+        },
+      })
     ).resolves.toBeUndefined();
 
     expect(run).toBeCalledTimes(1);
-    expect(run).toBeCalledWith(suiteName);
+    expect(run).toBeCalledWith(suiteName, defaultRunOptions);
 
     expect(logger.info).toBeCalled();
     expect(logger.info).toBeCalledWith('Suite success', {
@@ -220,14 +250,18 @@ describe('suite options', () => {
 
     await expect(
       a.run(suiteName, false, {
-        reportOptions: {
-          shorten: true,
+        ...defaultOptions,
+        report: {
+          checkOptions: {
+            hideActions: false,
+            shorten: true,
+          },
         },
       })
     ).rejects.toThrow(exitErrorText);
 
     expect(run).toBeCalledTimes(1);
-    expect(run).toBeCalledWith(suiteName);
+    expect(run).toBeCalledWith(suiteName, defaultRunOptions);
 
     expect(logger.error).toBeCalled();
     expect(logger.error).toBeCalledWith('Suite failed', {

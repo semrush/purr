@@ -54,9 +54,15 @@ describe('run suite', () => {
 
     expect(suite.run).toBeCalledTimes(1);
     expect(suite.run).toBeCalledWith(suiteName, useRedis, {
-      reportOptions: {
-        hideActions: false,
-        shorten: true,
+      report: {
+        checkOptions: {
+          hideActions: false,
+          shorten: true,
+        },
+      },
+      run: {
+        part: 1,
+        split: 1,
       },
     });
     expect(processExit).not.toBeCalled();
@@ -68,15 +74,25 @@ describe('run suite', () => {
       './cli-suite.js',
       suiteName,
       '--hide-actions',
+      '--part',
+      '2',
+      '--split',
+      '3',
     ];
 
     require('../cli-suite');
 
     expect(suite.run).toBeCalledTimes(1);
     expect(suite.run).toBeCalledWith(suiteName, false, {
-      reportOptions: {
-        hideActions: true,
-        shorten: true,
+      report: {
+        checkOptions: {
+          hideActions: true,
+          shorten: true,
+        },
+      },
+      run: {
+        part: 2,
+        split: 3,
       },
     });
     expect(processExit).not.toBeCalled();
@@ -95,9 +111,15 @@ describe('run suite', () => {
 
     expect(suite.run).toBeCalledTimes(1);
     expect(suite.run).toBeCalledWith(suiteName, false, {
-      reportOptions: {
-        hideActions: true,
-        shorten: false,
+      report: {
+        checkOptions: {
+          hideActions: true,
+          shorten: false,
+        },
+      },
+      run: {
+        part: 1,
+        split: 1,
       },
     });
     expect(processExit).not.toBeCalled();
