@@ -6,7 +6,16 @@ const nunjucks = require('nunjucks');
 const utils = require('../utils');
 const ParamParser = require('../parameters/ParamParser');
 
+/**
+ * @typedef Suite
+ * @property {string[]} steps
+ * @property {string} proxy
+ */
+
 class SuiteParser {
+  /**
+   * @param {string} suitesDir
+   */
   constructor(suitesDir) {
     const rawContent = [];
 
@@ -38,7 +47,17 @@ class SuiteParser {
     return Object.keys(this.rawDoc);
   }
 
-  getSuite(name = utils.mandatory('name'), params = {}) {
+  /**
+   *
+   * @param {string} name Suite name
+   * @param {object} params
+   * @returns {Suite}
+   */
+  getSuite(
+    // @ts-ignore
+    name = utils.mandatory('name'),
+    params = {}
+  ) {
     if (typeof this.rawDoc[name] === 'undefined') {
       throw new Error(`Suite with name '${name}' does not exist`);
     }
@@ -58,7 +77,15 @@ class SuiteParser {
     return parsedDoc[name];
   }
 
-  getSuiteSteps(name = utils.mandatory('name')) {
+  /**
+   *
+   * @param {string} name Suite name
+   * @returns {string[]}
+   */
+  getSuiteSteps(
+    // @ts-ignore
+    name = utils.mandatory('name')
+  ) {
     const suite = this.getSuite(name);
     if (!suite.steps) {
       throw new Error(`Suite with name '${name}' has no steps`);
@@ -66,7 +93,17 @@ class SuiteParser {
     return suite.steps;
   }
 
-  getSuiteProxy(name = utils.mandatory('name'), params = {}) {
+  /**
+   *
+   * @param {string} name Suite name
+   * @param {object} params
+   * @returns
+   */
+  getSuiteProxy(
+    // @ts-ignore
+    name = utils.mandatory('name'),
+    params = {}
+  ) {
     const suite = this.getSuite(name, params);
     if (typeof suite.proxy === 'undefined') {
       return null;
