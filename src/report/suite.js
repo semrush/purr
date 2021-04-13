@@ -13,6 +13,7 @@ class SuiteReport {
    * @param {string} [startDateTime] Suite start datetime
    * @param {string} [endDateTime] Suite completion datetime
    * @param {InstanceType<import('./check')['CheckReport']>[]} [checks=[]] Suite check list
+   * @param {import('../suite/runner').SuiteRunOptions} [runOptions]
    */
   constructor(
     name,
@@ -22,7 +23,8 @@ class SuiteReport {
     fullMessage,
     startDateTime,
     endDateTime,
-    checks = []
+    checks = [],
+    runOptions = {}
   ) {
     this.name = name;
     this.id = id;
@@ -32,12 +34,14 @@ class SuiteReport {
     this.startDateTime = startDateTime;
     this.endDateTime = endDateTime;
     this.checks = checks;
+    this.runOptions = runOptions;
   }
 }
+
 /**
  * Report view options.
  * @typedef {object} SuiteReportViewOptions
- * @property {import('./check').CheckReportViewOptions} reportOptions .
+ * @property {import('./check').CheckReportViewOptions} checkOptions .
  */
 
 /**
@@ -48,7 +52,7 @@ class SuiteReport {
  */
 function processReport(report, options) {
   const processedCheckReports = report.checks.map((origCheckReport) => {
-    return checkReport.processReport(origCheckReport, options.reportOptions);
+    return checkReport.processReport(origCheckReport, options.checkOptions);
   });
 
   const processed = { ...report, checks: processedCheckReports };

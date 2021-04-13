@@ -37,6 +37,7 @@ test.each([data])(
     expect(report.startDateTime).toEqual(startDateTime);
     expect(report.endDateTime).toEqual(endDateTime);
     expect(report.checks).toEqual([]);
+    expect(report.runOptions).toEqual({});
   }
 );
 test.each([data.concat(['check1', 'check2'])])(
