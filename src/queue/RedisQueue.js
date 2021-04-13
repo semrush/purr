@@ -4,6 +4,10 @@ const config = require('../config');
 const utils = require('../utils');
 const BaseQueue = require('./BaseQueue');
 
+/**
+ *
+ * @extends BaseQueue
+ */
 class RedisQueue extends BaseQueue {
   constructor(name = utils.mandatory('name')) {
     super();

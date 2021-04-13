@@ -3,6 +3,10 @@ const utils = require('../utils');
 const BaseQueue = require('./BaseQueue');
 const CheckRunner = require('../check/runner');
 
+/**
+ *
+ * @extends BaseQueue
+ */
 class SimpleQueue extends BaseQueue {
   constructor() {
     super();
