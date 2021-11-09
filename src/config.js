@@ -1,7 +1,8 @@
 const path = require('path');
 const utils = require('./utils');
+const { EnvParams } = require('./config/env');
 
-const envParams = utils.getPrefixedEnvVars('PURR_CONFIG_');
+const envParams = new EnvParams();
 
 /**
  *

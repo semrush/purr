@@ -55,6 +55,10 @@ Define your schedules here
 - Params from env
 - Explicitly specified params
 
+### PURR configuration
+
+You can configure PURR behaviour using environmental variables. Please see the [ENV.md](./ENV.md) for details.
+
 ## CLI
 
 ### Build
