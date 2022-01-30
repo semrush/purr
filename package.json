@@ -8,8 +8,9 @@
     "test:watch": "jest --detectOpenHandles --watch --coverage=false",
     "test:watch-all": "jest --detectOpenHandles --watchAll",
     "commitlint": "commitlint --from=HEAD~1",
-    "lint": "eslint --max-warnings 0 --ext .js,.jsx src && yarn commitlint",
-    "lint:fix": "yarn run lint -- --fix",
+    "lint": "yarn run lint:js && yarn commitlint",
+    "lint:js": "eslint --max-warnings 0 --ext .js,.jsx src",
+    "lint:fix": "yarn run lint:js --fix",
     "pre-commit": "yarn run lint && yarn run test -- --silent --verbose false"
   },
   "husky": {
