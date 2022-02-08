@@ -1,5 +1,5 @@
 const path = require('path');
-const utils = require('../utils.js');
+const utils = require('../utils');
 
 /**
  * Returns defaultValue if value is undefined or NaN
