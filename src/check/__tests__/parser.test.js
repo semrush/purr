@@ -134,7 +134,8 @@ describe('CheckParser', () => {
     };
     const envParameters = {
       [`${prefix}SOME_PARAMETER`]: customParameters.SOME_PARAMETER,
-      [`${prefix}SOME_COMPLEX_PARAMETER`]: customParameters.SOME_COMPLEX_PARAMETER,
+      [`${prefix}SOME_COMPLEX_PARAMETER`]:
+        customParameters.SOME_COMPLEX_PARAMETER,
     };
     const dataExpected = [
       ['someAction', [customParameters.SOME_PARAMETER]],
