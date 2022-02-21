@@ -40,8 +40,11 @@ describe('SuiteParser', () => {
         ],
         "interval": 60000,
         "labels": Object {
+          "appLink": "app-link",
+          "appName": "some-app",
           "priority": "p1",
           "product": "some-product",
+          "slackChannel": "app-slack",
           "team": "some-team",
         },
       }

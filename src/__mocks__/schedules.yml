@@ -5,6 +5,9 @@ schedules:
       team: some-team
       product: some-product
       priority: p1
+      appName: some-app
+      appLink: app-link
+      slackChannel: app-slack
     allowedCookies:
       - /^regex_test{1,30}$/
     checks:

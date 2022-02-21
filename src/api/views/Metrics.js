@@ -29,7 +29,16 @@ const checksScheduled = new prom.Gauge({
   help: 'Count of scheduled checks',
 });
 
-const labelNames = ['name', 'schedule', 'team', 'product', 'priority'];
+const labelNames = [
+  'name',
+  'schedule',
+  'team',
+  'product',
+  'priority',
+  'appName',
+  'appLink',
+  'slackChannel',
+];
 
 const checkIntervalSeconds = new prom.Gauge({
   name: `${metrics.prefix}${metrics.names.checkIntervalSeconds}`,
@@ -208,12 +217,30 @@ class Metrics {
                     ? report.labels.priority
                     : config.defaultPriorityLabel;
 
+                const appName =
+                  report && report.labels.appName
+                    ? report.labels.appName
+                    : config.defaultAppNameLabel;
+
+                const appLink =
+                  report && report.labels.appLink
+                    ? report.labels.appLink
+                    : config.defaultAppLinkLabel;
+
+                const slackChannel =
+                  report && report.labels.slackChannel
+                    ? report.labels.slackChannel
+                    : config.defaultSlackChannelLabel;
+
                 const labels = {
                   name: checkName,
                   schedule: scheduleName,
                   team,
                   product,
                   priority,
+                  appName,
+                  appLink,
+                  slackChannel,
                 };
 
                 try {
