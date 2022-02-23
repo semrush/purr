@@ -59,7 +59,14 @@ class ScheduleParser {
       );
     }
 
-    const allowedLabels = ['team', 'product', 'priority'];
+    const allowedLabels = [
+      'team',
+      'product',
+      'priority',
+      'appName',
+      'appLink',
+      'slackChannel',
+    ];
     const notAllowedLabels = Object.keys(preparedData.labels).filter(
       (labelName) => !allowedLabels.includes(labelName)
     );

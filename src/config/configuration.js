@@ -47,6 +47,9 @@ class Configuration {
     this.defaultTeamLabel = 'sre';
     this.defaultProductLabel = '';
     this.defaultPriorityLabel = 'p3';
+    this.defaultAppNameLabel = '';
+    this.defaultAppLinkLabel = '';
+    this.defaultSlackChannelLabel = '';
 
     this.artifactsKeepSuccessful = getDefault(
       envParams.ARTIFACTS_KEEP_SUCCESSFUL !== 'false',
