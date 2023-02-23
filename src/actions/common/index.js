@@ -1,4 +1,4 @@
-const lighthouse = require('lighthouse');
+const lighthouse = require('lighthouse/core/index.cjs');
 
 const config = require('../../config');
 const utils = require('../../utils');
