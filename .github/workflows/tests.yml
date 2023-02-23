@@ -15,17 +15,13 @@ jobs:
           node-version: 18
       - name: yarn
         run: yarn --frozen-lockfile
-      - name: 'lint configs'
-        run: yarn prettier -c 'data/*'
-      - name: lint
-        run: yarn run lint
       - name: test
         run: yarn run test
 
       - name: test check should succeed
         run: |
           set +e
-          ./src/cli/cli.js check example-com > check_report
+          ./src/cli.js check example-com > check_report
           code=$?
           set -e
 
@@ -37,7 +33,7 @@ jobs:
       - name: test check should fail
         run: |
           set +e
-          ./src/cli/cli.js check example-com-fail > check_report
+          ./src/cli.js check example-com-fail > check_report
           code=$?
           set -e
 
@@ -50,9 +46,10 @@ jobs:
       - name: test check lighthouse
         run: |
           set +e
-          PURR_CONFIG_CONCURRENCY=1 PURR_CONFIG_TRACES=false \
+            PURR_CONFIG_CONCURRENCY=1 \
+            PURR_CONFIG_TRACES=false \
             PURR_CONFIG_CHROMIUM_REMOTE_DEBUGGING=true \
-            ./src/cli/cli.js check --no-shorten \
+            ./src/cli.js check --no-shorten \
             example-com-lighthouse > check_report
           code=$?
           set -e
@@ -64,3 +61,7 @@ jobs:
           grep 'success: true' check_report
           grep "labels: { name: 'first-contentful-paint', id: 'lh-one' }" \
             check_report
+      - name: 'lint configs'
+        run: yarn prettier -c 'data/*'
+      - name: lint
+        run: yarn run lint
