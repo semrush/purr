@@ -12,7 +12,7 @@ beforeEach(async () => {
 describe('SuiteParser', () => {
   test('get list', () => {
     expect(parser.getList()).toMatchInlineSnapshot(`
-      Array [
+      [
         "schedule-full",
         "schedule-without-labels",
         "empty-schedule",
@@ -31,15 +31,15 @@ describe('SuiteParser', () => {
 
   test('getSchedule', () => {
     expect(parser.getSchedule('schedule-full')).toMatchInlineSnapshot(`
-      Object {
-        "allowedCookies": Array [
+      {
+        "allowedCookies": [
           "/^regex_test{1,30}$/",
         ],
-        "checks": Array [
+        "checks": [
           "mocked-check",
         ],
         "interval": 60000,
-        "labels": Object {
+        "labels": {
           "appLink": "app-link",
           "appName": "some-app",
           "priority": "p1",
@@ -55,22 +55,22 @@ describe('SuiteParser', () => {
     expect(() => {
       return parser.getSchedule('empty-schedule');
     }).toThrowErrorMatchingInlineSnapshot(
-      `"Schedule should have interval in format \\"60(s|m)\\". Now: undefined"`
+      `"Schedule should have interval in format "60(s|m)". Now: undefined"`
     );
   });
 
   test('default labels is null', () => {
     expect(parser.getSchedule('schedule-without-labels'))
       .toMatchInlineSnapshot(`
-      Object {
-        "allowedCookies": Array [
+      {
+        "allowedCookies": [
           "/^regex_test{1,30}$/",
         ],
-        "checks": Array [
+        "checks": [
           "mocked-check",
         ],
         "interval": 60000,
-        "labels": Array [],
+        "labels": [],
       }
     `);
   });
@@ -87,7 +87,7 @@ describe('SuiteParser', () => {
     expect(() => {
       parser.getSchedule('schedule-with-incorrect-label-priority');
     }).toThrowErrorMatchingInlineSnapshot(
-      `"This value is not allowed for label priority\\"p10\\""`
+      `"This value is not allowed for label priority"p10""`
     );
   });
 
@@ -95,7 +95,7 @@ describe('SuiteParser', () => {
     expect(() => {
       parser.getSchedule('schedule-with-incorrect-labels');
     }).toThrowErrorMatchingInlineSnapshot(
-      `"Next schedule labels are not allowed \\"all-in-fire\\""`
+      `"Next schedule labels are not allowed "all-in-fire""`
     );
   });
 
