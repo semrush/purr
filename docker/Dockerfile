@@ -40,7 +40,7 @@ USER node
 COPY package.json ./
 COPY yarn.lock ./
 
-RUN yarn install --frozen-lockfile --non-interactive --silent --production=true \
+RUN yarn install --frozen-lockfile --non-interactive --production=true --network-timeout 240000 \
     && yarn cache clean
 
 COPY --chown=node:node src ./src
