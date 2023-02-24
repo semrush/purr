@@ -5,17 +5,19 @@
 ARG PUPPETEER_ENV_IMAGE=puppeteer-environment
 FROM node:18-slim as puppeteer-environment
 
+ENV DEBIAN_FRONTEND noninteractive
+
 # Install latest chrome package and fonts to support major charsets
 # (Chinese, Japanese, Arabic, Hebrew, Thai and a few others)
 # Note: this installs the necessary libs to make the bundled version of
 # Chromium that Puppeteer installs, work.
-RUN apt-get update \
-  && apt-get install -y curl gnupg \
-  && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
-  && curl -s https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-  && apt-get update \
-  && apt-get install -yq --no-install-recommends \
-  google-chrome-stable \
+RUN apt update -qq \
+  && apt install -qq -y --no-install-recommends \
+  curl \
+  gnupg \
+  ca-certificates \
+  chromium \
+  chromium-sandbox \
   fonts-ipafont-gothic \
   fonts-wqy-zenhei \
   fonts-thai-tlwg \
@@ -27,16 +29,17 @@ RUN apt-get update \
 
 FROM ${PUPPETEER_ENV_IMAGE} as app
 
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
 WORKDIR /app
 
 RUN chown node:node .
 USER node
 
-
 COPY package.json ./
 COPY yarn.lock ./
 
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 RUN yarn install --frozen-lockfile --non-interactive --silent --production=true \
     && yarn cache clean
 

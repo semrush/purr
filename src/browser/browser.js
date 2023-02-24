@@ -16,6 +16,11 @@ exports.getBrowser = async (userAgent = config.userAgent, customArgs = []) => {
     `--user-agent=${userAgent}`,
     '--no-sandbox',
     '--disk-cache-size=0',
+    '--disable-dev-shm-usage',
+    '--disable-gpu',
+    '--disable-audio-output',
+    '--single-process',
+    '--no-zygote',
     ...customArgs,
   ];
 
