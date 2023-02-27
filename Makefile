@@ -16,50 +16,48 @@ PURR_CONFIG_SENTRY_DSN ?= ''
 
 
 docker-build-app:
-	docker build . \
-		-f docker/Dockerfile \
-		-t ${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
+	docker compose  \
+		-f docker-compose.single.yml \
+		build
 
 docker-build-app-no-cache:
-	docker build . \
+	docker compose build \
 		--no-cache \
-		-f docker/Dockerfile \
-		-t ${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
-
+		-f docker-compose.single.yml
 lint:
-	docker run --rm \
-		-v ${PWD}:/app \
-		${APP_IMAGE_NAME}:${APP_IMAGE_VERSION} yarn run lint
+	docker compose run  \
+		-f docker-compose.single.yml
+		purr yarn run lint
 
 test:
-	docker run --rm \
-		-v ${PWD}:/app \
-		${APP_IMAGE_NAME}:${APP_IMAGE_VERSION} yarn run test
+	docker compose run --rm \
+		-f docker-compose.single.yml
+		purr yarn run test
 
 start: docker-build-app
-	docker-compose \
+	docker compose \
 		-f ./docker-compose.yml \
 		up
 
 down-dev:
-	docker-compose \
+	docker compose \
 		-f ./docker-compose.yml \
-		-f ./docker-compose.dev.yml \
+		-f ./docker-compose.single.yml \
 		down
 
 start-dev: docker-build-app
 	mkdir -p ./storage
 	chown 1000:1000 ./storage
-	docker-compose \
+	docker compose \
 		-f ./docker-compose.yml \
-		-f ./docker-compose.dev.yml \
+		-f ./docker-compose.single.yml \
 		up
 
 attach-dev:
-	docker-compose \
+	docker compose \
 		-f ./docker-compose.yml \
-		-f ./docker-compose.dev.yml \
-		exec cli bash
+		-f ./docker-compose.single.yml \
+		exec purr bash
 
 update-readme-toc:
 	yarn doctoc --notitle --maxlevel 2 --github README.md

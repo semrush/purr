@@ -64,19 +64,19 @@ You can configure PURR behaviour using environmental variables. Please see the [
 ### Build
 
 ```bash
-docker build -f ./docker/Dockerfile . -t puppeteer-runner:latest
+docker compose -f docker-compose.single.yml build
 ```
 
 ### Run single check
 
 ```bash
-docker run -v "${PWD}/storage:/src/app/storage" puppeteer-runner:latest ./src/cli/cli.js check semrush-com
+docker compose -f docker-compose.single.yml run purr check semrush-com
 ```
 
 ### Run suite
 
 ```bash
-docker run -v "${PWD}/storage:/src/app/storage" puppeteer-runner:latest ./src/cli/cli.js suite semrush-suite
+docker compose -f docker-compose.single.yml run purr suite semrush-suite
 ```
 
 ### Results
@@ -115,14 +115,14 @@ APP_IMAGE_NAME="puppeteer-runner" APP_IMAGE_VERSION="latest" NGINX_IMAGE_NAME="n
 ### Apply schedules
 
 ```bash
-docker-compose exec worker /app/src/cli.js schedule clean
-docker-compose exec worker /app/src/cli.js schedule apply
+docker compose exec worker schedule clean
+docker compose exec worker schedule apply
 ```
 
 ### Stop schedules
 
 ```bash
-docker-compose exec worker /app/src/cli.js schedule clean
+docker compose exec worker schedule clean
 ```
 
 ## REST API
