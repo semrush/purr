@@ -26,9 +26,9 @@ Checks results are stored as JSON reports, screenshots, traces and HAR files.
 
 PURR has three modes:
 
-- CLI (mainly used in CI/CD pipelines)
-- Queue worker (scheduled monitoring checks)
-- REST service (show results and expose internal metrics for prometheus)
+- [CLI](README.md#cli) (mainly used in CI/CD pipelines)
+- [Queue worker](README.md#scheduled-jobs) (scheduled monitoring checks)
+- [REST service](README.md#rest-api) (show results and expose internal metrics for prometheus)
 
 ## Configuration
 
@@ -64,19 +64,19 @@ You can configure PURR behaviour using environmental variables. Please see the [
 ### Build
 
 ```bash
-docker build -f ./docker/Dockerfile . -t puppeteer-runner:latest
+docker compose -f docker-compose.single.yml build
 ```
 
 ### Run single check
 
 ```bash
-docker run -v "${PWD}/storage:/src/app/storage" puppeteer-runner:latest ./src/cli/cli.js check semrush-com
+docker compose -f docker-compose.single.yml run purr check semrush-com
 ```
 
 ### Run suite
 
 ```bash
-docker run -v "${PWD}/storage:/src/app/storage" puppeteer-runner:latest ./src/cli/cli.js suite semrush-suite
+docker compose -f docker-compose.single.yml run purr suite semrush-suite
 ```
 
 ### Results
@@ -115,17 +115,19 @@ APP_IMAGE_NAME="puppeteer-runner" APP_IMAGE_VERSION="latest" NGINX_IMAGE_NAME="n
 ### Apply schedules
 
 ```bash
-docker-compose exec worker /app/src/cli.js schedule clean
-docker-compose exec worker /app/src/cli.js schedule apply
+docker compose exec worker schedule clean
+docker compose exec worker schedule apply
 ```
 
 ### Stop schedules
 
 ```bash
-docker-compose exec worker /app/src/cli.js schedule clean
+docker compose exec worker schedule clean
 ```
 
 ## REST API
+
+To access REST api you can use [traefik](TRAEFIK.md)
 
 ### Endpoints
 
@@ -226,6 +228,13 @@ List of methods which were tested by the PURR dev team
       domain: .{{ TARGET_DOMAIN.split('.').slice(-2).join('.') }}
 ```
 
+## Testing checks
+
+to launch your check run 
+```
+make check name=main-page
+```
+
 ### Custom Methods
 
 Custom steps methods are described in [src/actions](./src/actions/common/index.js) dir and can be executed in checks.
@@ -312,7 +321,15 @@ check-page-from-india:
 
 ## Development
 
-> **IMPORTANT**: It's expected that for convenient experience you will use [vscode](https://code.visualstudio.com/) as an IDE with recommended extensions(configs are available in this repository).
+Main entrypoint for project is `src/cli.js`.
+
+There are two options for development avalaible.
+
+* cli command development require only call from cli. [docker-compose.single.yml](docker-compose.single.yml) placed for your convinience
+* client-server model. That mode described in [docker-compose.server.yml](docker-compose.server.yml). There we have two services avalaible
+  * sever - provides api endpoint and other stuff related to daemon itself
+  * worker - queue worker.
+
 
 ```bash
 make start-dev

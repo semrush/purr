@@ -1,5 +1,7 @@
 variables:
   APP_IMAGE_VERSION: ${CI_COMMIT_SHA}
+  DOCKER_REGISTRY_URL: ghcr.io
+
 
 .prod_variables: &prod_variables
   DOCKER_REGISTRY_USER: ${PROD_DOCKER_REGISTRY_USER}
