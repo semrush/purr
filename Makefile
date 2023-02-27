@@ -61,3 +61,11 @@ attach-dev:
 
 update-readme-toc:
 	yarn doctoc --notitle --maxlevel 2 --github README.md
+
+check:
+ifeq (, $(name))
+$(error "Check name is required")
+endif
+	docker compose \
+		-f ./docker-compose.single.yml \
+		run purr /app/src/cli.js check $(name)

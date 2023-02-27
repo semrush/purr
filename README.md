@@ -26,9 +26,9 @@ Checks results are stored as JSON reports, screenshots, traces and HAR files.
 
 PURR has three modes:
 
-- CLI (mainly used in CI/CD pipelines)
-- Queue worker (scheduled monitoring checks)
-- REST service (show results and expose internal metrics for prometheus)
+- [CLI](README.md#cli) (mainly used in CI/CD pipelines)
+- [Queue worker](README.md#scheduled-jobs) (scheduled monitoring checks)
+- [REST service](README.md#rest-api) (show results and expose internal metrics for prometheus)
 
 ## Configuration
 
@@ -226,6 +226,13 @@ List of methods which were tested by the PURR dev team
     - name: '{{ COOKIE_NAME }}'
       value: '{{ COOKIE_VALUE }}'
       domain: .{{ TARGET_DOMAIN.split('.').slice(-2).join('.') }}
+```
+
+## Testing checks
+
+to launch your check run 
+```
+make check name=main-page
 ```
 
 ### Custom Methods
