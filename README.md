@@ -314,7 +314,15 @@ check-page-from-india:
 
 ## Development
 
-> **IMPORTANT**: It's expected that for convenient experience you will use [vscode](https://code.visualstudio.com/) as an IDE with recommended extensions(configs are available in this repository).
+Main entrypoint for project is `src/cli.js`.
+
+There are two options for development avalaible.
+
+* cli command development require only call from cli. [docker-compose.single.yml](docker-compose.single.yml) placed for your convinience
+* client-server model. That mode described in [docker-compose.server.yml](docker-compose.server.yml). There we have two services avalaible
+  * sever - provides api endpoint and other stuff related to daemon itself
+  * worker - queue worker.
+
 
 ```bash
 make start-dev
