@@ -1,5 +1,6 @@
 SHELL := /bin/bash
 
+APP_REGISTRY ?= ghcr.io
 APP_IMAGE_NAME ?= semrush/purr
 APP_IMAGE_VERSION ?= latest
 

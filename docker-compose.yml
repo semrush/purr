@@ -4,7 +4,7 @@ services:
   worker:
     depends_on:
       - redis
-    image: ${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
+    image: ${APP_REGISTRY}/${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
     stop_grace_period: 2m
     restart: always
     tty: true # Colorize logs
@@ -18,7 +18,7 @@ services:
   server:
     depends_on:
       - redis
-    image: ${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
+    image: ${APP_REGISTRY}/${APP_IMAGE_NAME}:${APP_IMAGE_VERSION}
     restart: always
     tty: true # Colorize logs
     env_file:
