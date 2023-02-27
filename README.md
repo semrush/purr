@@ -127,6 +127,8 @@ docker-compose exec worker /app/src/cli.js schedule clean
 
 ## REST API
 
+To access REST api you can use [traefik](TRAEFIK.md)
+
 ### Endpoints
 
 #### `GET /metrics`
