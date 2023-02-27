@@ -28,8 +28,9 @@ services:
       - server
       - start
     labels:
-      traefik.enable: 'true'
-      traefik.frontend.rule: 'Host:purr.traefik.lcl'
+      - traefik.enable=true
+      - traefik.http.routers.purr.rule=Host(`purr.traefik.lcl`)
+
 
   storage:
     image: nginx:alpine
@@ -41,8 +42,23 @@ services:
       # TODO: fix permission if ./storage not exists
       - ./storage:/usr/share/nginx/html/storage:ro
     labels:
-      traefik.enable: 'true'
-      traefik.frontend.rule: 'Host:purr.traefik.lcl;PathPrefix:/storage'
+     - traefik.enable=true
+     - traefik.http.routers.purr-storage.rule=Host(`purr.traefik.lcl`) && PathPrefix(`/storage`)
+
+  traefik:
+    image: "traefik:v2.9"
+    container_name: "traefik"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
   redis:
     image: redis
