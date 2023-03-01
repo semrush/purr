@@ -1,71 +1,78 @@
-SHELL := /bin/bash
+override APPLICATION_NAME=purr
 
-APP_REGISTRY ?= ghcr.io
-APP_IMAGE_NAME ?= semrush/purr
-APP_IMAGE_VERSION ?= latest
+DOCKER_IMAGE?=ghcr.io/semrush/purr
+DOCKER_TAG?=latest
 
-PURR_PARAM_USER_EMAIL ?= example@example.com
-PURR_PARAM_USER_PASSWORD ?= secret
-PURR_CONFIG_REDIS_HOST ?= redis-master
-PURR_CONFIG_REDIS_PASSWORD ?= ''
-PURR_CONFIG_SENTRY_DSN ?= ''
+.PHONY: yarn-install
+yarn-install: docker-build
+	rm -r ${CURDIR}/node_modules || true
+	docker run --rm \
+		-v ${CURDIR}:/app \
+		-w /app \
+		-e PUPPETEER_SKIP_DOWNLOAD=true \
+		--entrypoint yarn \
+			${DOCKER_IMAGE}:${DOCKER_TAG} \
+				install --frozen-lockfile --non-interactive
 
+.PHONY: yarn-lint
+yarn-lint: docker-build
+	docker run --rm \
+		-v ${CURDIR}:/app \
+		-w /app \
+		-e PUPPETEER_SKIP_DOWNLOAD=true \
+		--entrypoint yarn \
+			${DOCKER_IMAGE}:${DOCKER_TAG} \
+				run lint
 
-.EXPORT_ALL_VARIABLES:
-.ONESHELL:
+.PHONY: lint
+lint: yarn-lint
 
+.PHONY: yarn-test
+yarn-test: docker-build
+	docker run --rm \
+		-v ${CURDIR}:/app \
+		-w /app \
+		-e PUPPETEER_SKIP_DOWNLOAD=true \
+		--entrypoint yarn \
+			${DOCKER_IMAGE}:${DOCKER_TAG} \
+				run test --bail
 
-docker-build-app:
-	docker compose  \
-		-f docker-compose.single.yml \
-		build
+.PHONY: test
+test: yarn-test
 
-docker-build-app-no-cache:
-	docker compose build \
-		--no-cache \
-		-f docker-compose.single.yml
-lint:
-	docker compose run  \
-		-f docker-compose.single.yml
-		purr yarn run lint
+.PHONY: docker-build
+docker-build:
+	docker rmi --force ${DOCKER_IMAGE}:${DOCKER_TAG} || true
+	docker build -f ${CURDIR}/docker/Dockerfile -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
 
-test:
-	docker compose run --rm \
-		-f docker-compose.single.yml
-		purr yarn run test
+.PHONY: docker-compose-up
+docker-compose-up:
+	DOCKER_IMAGE=${DOCKER_IMAGE} DOCKER_TAG=${DOCKER_TAG} docker compose -p ${APPLICATION_NAME} up -d
 
-start: docker-build-app
-	docker compose \
-		-f ./docker-compose.yml \
-		up
+.PHONY: docker-compose-down
+docker-compose-down:
+	docker compose -p ${APPLICATION_NAME} down --remove-orphans --volumes --rmi local
 
-down-dev:
-	docker compose \
-		-f ./docker-compose.yml \
-		-f ./docker-compose.single.yml \
-		down
-
-start-dev: docker-build-app
-	mkdir -p ./storage
-	chown 1000:1000 ./storage
-	docker compose \
-		-f ./docker-compose.yml \
-		-f ./docker-compose.single.yml \
-		up
-
-attach-dev:
-	docker compose \
-		-f ./docker-compose.yml \
-		-f ./docker-compose.single.yml \
-		exec purr bash
-
-update-readme-toc:
-	yarn doctoc --notitle --maxlevel 2 --github README.md
-
-check:
-ifeq (, $(name))
-$(error "Check name is required")
+.PHONY: run-check
+run-check: docker-build
+ifeq (, $(check-name))
+	$(error "Check name (argument check=...) is required")
 endif
-	docker compose \
-		-f ./docker-compose.single.yml \
-		run purr /app/src/cli.js check $(name)
+	rm -r ${CURDIR}/storage/* || true
+	docker run --rm \
+		-v ${CURDIR}:/app \
+		--env-file ${CURDIR}/.env \
+			${DOCKER_IMAGE}:${DOCKER_TAG} \
+				check $(check-name)
+
+.PHONY: run-suite
+run-suite: docker-build
+ifeq (, $(suite-name))
+	$(error "Suite name (argument suite=...) is required")
+endif
+	rm -r ${CURDIR}/storage/* || true
+	docker run --rm \
+		-v ${CURDIR}:/app \
+		--env-file ${CURDIR}/.env \
+			${DOCKER_IMAGE}:${DOCKER_TAG} \
+				suite $(suite-name)

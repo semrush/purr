@@ -67,6 +67,10 @@ class Configuration {
     );
 
     this.reports = getDefault(envParams.REPORTS !== 'false', true);
+    this.latestFailedReports = getDefault(
+      envParams.LATEST_FAILED_REPORTS !== 'false',
+      true
+    );
     this.reportsDir = getDefault(
       envParams.REPORTS_DIR,
       path.resolve(this.artifactsDir, reportsDirName)

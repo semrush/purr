@@ -22,6 +22,7 @@ List of available parameters, their default values and description are available
 | PURR_CONFIG_ARTIFACTS_KEEP_SUCCESSFUL  |                                                                      Whether to keep artifacts for successful checks | `true`                  |
 | PURR_CONFIG_REPORTS                    |                                                                                Whether to generate test runs reports | `true`                  |
 | PURR_CONFIG_REPORTS_DIR                |                                                                                        Where to store tests reports. | `./storage/reports`     |
+| PURR_CONFIG_LATEST_FAILED_REPORTS      |                                                              Whether to generate test runs reports for failed checks | `true`                  |
 | PURR_CONFIG_SCREENSHOTS                |                                                                           Whether to save screenshots for tests runs | `true`                  |
 | PURR_CONFIG_SCREENSHOTS_DIR            |                                                                                            Where to save screenshots | `./storage/screenshots` |
 | PURR_CONFIG_TRACES                     |                                                                                          Whether to store run traces | `true`                  |

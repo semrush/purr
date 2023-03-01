@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  server:
+    image: ${DOCKER_IMAGE:-ghcr.io/semrush/purr}:${DOCKER_TAG:-latest}
+    build:
+      dockerfile: docker/Dockerfile
+      context: .
+    command:
+      - server
+      - start
+    ports:
+      - '8080:8080'
+    env_file:
+      - ./.env
+    volumes:
+      - ./:/app
+    depends_on:
+      - redis
+
+  worker:
+    image: ${DOCKER_IMAGE:-ghcr.io/semrush/purr}:${DOCKER_TAG:-latest}
+    build:
+      dockerfile: docker/Dockerfile
+      context: .
+    command:
+      - worker
+      - check
+    env_file:
+      - ./.env
+    volumes:
+      - ./:/app
+    depends_on:
+      - redis
+      - server
+
+  redis:
+    image: redis

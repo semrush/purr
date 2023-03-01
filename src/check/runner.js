@@ -126,6 +126,20 @@ class CheckRunner {
     let screenshotPath = `${checkIdSafe}_screenshot.png`;
     let consoleLogPath = `${checkIdSafe}_console.log`;
     let reportPath = `${checkIdSafe}_report.json`;
+    let failedSchedulePathSlice = ['schedule', scheduleName, 'failed'];
+    failedSchedulePathSlice = failedSchedulePathSlice.filter(function filter(
+      item
+    ) {
+      if (item === '') {
+        return false;
+      }
+      if (item === null) {
+        return false;
+      }
+      return typeof item !== 'undefined';
+    });
+    let failedSchedulePath = failedSchedulePathSlice.join('_');
+    failedSchedulePath += '.json';
 
     const traceTempPath = path.resolve(config.tracesTempDir, tracePath);
     const harTempPath = path.resolve(config.harsTempDir, harPath);
@@ -140,12 +154,18 @@ class CheckRunner {
       screenshotPath = path.resolve(config.artifactsDir, name, screenshotPath);
       consoleLogPath = path.resolve(config.artifactsDir, name, consoleLogPath);
       reportPath = path.resolve(config.artifactsDir, name, reportPath);
+      failedSchedulePath = path.resolve(
+        config.artifactsDir,
+        name,
+        failedSchedulePath
+      );
     } else {
       tracePath = path.resolve(config.tracesDir, tracePath);
       harPath = path.resolve(config.harsDir, harPath);
       screenshotPath = path.resolve(config.screenshotsDir, screenshotPath);
       consoleLogPath = path.resolve(config.consoleLogDir, consoleLogPath);
       reportPath = path.resolve(config.reportsDir, reportPath);
+      failedSchedulePath = path.resolve(config.reportsDir, failedSchedulePath);
     }
 
     if (config.traces) {
@@ -438,6 +458,17 @@ class CheckRunner {
           } catch (err) {
             Sentry.captureException(err);
             log.error('Can not write a report to disk: ', err);
+          }
+          if (config.latestFailedReports) {
+            try {
+              await fs.writeFileSync(
+                failedSchedulePath,
+                JSON.stringify(checkReport)
+              );
+            } catch (err) {
+              Sentry.captureException(err);
+              log.error('Can not write a latest failed report to disk: ', err);
+            }
           }
         }
       }
