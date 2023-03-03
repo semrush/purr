@@ -3,10 +3,7 @@ semrush-com:
     - goto:
         - '{{ TARGET_SCHEMA }}://{{ TARGET_DOMAIN }}/'
     - waitForSelector:
-        - '.srf-copyright'
-    - actions.common.selectorContains:
-        - '.srf-copyright'
-        - 'SEMrush. All rights reserved.'
+        - '[data-test]'
 
 example-com:
   steps:

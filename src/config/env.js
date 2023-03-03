@@ -67,6 +67,13 @@ const DEFAULT_ENV_PARAMS = {
   REPORTS: true,
 
   /**
+   * Whether to generate test runs reports for failed checks (save only latest report)
+   * @type {boolean}
+   * @default {true}
+   */
+  LATEST_FAILED_REPORTS: true,
+
+  /**
    * Where to store tests reports.
    * @type {string}
    * @default "../storage/reports"

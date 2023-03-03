@@ -36,6 +36,7 @@ describe('Test Configuration class', () => {
       hars: false,
       harsDir: '/rootDir/storage/hars',
       harsTempDir: '/rootDir/storage_tmp/hars',
+      latestFailedReports: true,
       logLevel: 'info',
       navigationTimeout: 30000,
       parametersInfoFilePath: '/rootDir/data/parameters.yml',

@@ -1,15 +1,10 @@
-# docker
-Dockerfile
-.dockerignore
-.env
-
-# git
-.git*
-
-# node
-/public/
-/node_modules/
-
-# app
-/storage/
-/storage_tmp/
+*
+!__mocks__
+!docker
+!src
+!.eslintignore
+!.eslintrc.yml
+!jest.config.js
+!jsconfig.json
+!package.json
+!yarn.lock

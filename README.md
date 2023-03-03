@@ -61,27 +61,56 @@ You can configure PURR behaviour using environmental variables. Please see the [
 
 ## CLI
 
+### Requirements
+
+- docker
+- [docker compose](https://docs.docker.com/compose/install)
+- make
+
+Before first run of whole application or custom checks, you need to provide `.env` file. Sample you can find in 
+`.env.sample` file and full list of supported ENV variables in [ENV.md](./ENV.md).
+
 ### Build
 
-```bash
-docker compose -f docker-compose.single.yml build
+Native docker build
+```shell
+docker build -f $(pwd)/docker/Dockerfile -t ghcr.io/semrush/purr:latest .
+```
+
+Or use predefined make directive
+```shell
+make docker-build
 ```
 
 ### Run single check
 
-```bash
-docker compose -f docker-compose.single.yml run purr check semrush-com
+Native docker run 
+```shell
+docker build -f $(pwd)/docker/Dockerfile -t ghcr.io/semrush/purr:latest .
+docker run --rm -v $(pwd):/app --env-file $(pwd)/.env ghcr.io/semrush/purr:latest check example-com
+```
+
+Or use predefined make directive
+```shell
+make run-check CHECK_NAME=example-com
 ```
 
 ### Run suite
 
-```bash
-docker compose -f docker-compose.single.yml run purr suite semrush-suite
+Native docker run
+```shell
+docker build -f $(pwd)/docker/Dockerfile -t ghcr.io/semrush/purr:latest .
+docker run --rm -v $(pwd):/app --env-file $(pwd)/.env ghcr.io/semrush/purr:latest suite example-com-suite
+```
+
+Or use predefined make directive
+```shell
+make run-suite SUITE_NAME=example-com-suite
 ```
 
 ### Results
 
-```bash
+```shell
 $ tree storage
 storage
 ├── console_log
@@ -105,29 +134,41 @@ For HAR you can use [GSuite Toolbox HAR Analyze](https://toolbox.googleapps.com/
 
 ## Scheduled jobs
 
-### Run worker
+### Run application
 
-```bash
-APP_IMAGE_NAME="puppeteer-runner" APP_IMAGE_VERSION="latest" NGINX_IMAGE_NAME="nginx" docker-compose up
-
+```shell
+docker compose up -d
 ```
 
 ### Apply schedules
 
-```bash
-docker compose exec worker schedule clean
-docker compose exec worker schedule apply
+```shell
+docker compose exec worker /app/src/cli.js schedule clean
+docker compose exec worker /app/src/cli.js schedule apply
 ```
 
 ### Stop schedules
 
-```bash
-docker compose exec worker schedule clean
+```shell
+docker compose exec worker /app/src/cli.js schedule clean
 ```
 
 ## REST API
 
-To access REST api you can use [traefik](TRAEFIK.md)
+To enable access to API server, just create file `docker-compose.override.yaml` and place replacement of `server` 
+service like in example:
+
+```yaml
+version: '3.9'
+
+services:
+  server:
+    ports:
+      - '8080:8080'
+```
+
+After that, all commands called via `docker compose` will apply configuration and provide access to server with address 
+`http://localhost:8080`
 
 ### Endpoints
 
@@ -169,11 +210,11 @@ Add check to queue
 
 ##### Example:
 
-```bash
+```shell
 curl -X POST \
   -d 'params[TARGET_SCHEMA]=http' \
   -d 'params[TARGET_DOMAIN]=rc.example.com' \
-  http://purr.traefik.lcl/api/v1/checks/main-page?wait=true&view=pretty
+  http://localhost:8080/api/v1/checks/main-page?wait=true&view=pretty
 ```
 
 #### `GET /api/v1/reports/:id`
@@ -331,7 +372,7 @@ There are two options for development avalaible.
   * worker - queue worker.
 
 
-```bash
+```shell
 make start-dev
 make attach-dev
 ```
@@ -340,7 +381,7 @@ make attach-dev
 
 Run tests:
 
-```bash
+```shell
 yarn run test
 ```
 
