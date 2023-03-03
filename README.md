@@ -87,12 +87,12 @@ make docker-build
 Native docker run 
 ```shell
 docker build -f $(pwd)/docker/Dockerfile -t ghcr.io/semrush/purr:latest .
-docker run --rm -v $(pwd):/app --env-file $(pwd)/.env ghcr.io/semrush/purr:latest check check-name
+docker run --rm -v $(pwd):/app --env-file $(pwd)/.env ghcr.io/semrush/purr:latest check example-com
 ```
 
 Or use predefined make directive
 ```shell
-make run-check check-name=check-name
+make run-check CHECK_NAME=example-com
 ```
 
 ### Run suite
@@ -100,12 +100,12 @@ make run-check check-name=check-name
 Native docker run
 ```shell
 docker build -f $(pwd)/docker/Dockerfile -t ghcr.io/semrush/purr:latest .
-docker run --rm -v $(pwd):/app --env-file $(pwd)/.env ghcr.io/semrush/purr:latest suite suite-name
+docker run --rm -v $(pwd):/app --env-file $(pwd)/.env ghcr.io/semrush/purr:latest suite example-com-suite
 ```
 
 Or use predefined make directive
 ```shell
-make run-suite suite-name=suite-name
+make run-suite SUITE_NAME=example-com-suite
 ```
 
 ### Results
@@ -137,7 +137,7 @@ For HAR you can use [GSuite Toolbox HAR Analyze](https://toolbox.googleapps.com/
 ### Run application
 
 ```shell
-docker-compose up -d
+docker compose up -d
 ```
 
 ### Apply schedules
