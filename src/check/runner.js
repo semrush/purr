@@ -126,7 +126,11 @@ class CheckRunner {
     let screenshotPath = `${checkIdSafe}_screenshot.png`;
     let consoleLogPath = `${checkIdSafe}_console.log`;
     let reportPath = `${checkIdSafe}_report.json`;
-    let failedSchedulePathSlice = ['schedule', scheduleName, 'failed'];
+    let failedSchedulePathSlice = [
+      'schedule',
+      scheduleName,
+      'latest_failed_report',
+    ];
     failedSchedulePathSlice = failedSchedulePathSlice.filter(function filter(
       item
     ) {
