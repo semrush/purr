@@ -47,6 +47,9 @@ docker-build:
 	docker rmi --force ${DOCKER_IMAGE}:${DOCKER_TAG} || true
 	docker build -f ${CURDIR}/docker/Dockerfile -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
 
+.PHONY: build
+build: docker-build
+
 .PHONY: docker-compose-up
 docker-compose-up:
 	DOCKER_IMAGE=${DOCKER_IMAGE} DOCKER_TAG=${DOCKER_TAG} docker compose -p ${APPLICATION_NAME} up -d
