@@ -2,6 +2,8 @@ override APPLICATION_NAME=purr
 
 DOCKER_IMAGE?=ghcr.io/semrush/purr
 DOCKER_TAG?=latest
+CHECK_NAME := example-com
+SUITE_NAME := example-com-suite
 
 .PHONY: yarn-install
 yarn-install: docker-build
@@ -55,24 +57,18 @@ docker-compose-down:
 
 .PHONY: run-check
 run-check: docker-build
-ifeq (, $(check-name))
-	$(error "Check name (argument check=...) is required")
-endif
 	rm -r ${CURDIR}/storage/* || true
 	docker run --rm \
 		-v ${CURDIR}:/app \
 		--env-file ${CURDIR}/.env \
 			${DOCKER_IMAGE}:${DOCKER_TAG} \
-				check $(check-name)
+				check $(CHECK_NAME)
 
 .PHONY: run-suite
 run-suite: docker-build
-ifeq (, $(suite-name))
-	$(error "Suite name (argument suite=...) is required")
-endif
 	rm -r ${CURDIR}/storage/* || true
 	docker run --rm \
 		-v ${CURDIR}:/app \
 		--env-file ${CURDIR}/.env \
 			${DOCKER_IMAGE}:${DOCKER_TAG} \
-				suite $(suite-name)
+				suite $(SUITE_NAME)
