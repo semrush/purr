@@ -1,4 +1,5 @@
 const path = require('path');
+const isUndefined = require('lodash.isundefined');
 const utils = require('../utils');
 
 /**
@@ -183,6 +184,32 @@ class Configuration {
       envParams.COOKIE_TRACKING_HIDE_VALUE !== 'false',
       true
     );
+
+    if (this.artifactsGroupByCheckName && isUndefined(this.artifactsDir)) {
+      throw new Error(
+        'Enabled group artifacts by check name and artifacts path not specified'
+      );
+    }
+
+    if (!this.artifactsGroupByCheckName && isUndefined(this.tracesDir)) {
+      throw new Error('Traces enabled but storage path not specified');
+    }
+
+    if (!this.artifactsGroupByCheckName && isUndefined(this.harsDir)) {
+      throw new Error('HARs enabled but storage path not specified');
+    }
+
+    if (!this.artifactsGroupByCheckName && isUndefined(this.screenshotsDir)) {
+      throw new Error('Screenshots enabled but storage path not specified');
+    }
+
+    if (!this.artifactsGroupByCheckName && isUndefined(this.consoleLogDir)) {
+      throw new Error('Console logging enabled but storage path not specified');
+    }
+
+    if (!this.artifactsGroupByCheckName && isUndefined(this.reportsDir)) {
+      throw new Error('CReports enabled but storage path not specified');
+    }
   }
 }
 

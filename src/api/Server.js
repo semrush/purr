@@ -37,8 +37,8 @@ app.use(config.apiUrlPrefix, apiRouter);
 
 apiRouter.get('/checks', Checks.list);
 apiRouter.post('/checks/:name', Checks.exec);
-
 apiRouter.get('/reports/:id', Reports.get);
+apiRouter.get('/reports/:name/latest/failed', Reports.failed);
 
 app.use(Sentry.Handlers.errorHandler());
 
