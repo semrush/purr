@@ -1,6 +1,6 @@
-import path from 'path';
-import filter from 'lodash.filter';
-import ReportPaths from './paths';
+const path = require('path');
+const filter = require('lodash.filter');
+const ReportPaths = require('./paths');
 
 class ReportPathsGenerator {
   /**
