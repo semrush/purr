@@ -386,7 +386,7 @@ class CheckRunner {
             Sentry.captureException(err);
             log.error('Can not write a report to disk: ', err);
           }
-          if (config.latestFailedReports) {
+          if (config.latestFailedReports && checkReport.success === false) {
             try {
               await fs.writeFileSync(
                 paths.getLatestFailedReportPath(),

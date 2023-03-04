@@ -1,5 +1,5 @@
 const fs = require('fs');
-
+const isEmpty = require('lodash.isempty');
 const config = require('../../config');
 const ReportPathsGenerator = require('../../report/pathGenerator');
 const ReportURLReplacer = require('../../report/urlReplacer');
@@ -8,15 +8,38 @@ const { CheckData } = require('../../check/check');
 class Reports {
   static get(req, res) {
     const generator = new ReportPathsGenerator(config);
+
+    let name = req.params.id;
+    if (config.artifactsGroupByCheckName) {
+      if (isEmpty(req.query.name)) {
+        res
+          .status(400)
+          .set({ 'Content-Type': 'application/json; charset=utf-8' })
+          .send({
+            code: 400,
+            message:
+              'Artifact group by name is enabled but check name in request query is empty.',
+          });
+        return;
+      }
+      name = req.query.name;
+    }
+
     const paths = generator.get(
-      new CheckData(req.params.id, req.params.id, null, null, [])
+      new CheckData(name, req.params.id, null, null, [])
     );
 
     let report;
     try {
       report = JSON.parse(fs.readFileSync(paths.getReportPath(), 'utf8'));
     } catch (err) {
-      res.status(404).end();
+      res
+        .status(404)
+        .set({ 'Content-Type': 'application/json; charset=utf-8' })
+        .send({
+          code: 404,
+          message: `Failed to parse file: ${err.message}`,
+        });
       return;
     }
 
@@ -34,7 +57,7 @@ class Reports {
     const paths = generator.get(
       new CheckData(
         req.params.name,
-        req.query.id ? req.query.id : req.params.name,
+        req.params.name,
         null,
         req.query.schedule,
         []
@@ -47,7 +70,13 @@ class Reports {
         fs.readFileSync(paths.getLatestFailedReportPath(), 'utf8')
       );
     } catch (err) {
-      res.status(404).end();
+      res
+        .status(404)
+        .set({ 'Content-Type': 'application/json; charset=utf-8' })
+        .send({
+          code: 404,
+          message: `Failed to parse file: ${err.message}`,
+        });
       return;
     }
 
