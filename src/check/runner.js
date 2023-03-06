@@ -12,8 +12,10 @@ const { getBrowser } = require('../browser/browser');
 const { getPage } = require('../browser/page');
 const { ActionReport } = require('../report/action');
 const { CheckReport } = require('../report/check');
+const ReportPathsGenerator = require('../report/pathGenerator');
 const { CheckParser } = require('./parser');
 const CheckReportCustomData = require('../report/CheckReportCustomData');
+const { CheckData } = require('./check');
 
 function consoleLogToJSON(consoleLogsArray) {
   const seen = [];
@@ -119,111 +121,29 @@ class CheckRunner {
     checkReport.scheduleName = scheduleName;
     checkReport.labels = labels;
 
-    const checkIdSafe = checkId.replace(/[^\w]/g, '_');
-
-    let tracePath = `${checkIdSafe}_trace.json`;
-    let harPath = `${checkIdSafe}.har`;
-    let screenshotPath = `${checkIdSafe}_screenshot.png`;
-    let consoleLogPath = `${checkIdSafe}_console.log`;
-    let reportPath = `${checkIdSafe}_report.json`;
-    let failedSchedulePathSlice = [
-      'schedule',
-      scheduleName,
-      'latest_failed_report',
-    ];
-    failedSchedulePathSlice = failedSchedulePathSlice.filter(function filter(
-      item
-    ) {
-      if (item === '') {
-        return false;
-      }
-      if (item === null) {
-        return false;
-      }
-      return typeof item !== 'undefined';
-    });
-    let failedSchedulePath = failedSchedulePathSlice.join('_');
-    failedSchedulePath += '.json';
-
-    const traceTempPath = path.resolve(config.tracesTempDir, tracePath);
-    const harTempPath = path.resolve(config.harsTempDir, harPath);
-
-    if (config.artifactsGroupByCheckName) {
-      if (typeof config.artifactsDir === 'undefined') {
-        throw new Error('Artifacts path not specified');
-      }
-
-      tracePath = path.resolve(config.artifactsDir, name, tracePath);
-      harPath = path.resolve(config.artifactsDir, name, harPath);
-      screenshotPath = path.resolve(config.artifactsDir, name, screenshotPath);
-      consoleLogPath = path.resolve(config.artifactsDir, name, consoleLogPath);
-      reportPath = path.resolve(config.artifactsDir, name, reportPath);
-      failedSchedulePath = path.resolve(
-        config.artifactsDir,
-        name,
-        failedSchedulePath
-      );
-    } else {
-      tracePath = path.resolve(config.tracesDir, tracePath);
-      harPath = path.resolve(config.harsDir, harPath);
-      screenshotPath = path.resolve(config.screenshotsDir, screenshotPath);
-      consoleLogPath = path.resolve(config.consoleLogDir, consoleLogPath);
-      reportPath = path.resolve(config.reportsDir, reportPath);
-      failedSchedulePath = path.resolve(config.reportsDir, failedSchedulePath);
-    }
+    const rpg = new ReportPathsGenerator(config);
+    const paths = rpg.get(
+      new CheckData(name, checkId, params, scheduleName, labels)
+    );
 
     if (config.traces) {
-      if (
-        !config.artifactsGroupByCheckName &&
-        typeof config.tracesDir === 'undefined'
-      ) {
-        throw new Error('Traces enabled but storage path not specified');
-      }
-      createDirIfNotExist(path.dirname(traceTempPath));
-      createDirIfNotExist(path.dirname(tracePath));
+      createDirIfNotExist(path.dirname(paths.getTracePath()));
     }
 
     if (config.hars) {
-      if (
-        !config.artifactsGroupByCheckName &&
-        typeof config.harsDir === 'undefined'
-      ) {
-        throw new Error('HARs enabled but storage path not specified');
-      }
-      createDirIfNotExist(path.dirname(harTempPath));
-      createDirIfNotExist(path.dirname(harPath));
+      createDirIfNotExist(path.dirname(paths.getHarPath()));
     }
 
     if (config.screenshots) {
-      if (
-        !config.artifactsGroupByCheckName &&
-        typeof config.screenshotsDir === 'undefined'
-      ) {
-        throw new Error('Screenshots enabled but storage path not specified');
-      }
-      createDirIfNotExist(path.dirname(screenshotPath));
+      createDirIfNotExist(path.dirname(paths.getScreenshotPath()));
     }
 
     if (config.consoleLog) {
-      if (
-        !config.artifactsGroupByCheckName &&
-        typeof config.consoleLogDir === 'undefined'
-      ) {
-        throw new Error(
-          'Console logging enabled but storage path not specified'
-        );
-      }
-      createDirIfNotExist(path.dirname(consoleLogPath));
+      createDirIfNotExist(path.dirname(paths.getConsoleLogPath()));
     }
 
     if (config.reports) {
-      if (
-        !config.artifactsGroupByCheckName &&
-        typeof config.reportsDir === 'undefined'
-      ) {
-        throw new Error('Reports enabled but storage path not specified');
-      }
-      createDirIfNotExist(path.dirname(reportPath));
+      createDirIfNotExist(path.dirname(paths.getReportPath()));
     }
 
     const check = this.checkParser.getParsedCheck(name);
@@ -250,9 +170,9 @@ class CheckRunner {
     const page = await getPage(browser);
 
     if (config.traces) {
-      checkReport.tracePath = tracePath;
+      checkReport.tracePath = paths.getTracePath();
       await page.tracing.start({
-        path: traceTempPath,
+        path: paths.getTraceTempPath(),
         screenshots: true,
       });
     }
@@ -260,9 +180,9 @@ class CheckRunner {
     let har;
 
     if (config.hars) {
-      checkReport.harPath = harPath;
+      checkReport.harPath = paths.getHarPath();
       har = new PuppeteerHar(page);
-      await har.start({ path: harTempPath });
+      await har.start({ path: paths.getHarTempPath() });
     }
 
     if (config.consoleLog) {
@@ -401,17 +321,17 @@ class CheckRunner {
           !config.artifactsKeepSuccessful
         ) {
           if (config.traces) {
-            fs.unlinkSync(traceTempPath);
+            fs.unlinkSync(paths.getTraceTempPath());
           }
           if (config.hars) {
-            fs.unlinkSync(harTempPath);
+            fs.unlinkSync(paths.getHarTempPath());
           }
           return;
         }
 
         if (config.traces) {
           try {
-            utils.moveFile(traceTempPath, tracePath);
+            utils.moveFile(paths.getTraceTempPath(), paths.getTracePath());
           } catch (err) {
             Sentry.captureException(err);
             log.error('Can not save trace file: ', err);
@@ -420,7 +340,7 @@ class CheckRunner {
 
         if (config.hars) {
           try {
-            utils.moveFile(harTempPath, harPath);
+            utils.moveFile(paths.getHarTempPath(), paths.getHarPath());
           } catch (err) {
             Sentry.captureException(err);
             log.error('Can not save HAR file: ', err);
@@ -428,7 +348,7 @@ class CheckRunner {
         }
 
         if (config.screenshots) {
-          checkReport.screenshotPath = screenshotPath;
+          checkReport.screenshotPath = paths.getScreenshotPath();
 
           try {
             // TODO: try fullPage:false on error
@@ -443,7 +363,7 @@ class CheckRunner {
         }
 
         if (config.consoleLog) {
-          checkReport.consoleLogPath = consoleLogPath;
+          checkReport.consoleLogPath = paths.getConsoleLogPath();
 
           try {
             await fs.writeFileSync(
@@ -458,15 +378,18 @@ class CheckRunner {
 
         if (config.reports) {
           try {
-            await fs.writeFileSync(reportPath, JSON.stringify(checkReport));
+            await fs.writeFileSync(
+              paths.getReportPath(),
+              JSON.stringify(checkReport)
+            );
           } catch (err) {
             Sentry.captureException(err);
             log.error('Can not write a report to disk: ', err);
           }
-          if (config.latestFailedReports) {
+          if (config.latestFailedReports && checkReport.success === false) {
             try {
               await fs.writeFileSync(
-                failedSchedulePath,
+                paths.getLatestFailedReportPath(),
                 JSON.stringify(checkReport)
               );
             } catch (err) {
