@@ -233,6 +233,26 @@ Get report
   **options**: json, pretty
   Output format
 
+#### `GET /api/v1/reports/:name/latest/failed`
+
+Get report
+
+##### Payload
+
+- **name**: string
+  Check report name
+
+##### Query strings
+
+- **schedule**: string
+  **default**: ''
+  Schedule name
+
+- **view**: string
+  **default**: json
+  **options**: json, pretty
+  Output format
+
 ## Writing checks
 
 PURR translates scenario steps described in ./data/checks into methods of puppeteer.Page object.

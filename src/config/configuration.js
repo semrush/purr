@@ -208,7 +208,7 @@ class Configuration {
     }
 
     if (!this.artifactsGroupByCheckName && isUndefined(this.reportsDir)) {
-      throw new Error('CReports enabled but storage path not specified');
+      throw new Error('Reports enabled but storage path not specified');
     }
   }
 }
