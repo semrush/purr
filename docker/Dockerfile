@@ -43,6 +43,7 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 WORKDIR /app
 COPY --chown=node:node src ./src
+COPY --chown=node:node data ./data
 COPY --chown=node:node --from=vendor /app/node_modules ./node_modules
 
 RUN chown node:node .
