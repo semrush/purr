@@ -128,10 +128,12 @@ class CheckRunner {
 
     if (config.traces) {
       createDirIfNotExist(path.dirname(paths.getTracePath()));
+      createDirIfNotExist(path.dirname(paths.getTraceTempPath()));
     }
 
     if (config.hars) {
       createDirIfNotExist(path.dirname(paths.getHarPath()));
+      createDirIfNotExist(path.dirname(paths.getHarTempPath()));
     }
 
     if (config.screenshots) {
