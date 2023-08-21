@@ -31,7 +31,7 @@ async function BlockRequests(page, domains) {
       log.debug('Request blocked', { url: request.url() });
       request.abort();
     } else {
-      request.continue().catch((err) => {
+      request.continue(request.continueRequestOverrides(), 0).catch((err) => {
         log.error(
           `Could not continue request(${request.method()} ${request.url()}): `,
           err
