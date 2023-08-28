@@ -22,7 +22,7 @@ commander
 
     log.info('Queue jobs removed', { jobs });
 
-    queue.close();
+    await queue.close();
   });
 
 commander.parse(process.argv);

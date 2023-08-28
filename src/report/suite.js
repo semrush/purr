@@ -55,9 +55,7 @@ function processReport(report, options) {
     return checkReport.processReport(origCheckReport, options.checkOptions);
   });
 
-  const processed = { ...report, checks: processedCheckReports };
-
-  return processed;
+  return { ...report, checks: processedCheckReports };
 }
 
 /**

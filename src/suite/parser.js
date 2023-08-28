@@ -40,7 +40,6 @@ class SuiteParser {
     this.rawContent = rawContent.join('\n');
     this.rawDoc = yaml.safeLoad(this.rawContent);
     this.paramParser = new ParamParser();
-    this.preparedDoc = null;
   }
 
   getList() {
