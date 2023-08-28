@@ -409,13 +409,15 @@ class CheckRunner {
         Sentry.captureException(err);
         log.error('Can not write an artifacts to disk: ', err);
       } finally {
-        const downstreamBrowser = page.browser();
-        try {
-          await page.close();
-        } catch (e) {
-          log.error('Failed to close page: ', e);
+        if (page && page.browser === 'function') {
+          const downstreamBrowser = page.browser();
+          try {
+            await page.close();
+          } catch (e) {
+            log.error('Failed to close page: ', e);
+          }
+          await downstreamBrowser.close();
         }
-        await downstreamBrowser.close();
         await browser.close();
       }
     });

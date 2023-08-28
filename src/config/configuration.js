@@ -186,7 +186,7 @@ class Configuration {
     );
 
     this.browserHeadless = getDefault(
-      envParams.BROWSER_HEADLESS === 'true',
+      envParams.BROWSER_HEADLESS !== 'false',
       true
     );
 

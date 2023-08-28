@@ -224,7 +224,7 @@ const DEFAULT_ENV_PARAMS = {
    * @type {boolean}
    * @default {true}
    */
-  BROWSER_DUMP_IO: true,
+  BROWSER_DUMP_IO: false,
 };
 
 class EnvParams {
