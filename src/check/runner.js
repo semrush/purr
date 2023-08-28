@@ -169,6 +169,7 @@ class CheckRunner {
         .replace(/,/g, '; ')})`,
       browserArgs
     );
+
     const page = await getPage(browser);
 
     if (config.traces) {
@@ -236,7 +237,6 @@ class CheckRunner {
             actionReport.success = false;
             actionReport.shortMessage = err.message;
             actionReport.fullMessage = err;
-
             throw utils.enrichError(
               err,
               `Action '${stepName}' failed: ${err.message}`
@@ -253,6 +253,7 @@ class CheckRunner {
       checkReport.success = true;
       return Promise.resolve(checkReport);
     });
+
     result = result.catch(async (err) => {
       checkReport.success = false;
       checkReport.shortMessage = err.message;
@@ -408,7 +409,16 @@ class CheckRunner {
         Sentry.captureException(err);
         log.error('Can not write an artifacts to disk: ', err);
       } finally {
-        browser.close();
+        if (page && page.browser === 'function') {
+          const downstreamBrowser = page.browser();
+          try {
+            await page.close();
+          } catch (e) {
+            log.error('Failed to close page: ', e);
+          }
+          await downstreamBrowser.close();
+        }
+        await browser.close();
       }
     });
 

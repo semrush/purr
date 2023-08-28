@@ -22,6 +22,10 @@ class RedisQueueWorker {
         password: config.redisPassword,
         showFriendlyErrorStack: true,
       },
+      defaultJobOptions: {
+        removeOnComplete: true,
+        removeOnFail: true,
+      },
     });
   }
 

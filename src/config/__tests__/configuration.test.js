@@ -15,6 +15,8 @@ describe('Test Configuration class', () => {
       artifactsKeepSuccessful: true,
       artifactsTempDir: '/rootDir/storage_tmp',
       blockedResourceDomains: [],
+      browserDumpIO: false,
+      browserHeadless: true,
       checksDir: '/rootDir/data/checks',
       checksQueueName: 'checks-queue',
       chromiumLaunchArgs: [],

@@ -185,6 +185,16 @@ class Configuration {
       true
     );
 
+    this.browserHeadless = getDefault(
+      envParams.BROWSER_HEADLESS !== 'false',
+      true
+    );
+
+    this.browserDumpIO = getDefault(
+      envParams.BROWSER_DUMP_IO === 'true',
+      false
+    );
+
     if (this.artifactsGroupByCheckName && isUndefined(this.artifactsDir)) {
       throw new Error(
         'Enabled group artifacts by check name and artifacts path not specified'

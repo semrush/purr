@@ -209,6 +209,22 @@ const DEFAULT_ENV_PARAMS = {
    * @default {true}
    */
   COOKIE_TRACKING_HIDE_VALUE: true,
+
+  /**
+   * Enable/disable headless browser
+   *
+   * @type {boolean}
+   * @default {true}
+   */
+  BROWSER_HEADLESS: true,
+
+  /**
+   * Enable/disable dump io from browser
+   *
+   * @type {boolean}
+   * @default {true}
+   */
+  BROWSER_DUMP_IO: false,
 };
 
 class EnvParams {

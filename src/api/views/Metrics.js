@@ -124,8 +124,8 @@ class Metrics {
             return redis
               .get(key)
               .then((result) => {
-                const checks = JSON.parse(result);
-                schedules[key.replace('purr:schedules:', '')] = checks;
+                schedules[key.replace('purr:schedules:', '')] =
+                  JSON.parse(result);
               })
               .catch((err) => {
                 log.error('Can not get schedule from redis: ', err);
