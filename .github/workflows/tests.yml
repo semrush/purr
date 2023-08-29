@@ -9,12 +9,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+
       - name: Setup node
         uses: actions/setup-node@v1
         with:
-          node-version: 18
+          node-version: 20.5
+
       - name: yarn
         run: yarn --frozen-lockfile
+
       - name: test
         run: yarn run test
 
@@ -30,6 +33,7 @@ jobs:
           [ $code -eq 1 ] && echo 'Error: Check should succeed' && exit 1
 
           grep 'success: true' check_report
+
       - name: test check should fail
         run: |
           set +e
@@ -43,25 +47,26 @@ jobs:
 
           grep 'success: false' check_report
           grep "Element 'body' does not contain 'No Way'" check_report
+
       - name: test check lighthouse
         run: |
           set +e
             PURR_CONFIG_CONCURRENCY=1 \
             PURR_CONFIG_TRACES=false \
             PURR_CONFIG_CHROMIUM_REMOTE_DEBUGGING=true \
+            PURR_CONFIG_BROWSER_HEADLESS=false \
             ./src/cli.js check --no-shorten \
             example-com-lighthouse > check_report
           code=$?
           set -e
-
           cat check_report
-
           [ $code -eq 1 ] && echo 'Error: Check should succeed' && exit 1
-
           grep 'success: true' check_report
           grep "labels: { name: 'first-contentful-paint', id: 'lh-one' }" \
             check_report
+
       - name: 'lint configs'
         run: yarn prettier -c 'data/*'
+
       - name: lint
         run: yarn run lint

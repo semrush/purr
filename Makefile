@@ -1,42 +1,41 @@
 override APPLICATION_NAME=purr
+override NODE_VERSION=20.5
 
 DOCKER_IMAGE?=ghcr.io/semrush/purr
 DOCKER_TAG?=latest
-CHECK_NAME := example-com
-SUITE_NAME := example-com-suite
+CHECK_NAME:=example-com
+SUITE_NAME:=example-com-suite
 
 .PHONY: yarn-install
-yarn-install: docker-build
+yarn-install:
 	rm -r ${CURDIR}/node_modules || true
 	docker run --rm \
 		-v ${CURDIR}:/app \
 		-w /app \
-		-e PUPPETEER_SKIP_DOWNLOAD=true \
 		--entrypoint yarn \
-			${DOCKER_IMAGE}:${DOCKER_TAG} \
-				install --frozen-lockfile --non-interactive
+			node:${NODE_VERSION} \
+				install --frozen-lockfile
 
 .PHONY: yarn-lint
-yarn-lint: docker-build
+yarn-lint:
 	docker run --rm \
 		-v ${CURDIR}:/app \
 		-w /app \
-		-e PUPPETEER_SKIP_DOWNLOAD=true \
 		--entrypoint yarn \
-			${DOCKER_IMAGE}:${DOCKER_TAG} \
+			node:${NODE_VERSION} \
 				run lint
 
 .PHONY: lint
 lint: yarn-lint
 
 .PHONY: yarn-test
-yarn-test: docker-build
+yarn-test:
 	docker run --rm \
 		-v ${CURDIR}:/app \
 		-w /app \
 		-e PUPPETEER_SKIP_DOWNLOAD=true \
 		--entrypoint yarn \
-			${DOCKER_IMAGE}:${DOCKER_TAG} \
+			node:${NODE_VERSION} \
 				run test --bail
 
 .PHONY: test

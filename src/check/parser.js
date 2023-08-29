@@ -32,7 +32,7 @@ class CheckParser {
     dir.close();
 
     this.rawContent = rawContent.join('\n');
-    this.rawDoc = yaml.safeLoad(this.rawContent);
+    this.rawDoc = yaml.load(this.rawContent);
     this.paramParser = new ParamParser();
     this.preparedDoc = null;
   }
@@ -60,7 +60,7 @@ class CheckParser {
       params
     );
 
-    this.preparedDoc = yaml.safeLoad(
+    this.preparedDoc = yaml.load(
       nunjucks.renderString(this.rawContent, mergedParams)
     );
     const check = this.preparedDoc[name];

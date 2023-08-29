@@ -38,7 +38,7 @@ class SuiteParser {
     dir.close();
 
     this.rawContent = rawContent.join('\n');
-    this.rawDoc = yaml.safeLoad(this.rawContent);
+    this.rawDoc = yaml.load(this.rawContent);
     this.paramParser = new ParamParser();
   }
 
@@ -70,7 +70,7 @@ class SuiteParser {
       params
     );
 
-    const parsedDoc = yaml.safeLoad(
+    const parsedDoc = yaml.load(
       nunjucks.renderString(this.rawContent, mergedParams)
     );
     return parsedDoc[name];

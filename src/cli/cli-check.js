@@ -1,7 +1,6 @@
 const commander = require('commander');
 
 process.env.PRETTY_LOG = 'true';
-const log = require('../logger');
 const config = require('../config');
 const utils = require('../utils');
 const check = require('./check');
@@ -21,15 +20,9 @@ commander
   })
   .parse(process.argv);
 
-const { shorten } = commander;
-const hideActions =
-  commander.hideActions === undefined ? false : commander.hideActions;
-
-if (checkName === undefined) {
-  log.error('Check name not specified!');
-  commander.outputHelp();
-  process.exit(1);
-}
+const { shorten } = commander.opts();
+let { hideActions } = commander.opts();
+hideActions = hideActions !== undefined;
 
 // Workaround for tests coverage
 check.run(checkName, { shorten, hideActions });

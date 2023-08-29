@@ -1,7 +1,6 @@
 const commander = require('commander');
 
 process.env.PRETTY_LOG = 'true';
-const log = require('../logger');
 const config = require('../config');
 const utils = require('../utils');
 const suite = require('./suite');
@@ -32,19 +31,17 @@ commander
   })
   .parse(process.argv);
 
-const useRedis = !!commander.redis;
-const { shorten, split, part } = commander;
-const hideActions =
-  commander.hideActions === undefined ? false : commander.hideActions;
-
-if (suiteName === undefined) {
-  log.error('Suite name not specified!');
-  commander.outputHelp();
-  process.exit(1);
-}
+const { redis, shorten, split, part } = commander.opts();
+let { hideActions } = commander.opts();
+hideActions = hideActions !== undefined;
 
 // Workaround for tests coverage
-suite.run(suiteName, useRedis, {
-  report: { checkOptions: { shorten, hideActions } },
+suite.run(suiteName, !!redis, {
+  report: {
+    checkOptions: {
+      shorten,
+      hideActions,
+    },
+  },
   run: { split, part },
 });

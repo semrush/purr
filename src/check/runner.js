@@ -17,28 +17,6 @@ const { CheckParser } = require('./parser');
 const CheckReportCustomData = require('../report/CheckReportCustomData');
 const { CheckData } = require('./check');
 
-function consoleLogToJSON(consoleLogsArray) {
-  const seen = [];
-  return JSON.stringify(
-    consoleLogsArray,
-    (key, value) => {
-      if (typeof value === 'object' && value !== null) {
-        if (seen.indexOf(value) !== -1) {
-          // Duplicate reference found
-          try {
-            return JSON.parse(JSON.stringify(value));
-          } catch (err) {
-            return '...DEDUPED...';
-          }
-        }
-        seen.push(value);
-      }
-      return value;
-    },
-    2
-  );
-}
-
 function createDirIfNotExist(dirName) {
   if (!fs.existsSync(dirName)) {
     fs.mkdirSync(dirName, { recursive: true });
@@ -190,7 +168,7 @@ class CheckRunner {
 
     if (config.consoleLog) {
       page.on('console', (msg) => {
-        consoleLogsArray.push(msg);
+        consoleLogsArray.push(msg.text());
       });
     }
 
@@ -371,7 +349,7 @@ class CheckRunner {
           try {
             await fs.writeFileSync(
               checkReport.consoleLogPath,
-              consoleLogToJSON(consoleLogsArray)
+              JSON.stringify(consoleLogsArray)
             );
           } catch (err) {
             Sentry.captureException(err);

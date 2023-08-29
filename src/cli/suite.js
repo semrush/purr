@@ -12,7 +12,7 @@ const RedisQueue = require('../queue/RedisQueue');
  * @param {import('../suite/runner').SuiteRunOptions} options.run Run options
  * @returns {object}
  */
-function run(name, useRedis = false, options) {
+function run(name, useRedis, options) {
   let suiteRunner;
   let queue;
 

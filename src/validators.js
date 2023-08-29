@@ -1,4 +1,4 @@
-const serverPattern = new RegExp('^[0-9A-Za-z.-_-]*$');
+const serverPattern = /^[0-9A-Za-z.-_-]*$/;
 
 function isServerAllowed(value) {
   return serverPattern.test(value);

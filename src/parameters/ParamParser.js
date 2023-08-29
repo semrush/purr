@@ -6,7 +6,7 @@ const utils = require('../utils');
 
 class ParamParser {
   constructor() {
-    this.infoDoc = yaml.safeLoad(
+    this.infoDoc = yaml.load(
       fs.readFileSync(config.parametersInfoFilePath, 'utf8')
     );
   }
