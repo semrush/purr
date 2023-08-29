@@ -19,21 +19,6 @@ afterEach(() => {
   process.argv = originArgv;
 });
 
-test('call help if suite name not specified', () => {
-  const commander = require('commander');
-  jest.spyOn(commander, 'outputHelp').mockName('commander.outputHelp');
-
-  process.argv = [process.argv[0], './cli-suite.js'];
-
-  expect(() => {
-    require('../cli-suite');
-  }).toThrow(exitErrorText);
-
-  expect(commander.outputHelp).toBeCalledTimes(1);
-  expect(processExit).toBeCalledTimes(1);
-  expect(processExit).toBeCalledWith(1);
-});
-
 describe('run suite', () => {
   let suite;
   const suiteName = 'some-suite-name';

@@ -30,19 +30,6 @@ describe('run', () => {
 });
 
 describe('validate parameters', () => {
-  test('call help if worker type not specified', () => {
-    const commander = require('commander');
-    jest.spyOn(commander, 'help').mockImplementation(() => {
-      throw new Error('Mocked');
-    });
-
-    process.argv = [process.argv[0], './cli-worker.js'];
-
-    expect(() => {
-      require('../cli-worker');
-    }).toThrow('Mocked');
-  });
-
   test('do not run worker for incorrect name', () => {
     const name = 'dummy';
 

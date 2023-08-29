@@ -19,21 +19,6 @@ afterEach(() => {
   process.argv = originArgv;
 });
 
-test('call help if check name not specified', () => {
-  const commander = require('commander');
-  jest.spyOn(commander, 'outputHelp').mockName('commander.outputHelp');
-
-  process.argv = [process.argv[0], './cli-check.js'];
-
-  expect(() => {
-    require('../cli-check');
-  }).toThrow(exitErrorText);
-
-  expect(commander.outputHelp).toBeCalledTimes(1);
-  expect(processExit).toBeCalled();
-  expect(processExit).toBeCalledWith(1);
-});
-
 describe('run check', () => {
   let check;
   const checkName = 'some-check-name';

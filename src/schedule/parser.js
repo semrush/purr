@@ -8,7 +8,7 @@ const ParamParser = require('../parameters/ParamParser');
 class ScheduleParser {
   constructor(dataFilePath) {
     this.rawContent = fs.readFileSync(dataFilePath, 'utf8');
-    this.rawDoc = yaml.safeLoad(this.rawContent);
+    this.rawDoc = yaml.load(this.rawContent);
     this.paramParser = new ParamParser();
     this.preparedDoc = null;
   }
@@ -27,7 +27,7 @@ class ScheduleParser {
       params
     );
 
-    const parsedDoc = yaml.safeLoad(
+    const parsedDoc = yaml.load(
       nunjucks.renderString(this.rawContent, mergedParams)
     );
     return ScheduleParser.parseSchedule(parsedDoc.schedules[name]);

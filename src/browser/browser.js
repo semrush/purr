@@ -56,7 +56,7 @@ exports.getBrowser = async (userAgent = config.userAgent, customArgs = []) => {
     handleSIGHUP: false,
 
     dumpio: config.browserDumpIO,
-    headless: config.browserHeadless,
+    headless: config.browserHeadless ? 'new' : 'headful',
   });
 };
 

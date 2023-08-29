@@ -31,8 +31,22 @@ services:
     volumes:
       - ./:/app
     depends_on:
-      - redis
       - server
+
+  apply:
+    image: ${DOCKER_IMAGE:-ghcr.io/semrush/purr}:${DOCKER_TAG:-latest}
+    build:
+      dockerfile: docker/Dockerfile
+      context: .
+    command:
+      - schedule
+      - apply
+    env_file:
+      - ./.env
+    volumes:
+      - ./:/app
+    depends_on:
+      - worker
 
   redis:
     image: redis
