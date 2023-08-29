@@ -190,16 +190,21 @@ class Metrics {
                  * @type {import('../../report/check').CheckReport | null}
                  */
                 const report = JSON.parse(result[0][1]);
+                if (!report) {
+                  log.warn(
+                    'Can not fill report metrics because the report is empty',
+                    { reportKey, report }
+                  );
+                  return;
+                }
 
-                if (
-                  !report ||
-                  !Object.prototype.hasOwnProperty.call(report, 'success')
-                ) {
+                if (!Object.prototype.hasOwnProperty.call(report, 'success')) {
                   log.warn(
                     'Can not fill report metrics because the report is in ' +
                       'wrong format.',
                     { reportKey, report }
                   );
+                  return;
                 }
 
                 const team =
@@ -323,7 +328,7 @@ class Metrics {
 
     // Other
     res.set('Content-Type', prom.register.contentType);
-    res.end(prom.register.metrics());
+    res.end(await prom.register.metrics());
 
     prom.register.resetMetrics();
   }

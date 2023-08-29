@@ -66,7 +66,7 @@ function checkProcessor(job, done) {
         checksStatusCount = metrics.names.checksFailedTotal;
       }
 
-      redis
+      await redis
         .multi()
         .incr(`${metrics.redisKeyPrefix}:${checksStatusCount}`)
         .set(
