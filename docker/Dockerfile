@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package.json /app
 COPY yarn.lock /app
 
-RUN yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile --production=true
 
 FROM node:${NODE_VERSION}
 

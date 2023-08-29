@@ -44,14 +44,7 @@ test: yarn-test
 .PHONY: docker-build
 docker-build:
 	docker rmi --force ${DOCKER_IMAGE}:${DOCKER_TAG} || true
-	docker buildx create --use
-	docker buildx inspect --bootstrap
-	docker buildx build \
-		--force-rm \
-		--file ${CURDIR}/docker/Dockerfile \
-		--platform linux/amd64,linux/arm64 \
-		--tag ${DOCKER_IMAGE}:${DOCKER_TAG} \
-		.
+	docker build -f ${CURDIR}/docker/Dockerfile -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
 
 .PHONY: build
 build: docker-build
