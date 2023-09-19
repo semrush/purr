@@ -17,6 +17,7 @@ describe('Test Configuration class', () => {
       blockedResourceDomains: [],
       browserDumpIO: false,
       browserHeadless: true,
+      browserProtocolTimeout: 180000,
       checksDir: '/rootDir/data/checks',
       checksQueueName: 'checks-queue',
       chromiumLaunchArgs: [],
