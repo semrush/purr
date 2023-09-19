@@ -195,6 +195,11 @@ class Configuration {
       false
     );
 
+    this.browserProtocolTimeout = getDefault(
+      envParams.BROWSER_PROTOCOL_TIMEOUT,
+      180000
+    );
+
     if (this.artifactsGroupByCheckName && isUndefined(this.artifactsDir)) {
       throw new Error(
         'Enabled group artifacts by check name and artifacts path not specified'

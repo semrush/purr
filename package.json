@@ -57,7 +57,7 @@
     "lodash.isempty": "^4.4.0",
     "lodash.isundefined": "^3.0.1",
     "morgan": "^1.10.0",
-    "nodemon": "^2.0.4",
+    "nodemon": "^3.0.1",
     "nunjucks": "^3.2.4",
     "prom-client": "^14.2.0",
     "puppeteer": "^21.1.0",
@@ -65,8 +65,5 @@
     "serve-favicon": "^2.5.0",
     "uuid": "^9.0.0",
     "winston": "^3.10.0"
-  },
-  "resolutions": {
-    "jackspeak": "2.1.1"
   }
 }

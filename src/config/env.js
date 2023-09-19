@@ -225,6 +225,14 @@ const DEFAULT_ENV_PARAMS = {
    * @default {true}
    */
   BROWSER_DUMP_IO: false,
+
+  /**
+   * Browser protocol timeout
+   *
+   * @type {number}
+   * @default {180000}
+   */
+  BROWSER_PROTOCOL_TIMEOUT: 180000,
 };
 
 class EnvParams {
