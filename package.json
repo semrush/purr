@@ -1,6 +1,6 @@
 {
   "name": "@semrush/purr",
-  "version": "3.14.1",
+  "version": "3.15.2",
   "description": "",
   "main": "src/cli.cjs",
   "scripts": {
@@ -57,7 +57,7 @@
     "lodash.isempty": "^4.4.0",
     "lodash.isundefined": "^3.0.1",
     "morgan": "^1.10.0",
-    "nodemon": "^2.0.4",
+    "nodemon": "^3.0.1",
     "nunjucks": "^3.2.4",
     "prom-client": "^14.2.0",
     "puppeteer": "^21.1.0",
