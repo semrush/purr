@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/cli.cjs",
   "scripts": {
-    "prettier": "prettier",
+    "prettier": "prettier -c 'data/*'",
     "test": "jest --coverage",
     "test:watch": "jest --detectOpenHandles --watch --coverage=false",
     "test:watch-all": "jest --detectOpenHandles --watchAll",
