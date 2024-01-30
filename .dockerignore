@@ -8,4 +8,4 @@
 !jest.config.js
 !jsconfig.json
 !package.json
-!yarn.lock
+!package-lock.json

@@ -1,45 +1,44 @@
 override APPLICATION_NAME=purr
-override NODE_VERSION=20.6
+override NODE_VERSION=21.6
 
 DOCKER_IMAGE?=ghcr.io/semrush/purr
 DOCKER_TAG?=latest
 CHECK_NAME:=example-com
 SUITE_NAME:=example-com-suite
 
-.PHONY: yarn-install
-yarn-install:
+.PHONY: npm-install
+npm-install:
 	rm -r ${CURDIR}/node_modules || true
 	docker run --rm \
 		-v ${CURDIR}:/app \
 		-w /app \
-		--entrypoint yarn \
 			node:${NODE_VERSION} \
-				install --frozen-lockfile
+				npm ci
 
-.PHONY: yarn-lint
-yarn-lint:
+.PHONY: vendor
+vendor: npm-install
+
+.PHONY: npm-lint
+npm-lint:
 	docker run --rm \
 		-v ${CURDIR}:/app \
 		-w /app \
-		--entrypoint yarn \
 			node:${NODE_VERSION} \
-				run lint
+				npm run lint
 
 .PHONY: lint
-lint: yarn-lint
+lint: npm-lint
 
-.PHONY: yarn-test
-yarn-test:
+.PHONY: npm-test
+npm-test:
 	docker run --rm \
 		-v ${CURDIR}:/app \
 		-w /app \
-		-e PUPPETEER_SKIP_DOWNLOAD=true \
-		--entrypoint yarn \
 			node:${NODE_VERSION} \
-				run test --bail
+				npm run test
 
 .PHONY: test
-test: yarn-test
+test: npm-test
 
 .PHONY: docker-build
 docker-build:
@@ -61,7 +60,6 @@ docker-compose-down:
 run-check: docker-build
 	rm -r ${CURDIR}/storage/* || true
 	docker run --rm \
-		-v ${CURDIR}:/app \
 		--env-file ${CURDIR}/.env \
 			${DOCKER_IMAGE}:${DOCKER_TAG} \
 				check $(CHECK_NAME)
