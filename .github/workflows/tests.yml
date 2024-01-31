@@ -16,7 +16,7 @@ jobs:
           node-version: 21.6
 
       - name: npm install
-        run: npm ci
+        run: npm install
 
       - name: test
         run: npm run test
