@@ -5,5 +5,4 @@
 /storage_tmp/
 .env
 *.tgz
-/yarn-error.log
 docker-compose.override.yaml

@@ -13,13 +13,13 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v1
         with:
-          node-version: 20.6
+          node-version: 21.6
 
-      - name: yarn
-        run: yarn --frozen-lockfile
+      - name: npm install
+        run: npm ci
 
       - name: test
-        run: yarn run test
+        run: npm run test
 
       - name: test check should succeed
         run: |
@@ -66,7 +66,7 @@ jobs:
             check_report
 
       - name: 'lint configs'
-        run: yarn prettier -c 'data/*'
+        run: npm run prettier
 
       - name: lint
-        run: yarn run lint
+        run: npm run lint

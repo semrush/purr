@@ -1,32 +1,38 @@
-ARG NODE_VERSION=20.6
+ARG NODE_VERSION=21.6
 
 FROM node:${NODE_VERSION} as vendor
+
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 WORKDIR /app
 
 COPY package.json /app
-COPY yarn.lock /app
+COPY package-lock.json /app
 
-RUN yarn install --frozen-lockfile --production=true
+RUN npm ci --omit dev
 
 FROM node:${NODE_VERSION}
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-      chromium \
-      chromium-sandbox && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* || true
-
+ARG CHROMIUM_VERSION=121.0.6167.85-1~deb12u1
+ENV CHROMIUM_VERSION=${CHROMIUM_VERSION}
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-WORKDIR /app
-
-COPY --chown=node:node src /app/src
-COPY --chown=node:node data /app/data
-RUN chown node:node /app
-
-COPY --from=vendor /app/node_modules /app/node_modules
+RUN apt update && \
+    apt install -y --no-install-recommends \
+      chromium=${CHROMIUM_VERSION} \
+      chromium-sandbox=${CHROMIUM_VERSION} && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* || true
 
 USER node
+WORKDIR /app
+
+COPY jsconfig.json /app
+COPY package.json /app
+COPY package-lock.json /app
+COPY --chown=node:node src /app/src
+COPY --chown=node:node data /app/data
+COPY --from=vendor --chown=node:node /app/node_modules /app/node_modules
+
+
 ENTRYPOINT ["/app/src/cli.js"]
