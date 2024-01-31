@@ -24,15 +24,17 @@ RUN apt update && \
     apt clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* || true
 
-USER node
 WORKDIR /app
 
 COPY jsconfig.json /app
 COPY package.json /app
 COPY package-lock.json /app
-COPY --chown=node:node src /app/src
-COPY --chown=node:node data /app/data
+COPY src /app/src
+COPY data /app/data
+RUN chown -R node:node /app
+
 COPY --from=vendor --chown=node:node /app/node_modules /app/node_modules
 
+USER node
 
 ENTRYPOINT ["/app/src/cli.js"]

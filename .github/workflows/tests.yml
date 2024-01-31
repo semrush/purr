@@ -8,15 +8,17 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: 21.6
 
       - name: npm install
-        run: npm ci
+        run: npm install
 
       - name: test
         run: npm run test
