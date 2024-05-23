@@ -1,5 +1,5 @@
 override APPLICATION_NAME=purr
-override NODE_VERSION=21.6
+override NODE_VERSION=21.7
 
 DOCKER_IMAGE?=ghcr.io/semrush/purr
 DOCKER_TAG?=latest
