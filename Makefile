@@ -43,7 +43,7 @@ test: npm-test
 .PHONY: docker-build
 docker-build:
 	docker rmi --force ${DOCKER_IMAGE}:${DOCKER_TAG} || true
-	docker build -f ${CURDIR}/docker/Dockerfile -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+	docker build -f ${CURDIR}/docker/Dockerfile -t ${DOCKER_IMAGE}:${DOCKER_TAG} --progress plain .
 
 .PHONY: build
 build: docker-build
