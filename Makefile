@@ -15,6 +15,15 @@ npm-install:
 			node:${NODE_VERSION} \
 				npm ci
 
+.PHONY: npm-patch-version
+npm-patch-version:
+	rm -r ${CURDIR}/node_modules || true
+	docker run --rm \
+		-v ${CURDIR}:/app \
+		-w /app \
+			node:${NODE_VERSION} \
+				npm version patch --no-git-tag-version
+
 .PHONY: vendor
 vendor: npm-install
 
