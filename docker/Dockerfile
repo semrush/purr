@@ -1,6 +1,6 @@
 ARG NODE_VERSION=21.7
 
-FROM node:${NODE_VERSION} as vendor
+FROM node:${NODE_VERSION} AS vendor
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
@@ -13,12 +13,13 @@ RUN npm ci --omit dev
 
 FROM node:${NODE_VERSION}
 
-ARG CHROMIUM_VERSION=130.0.6723.116-1~deb12u1
+ARG CHROMIUM_VERSION=131.0.*
 ENV CHROMIUM_VERSION=${CHROMIUM_VERSION}
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 RUN apt update && \
     apt install -y --no-install-recommends \
+      chromium-common=${CHROMIUM_VERSION}  \
       chromium=${CHROMIUM_VERSION} \
       chromium-sandbox=${CHROMIUM_VERSION} && \
     apt clean && \

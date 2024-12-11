@@ -159,10 +159,9 @@ class CheckRunner {
     }
 
     let har;
-
     if (config.hars) {
-      checkReport.harPath = paths.getHarPath();
       har = new PuppeteerHar(page);
+      checkReport.harPath = paths.getHarPath();
       await har.start({ path: paths.getHarTempPath() });
     }
 
@@ -180,17 +179,22 @@ class CheckRunner {
       const [stepName, stepParameters] = scenarioCopy[step];
 
       result = result.then(async () => {
-        const actionPromise = CheckRunner.doAction(
-          page,
-          stepName,
-          stepParameters
-        );
-
         const actionReport = new ActionReport(stepName, step, '***hidden***');
-        actionReport.startDateTime = new Date().toISOString();
+        const maxRetries = 5;
+        const baseDelay = 1000;
 
-        await actionPromise
-          .then(async (actionResult) => {
+        // eslint-disable-next-line consistent-return
+        const runAction = async (attempt = 1) => {
+          actionReport.startDateTime = new Date().toISOString();
+
+          try {
+            const actionPromise = CheckRunner.doAction(
+              page,
+              stepName,
+              stepParameters
+            );
+
+            const actionResult = await actionPromise;
             actionReport.success = true;
 
             if (actionResult instanceof CheckReportCustomData) {
@@ -207,23 +211,42 @@ class CheckRunner {
                   });
                 })
                 .catch((err) => {
-                  log.error('Could not get a cookies: ', err);
+                  log.error('Could not get cookies: ', err);
                 });
             }
-          })
-          .catch((err) => {
+          } catch (err) {
+            const isResetError = err.message.includes('ERR_CONNECTION_RESET');
+            const isClosedError = err.message.includes('ERR_CONNECTION_CLOSED');
+            if (isResetError || isClosedError) {
+              log.error('ERR_CONNECTION_* error occurred: ', err);
+            }
+            if ((isResetError || isClosedError) && attempt <= maxRetries) {
+              const jitter = Math.random() * 1000;
+              const delay = baseDelay * attempt + jitter;
+              log.warn(
+                `Retrying action '${stepName}' (Attempt ${attempt} of ${maxRetries}) after ${delay.toFixed(
+                  0
+                )}ms due to connection issue.`
+              );
+              await new Promise((resolve) => {
+                setTimeout(resolve, delay);
+              });
+              return runAction(attempt + 1);
+            }
             actionReport.success = false;
             actionReport.shortMessage = err.message;
             actionReport.fullMessage = err;
             throw utils.enrichError(
               err,
-              `Action '${stepName}' failed: ${err.message}`
+              `Action '${stepName}' failed after ${attempt} attempts: ${err.message}`
             );
-          })
-          .finally(() => {
+          } finally {
             actionReport.endDateTime = new Date().toISOString();
             checkReport.actions.push(actionReport);
-          });
+          }
+        };
+
+        await runAction();
       });
     }
 
@@ -289,7 +312,9 @@ class CheckRunner {
 
         if (config.hars) {
           try {
-            await har.stop();
+            if (har.inProgress === true) {
+              await har.stop();
+            }
           } catch (err) {
             Sentry.captureException(err);
             log.error('Can not stop har generation: ', err);
@@ -302,17 +327,23 @@ class CheckRunner {
           !config.artifactsKeepSuccessful
         ) {
           if (config.traces) {
-            fs.unlinkSync(paths.getTraceTempPath());
+            if (fs.existsSync(paths.getTraceTempPath())) {
+              fs.unlinkSync(paths.getTraceTempPath());
+            }
           }
           if (config.hars) {
-            fs.unlinkSync(paths.getHarTempPath());
+            if (fs.existsSync(paths.getHarTempPath())) {
+              fs.unlinkSync(paths.getHarTempPath());
+            }
           }
           return;
         }
 
         if (config.traces) {
           try {
-            utils.moveFile(paths.getTraceTempPath(), paths.getTracePath());
+            if (fs.existsSync(paths.getTraceTempPath())) {
+              utils.moveFile(paths.getTraceTempPath(), paths.getTracePath());
+            }
           } catch (err) {
             Sentry.captureException(err);
             log.error('Can not save trace file: ', err);
@@ -321,7 +352,9 @@ class CheckRunner {
 
         if (config.hars) {
           try {
-            utils.moveFile(paths.getHarTempPath(), paths.getHarPath());
+            if (fs.existsSync(paths.getHarTempPath())) {
+              utils.moveFile(paths.getHarTempPath(), paths.getHarPath());
+            }
           } catch (err) {
             Sentry.captureException(err);
             log.error('Can not save HAR file: ', err);
