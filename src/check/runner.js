@@ -158,8 +158,9 @@ class CheckRunner {
       });
     }
 
-    const har = new PuppeteerHar(page);
+    let har;
     if (config.hars) {
+      har = new PuppeteerHar(page);
       checkReport.harPath = paths.getHarPath();
       await har.start({ path: paths.getHarTempPath() });
     }

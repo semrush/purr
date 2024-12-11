@@ -79,7 +79,8 @@ test('check-with-exception', () => {
     expect(report).toBeInstanceOf(CheckReport);
     expect(report).toEqual(
       expect.objectContaining({
-        shortMessage: "Action 'errorAction' failed: This action must fail",
+        shortMessage:
+          "Action 'errorAction' failed after 1 attempts: This action must fail",
         success: false,
       })
     );
