@@ -1,4 +1,4 @@
-const commander = require('commander');
+const { program } = require('commander');
 
 const log = require('../logger');
 const config = require('../config');
@@ -7,7 +7,7 @@ const RedisQueue = require('../queue/RedisQueue');
 
 utils.logUnhandledRejections(true);
 
-commander
+program
   .command('clean <period>')
   .description('Remove queue jobs older than N(time modifiers: s, m, h, d, w)')
   .action(async (timeAsString) => {
@@ -25,8 +25,8 @@ commander
     await queue.close();
   });
 
-commander.parse(process.argv);
+program.parse(process.argv);
 
 if (!process.argv.slice(2).length) {
-  commander.help();
+  program.help();
 }

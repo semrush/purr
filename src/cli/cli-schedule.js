@@ -1,4 +1,4 @@
-const commander = require('commander');
+const { program } = require('commander');
 
 const utils = require('../utils');
 
@@ -12,7 +12,7 @@ const ScheduleRunner = require('../schedule/runner');
 const queue = new RedisQueue(config.checksQueueName);
 const scheduleRunner = new ScheduleRunner(queue);
 
-commander
+program
   .command('show')
   .description('Show scheduled checks')
   .action(() => {
@@ -28,7 +28,7 @@ commander
       });
   });
 
-commander
+program
   .command('clean')
   .description('Remove scheduled checks')
   .action(() => {
@@ -44,7 +44,7 @@ commander
       });
   });
 
-commander
+program
   .command('apply')
   .description('Apply schedules')
   .action(async () => {
@@ -60,8 +60,8 @@ commander
       });
   });
 
-commander.parse(process.argv);
+program.parse(process.argv);
 
 if (!process.argv.slice(2).length) {
-  commander.help();
+  program.help();
 }

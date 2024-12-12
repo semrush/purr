@@ -1,4 +1,4 @@
-const commander = require('commander');
+const { program }  = require('commander');
 const Sentry = require('@sentry/node');
 const Redis = require('ioredis');
 
@@ -166,22 +166,22 @@ function createWorker(queueName, concurrency, queueProcessor) {
   };
 }
 
-commander
+program
   .command('check')
   .description('Run checks processing worker')
   .action(
     createWorker(config.checksQueueName, config.concurrency, checkProcessor)
   );
 
-commander.command('*', { isDefault: true, noHelp: true }).action(async () => {
+program.command('*', { isDefault: true, noHelp: true }).action(async () => {
   log.error('Worker with specified name does not exist', {
-    name: commander.args[0],
+    name: program.args[0],
   });
   process.exit(1);
 });
 
-commander.parse(process.argv);
+program.parse(process.argv);
 
 if (!process.argv.slice(2).length) {
-  commander.help();
+  program.help();
 }
