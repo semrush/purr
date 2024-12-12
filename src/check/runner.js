@@ -181,7 +181,6 @@ class CheckRunner {
       result = result.then(async () => {
         const actionReport = new ActionReport(stepName, step, '***hidden***');
 
-        // eslint-disable-next-line consistent-return
         const runAction = async (attempt = 1) => {
           actionReport.startDateTime = new Date().toISOString();
 

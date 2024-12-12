@@ -18,6 +18,7 @@ exports.getBrowser = async (userAgent = config.userAgent, customArgs = []) => {
     '--disk-cache-size=0',
     '--disable-dev-shm-usage',
     '--disable-gpu',
+    '--disable-software-rasterizer',
     '--disable-audio-output',
     '--disable-site-isolation-trials',
     '--no-zygote',
@@ -56,7 +57,7 @@ exports.getBrowser = async (userAgent = config.userAgent, customArgs = []) => {
     handleSIGHUP: false,
 
     dumpio: config.browserDumpIO,
-    headless: config.browserHeadless ? 'new' : 'headful',
+    headless: config.browserHeadless ? 'true' : 'shell',
     protocolTimeout: config.browserProtocolTimeout,
   });
 };

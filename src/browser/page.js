@@ -59,8 +59,6 @@ exports.getPage = async (browser) => {
     log.debug(`Actions file found: ${file}`);
 
     const objectPath = file.split(path.sep).slice(1, -1);
-
-    // eslint-disable-next-line import/no-dynamic-require,global-require
     const actionsModule = require(file);
 
     page.actions[objectPath[1]] = {};

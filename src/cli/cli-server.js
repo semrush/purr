@@ -1,11 +1,11 @@
-const commander = require('commander');
+const { program } = require('commander');
 
 const log = require('../logger');
 const Server = require('../api/Server');
 
 let action;
 
-commander
+program
   .arguments('<action>')
   .action((actionArg) => {
     action = actionArg;
@@ -13,7 +13,7 @@ commander
   .parse(process.argv);
 
 if (!process.argv.slice(2).length) {
-  commander.help();
+  program.help();
 }
 
 if (action !== 'start') {

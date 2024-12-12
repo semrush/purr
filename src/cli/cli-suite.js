@@ -1,12 +1,11 @@
-const commander = require('commander');
-
-process.env.PRETTY_LOG = 'true';
+const { program } = require('commander');
 const config = require('../config');
 const utils = require('../utils');
 const suite = require('./suite');
+const log = require("../logger");
 
 config.artifactsGroupByCheckName = true;
-
+process.env.PRETTY_LOG = 'true';
 utils.logUnhandledRejections(true);
 
 let suiteName;
@@ -19,7 +18,7 @@ function parseNumberArg(arg) {
   return 1;
 }
 
-commander
+program
   .arguments('<name>')
   .option('--redis', 'use redis queue')
   .option('--no-shorten', 'disable successful reports shortening')
@@ -31,9 +30,13 @@ commander
   })
   .parse(process.argv);
 
-const { redis, shorten, split, part } = commander.opts();
-let { hideActions } = commander.opts();
+const { redis, shorten, split, part } = program.opts();
+let { hideActions } = program.opts();
 hideActions = hideActions !== undefined;
+
+log.info('Request blocking is enabled for the following URLs:', {
+  urls: config.blockedResourceDomains,
+});
 
 // Workaround for tests coverage
 suite.run(suiteName, !!redis, {

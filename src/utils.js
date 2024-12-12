@@ -67,7 +67,7 @@ function logUnhandledRejections(exitWithError = false) {
   // In Node v7 unhandled promise rejections will terminate the process
   if (!process.env.LOG_UNHANDLED_REJECTION) {
     process.on('unhandledRejection', (err) => {
-      // eslint-disable-next-line no-console
+       
       console.error('Unhandled Rejection:', err);
 
       if (exitWithError) {

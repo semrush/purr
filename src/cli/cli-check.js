@@ -1,17 +1,16 @@
-const commander = require('commander');
-
-process.env.PRETTY_LOG = 'true';
+const { program } = require('commander');
 const config = require('../config');
 const utils = require('../utils');
 const check = require('./check');
+const log = require("../logger");
 
 config.artifactsGroupByCheckName = true;
-
+process.env.PRETTY_LOG = 'true';
 utils.logUnhandledRejections(true);
 
 let checkName;
 
-commander
+program
   .arguments('<name>')
   .option('--no-shorten', 'disable successful reports shortening')
   .option('--hide-actions', 'hide actions from reports (default: false)')
@@ -20,9 +19,13 @@ commander
   })
   .parse(process.argv);
 
-const { shorten } = commander.opts();
-let { hideActions } = commander.opts();
+const { shorten } = program.opts();
+let { hideActions } = program.opts();
 hideActions = hideActions !== undefined;
+
+log.info('Request blocking is enabled for the following URLs:', {
+  urls: config.blockedResourceDomains,
+});
 
 // Workaround for tests coverage
 check.run(checkName, { shorten, hideActions });

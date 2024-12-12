@@ -1,17 +1,10 @@
 #!/usr/bin/env node
-const commander = require('commander');
-
-const log = require('../logger');
+const { program } = require('commander');
 const utils = require('../utils');
-const config = require('../config');
-
-log.info('Request blocking is enabled for the following URLs:', {
-  urls: config.blockedResourceDomains,
-});
 
 utils.throwUnhandledRejections();
 
-commander
+program
   .version('0.1.0')
   .command('check <name>', 'Run check')
   .command('suite <name>', 'Run suite')

@@ -15,7 +15,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 21.7
+          node-version: 23.4
 
       - name: npm install
         run: npm install
@@ -34,7 +34,7 @@ jobs:
 
           [ $code -eq 1 ] && echo 'Error: Check should succeed' && exit 1
 
-          grep 'success: true' check_report
+          grep '"success":true' check_report
 
       - name: test check should fail
         run: |
@@ -47,7 +47,7 @@ jobs:
 
           [ $code -eq 0 ] && echo 'Error: Check should fail' && exit 1
 
-          grep 'success: false' check_report
+          grep '"success":false' check_report
           grep "Element 'body' does not contain 'No Way'" check_report
 
       - name: test check lighthouse
@@ -63,9 +63,8 @@ jobs:
           set -e
           cat check_report
           [ $code -eq 1 ] && echo 'Error: Check should succeed' && exit 1
-          grep 'success: true' check_report
-          grep "labels: { name: 'first-contentful-paint', id: 'lh-one' }" \
-            check_report
+          grep '"success":true' check_report
+          grep '{"labels":{"id":"lh-one","name":"first-contentful-paint"}' check_report
 
       - name: 'lint configs'
         run: npm run prettier
