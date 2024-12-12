@@ -180,8 +180,6 @@ class CheckRunner {
 
       result = result.then(async () => {
         const actionReport = new ActionReport(stepName, step, '***hidden***');
-        const maxRetries = 5;
-        const baseDelay = 1000;
 
         // eslint-disable-next-line consistent-return
         const runAction = async (attempt = 1) => {
@@ -215,23 +213,24 @@ class CheckRunner {
                 });
             }
           } catch (err) {
-            const isResetError = err.message.includes('ERR_CONNECTION_RESET');
-            const isClosedError = err.message.includes('ERR_CONNECTION_CLOSED');
-            if (isResetError || isClosedError) {
-              log.error('ERR_CONNECTION_* error occurred: ', err);
-            }
-            if ((isResetError || isClosedError) && attempt <= maxRetries) {
-              const jitter = Math.random() * 1000;
-              const delay = baseDelay * attempt + jitter;
-              log.warn(
-                `Retrying action '${stepName}' (Attempt ${attempt} of ${maxRetries}) after ${delay.toFixed(
-                  0
-                )}ms due to connection issue.`
-              );
-              await new Promise((resolve) => {
-                setTimeout(resolve, delay);
-              });
-              return runAction(attempt + 1);
+            const isRetryableError = config.actionRetryErrors.some((item) =>
+              err.message.includes(item)
+            );
+            if (isRetryableError) {
+              log.error('Retryable error occurred: ', err);
+              if (attempt <= config.actionRetryCount) {
+                const jitter = Math.random() * 1000;
+                const delay = config.actionRetryTimeout * attempt + jitter;
+                log.warn(
+                  `Retrying action '${stepName}' (Attempt ${attempt} of ${config.actionRetryCount}) after ${delay.toFixed(
+                    0
+                  )}ms due to connection issue.`
+                );
+                await new Promise((resolve) => {
+                  setTimeout(resolve, delay);
+                });
+                return runAction(attempt + 1);
+              }
             }
             actionReport.success = false;
             actionReport.shortMessage = err.message;

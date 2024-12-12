@@ -233,6 +233,30 @@ const DEFAULT_ENV_PARAMS = {
    * @default {180000}
    */
   BROWSER_PROTOCOL_TIMEOUT: 180000,
+
+  /**
+   * Check action retry comma-separated errors list (checked by err.message.includes())
+   *
+   * @type string
+   * @default ERR_CONNECTION_RESET,ERR_CONNECTION_CLOSED
+   */
+  ACTION_RETRY_ERRORS: 'ERR_CONNECTION_RESET,ERR_CONNECTION_CLOSED',
+
+  /**
+   * Check action retry count
+   *
+   * @type number
+   * @default 5
+   */
+  ACTION_RETRY_COUNT: 5,
+
+  /**
+   * Check action retry timeout (ms)
+   *
+   * @type number
+   * @default 1000
+   */
+  ACTION_RETRY_TIMEOUT: 1000,
 };
 
 class EnvParams {

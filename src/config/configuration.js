@@ -200,6 +200,18 @@ class Configuration {
       180000
     );
 
+    this.actionRetryErrors = getDefault(
+      envParams.ACTION_RETRY_ERRORS,
+      'ERR_CONNECTION_RESET,ERR_CONNECTION_CLOSED'
+    )
+      .split(',')
+      .map((msg) => msg.trim())
+      .filter((msg) => msg.length > 0);
+
+    this.actionRetryCount = getDefault(envParams.ACTION_RETRY_COUNT, 5);
+
+    this.actionRetryTimeout = getDefault(envParams.ACTION_RETRY_TIMEOUT, 1000);
+
     if (this.artifactsGroupByCheckName && isUndefined(this.artifactsDir)) {
       throw new Error(
         'Enabled group artifacts by check name and artifacts path not specified'
