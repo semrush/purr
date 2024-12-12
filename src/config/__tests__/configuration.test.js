@@ -8,6 +8,9 @@ describe('Test Configuration class', () => {
     const configuration = new Configuration(envParams, rootDir);
 
     const defaultConfiguration = {
+      actionRetryCount: 5,
+      actionRetryErrors: ['ERR_CONNECTION_RESET', 'ERR_CONNECTION_CLOSED'],
+      actionRetryTimeout: 1000,
       apiUrlPrefix: '/api/v1',
       apiWaitTimeout: 27000,
       artifactsDir: '/rootDir/storage',
